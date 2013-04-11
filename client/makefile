@@ -20,12 +20,12 @@
 #                                                                             #
 ###############################################################################
 
-EXEC=ths
+EXEC=thc
 OBJS=main.o
 CXX=gcc
 CFLAGS=-g2 -Wall -I../pub
 LDFLAGS=-g2 -L../pub
-LIB=thp
+LIB=-lthp
 
 $(EXEC):$(OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LIB)

@@ -49,21 +49,11 @@
 
 #define BEGIN_TIME     1900
 
-/*
-#define ERROR_OPEN_WARNING_FILE  70
-#define ABORT_GET_OPTION         71
-#define ERROR_GTK_INIT           72
-#define ERROR_MAIN_WINDOW        73
-*/
-
-#define WORK_CATALOG             "work_catalog"
 
 #ifdef DEBUG_INFO
 #define DEBUG   printf("\n <: debug :>\n")
 #endif 
 
-#define AMOUNT_DAY_YEAR                  366
-#define DEFAULT_AMOUNT_DAY_VACATION      28
 
 #define YEARtoTIME(x)   ((x<<16) & 0xFFFF0000)
 #define TIMEtoYEAR(x)   ((x>>16) & 0x0000FFFF)
@@ -71,11 +61,6 @@
 #define TIMEtoMON(x)    ((x>>8) & 0x0F)
 #define DAYtoTIME(x)    (x & 0x0000001F)
 #define TIMEtoDAY(x)    (x & 0x1F)
-
-#define ADD_NEW_ACTION     1
-#define ADD_LOAD_ACTION    2	
-#define DELETE_ACTION      3
-#define CHANGE_ACTION      4
 
 #endif
 

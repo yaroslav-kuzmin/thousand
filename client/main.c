@@ -23,20 +23,84 @@
 /*****************************************************************************/
 /* Дополнительные файлы                                                      */
 /*****************************************************************************/
+#include <stdlib.h>
+#include <stdio.h>
+#include <getopt.h>
+
+#include "pub.h"
+#include "total.h"
 
 /*****************************************************************************/
 /* глобальные переменые                                                      */
 /*****************************************************************************/
 
+const char * programm_name;
+
+int registration_operation = YES; 
+
+const char * const short_options = "hVl";
+const struct option long_options[] = 
+{
+	{"help",    0, NULL, 'h'},
+	{"version", 0, NULL, 'V'},
+	{"log",     0, NULL, 'l'},
+	{NULL,      0, NULL,  0 }
+};
+
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
+
+void print_help(FILE * stream)
+{
+	fprintf(stream,"Using programm : %s option \n",programm_name);
+	fprintf(stream,"    -h  --help      Display this usage information \n"
+	               "    -V  --version   Version programm\n"
+	               "    -l  --log       Registration of operation\n");
+}
+
+#define VERSION           "0.1"
+#define DATA_COM          __DATE__" : "__TIME__
+#define AUTOR             "Yaroslav Kuzmin"
+
+void print_version(FILE * stream)
+{
+	fprintf(stream,"\n  Version  %s : Data \'%s\' : Autor \'%s\'\n\n",VERSION,DATA_COM,AUTOR);
+}
 
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
 int main(int argc,char * argv[])
 {
+
+  	int rc = 0;
+	int next_option = 0;
+	programm_name = argv[0];
+	for(;next_option != -1;){
+ 		next_option = getopt_long(argc,argv,short_options,long_options,NULL);
+		switch(next_option){
+			case 'h': 
+				print_help(stderr);
+				exit(SUCCESS);
+				break;
+			case 'V':
+				print_version(stderr);
+				exit(SUCCESS);
+				break;
+			case 'l':
+				registration_operation = YES;
+				break;
+			case '?':
+				print_help(stderr);
+				exit(SUCCESS);
+				break; 
+			case -1:
+				break;
+			default:
+				exit(SUCCESS);
+		}
+	}
 
 	return 0;	  
 }
