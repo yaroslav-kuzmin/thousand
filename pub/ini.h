@@ -21,70 +21,17 @@
 /*****************************************************************************/
 
 /*****************************************************************************/
-/* Дополнительные файлы                                                      */
-/*****************************************************************************/
-#include <time.h>
-
-#include "pub.h"
-#include "log.h"
-
-/*****************************************************************************/
-/* глобальные переменые                                                      */
-/*****************************************************************************/
-int registration_operation = YES;
-
-static unsigned long int date_current = 0;
-/*****************************************************************************/
-/* Вспомогательные функция                                                   */
+/*  Модуль: Работы с файлом параметров                                       */
 /*****************************************************************************/
 
-unsigned long int current_date(void)
-{
-	return date_current;
-}
+#ifndef INI_H
+#define INI_H
 
-int init_current_date(void)
-{
-	struct tm * tm_current;
-	time_t time_current = 0;
+int read_config(void);
+int close_config(void);
 
-	int mday;
-	int mon;
-	int year;
-
-	time_current = time(NULL);
-	tm_current = gmtime(&time_current);
-
-	mday = tm_current->tm_mday;
-	mon = tm_current->tm_mon + 1;
-	year = tm_current->tm_year + BEGIN_TIME;
-
-	date_current = YEARtoTIME(year);
-	date_current += MONtoTIME(mon);
-	date_current += DAYtoTIME(mday);
-	global_log("Current day : 0x%x",date_current);
-	return SUCCESS;
-}
-
-unsigned long int min_date(void)
-{
-	int mday;
-	int mon;
-	int year;
-	unsigned long int temp;
-
-	mday = 1;
-	mon = 1;
-	year = BEGIN_TIME;
-
-	temp = YEARtoTIME(year);
-	temp += MONtoTIME(mon);
-	temp += DAYtoTIME(mday);
-
-	return temp;
-}
-/*****************************************************************************/
-/* Основная функция                                                          */
-/*****************************************************************************/
-
-/*****************************************************************************/
+int search_parameter(char * parameter);
+int full_value_parameter(char * parameter,char ** value_parameter,int count);
+int add_new_parameter(char * parameter,char * value_parameter);
+int rewrite_parameter(char * parameter,char * value_parameter);
+#endif

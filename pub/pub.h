@@ -21,70 +21,62 @@
 /*****************************************************************************/
 
 /*****************************************************************************/
-/* Дополнительные файлы                                                      */
-/*****************************************************************************/
-#include <time.h>
-
-#include "pub.h"
-#include "log.h"
-
-/*****************************************************************************/
-/* глобальные переменые                                                      */
-/*****************************************************************************/
-int registration_operation = YES;
-
-static unsigned long int date_current = 0;
-/*****************************************************************************/
-/* Вспомогательные функция                                                   */
+/* Объявлене глобальных макросов                                             */
 /*****************************************************************************/
 
-unsigned long int current_date(void)
-{
-	return date_current;
-}
+#ifndef PUB_H
+#define PUB_H
 
-int init_current_date(void)
-{
-	struct tm * tm_current;
-	time_t time_current = 0;
+#define SUCCESS        0
+#define FAILURE        -1
 
-	int mday;
-	int mon;
-	int year;
+#define YES            1
+#define NO             0 
 
-	time_current = time(NULL);
-	tm_current = gmtime(&time_current);
+#define NOT_PARAMETER                 -1
+#define LONG_SIZE_VALUE_PARAMETER     -2
+#define NAME_BUSY                     -3
+#define CONSILIENCE_NUMBER            -4
+#define LESS_DATE                     -5
+#define MORE_DATE                     -6
+#define NOT_PERSON_LIST               -8
 
-	mday = tm_current->tm_mday;
-	mon = tm_current->tm_mon + 1;
-	year = tm_current->tm_year + BEGIN_TIME;
 
-	date_current = YEARtoTIME(year);
-	date_current += MONtoTIME(mon);
-	date_current += DAYtoTIME(mday);
-	global_log("Current day : 0x%x",date_current);
-	return SUCCESS;
-}
+#undef FALSE
+#define FALSE          (0)
+#undef TRUE
+#define TRUE           (!FALSE)
 
-unsigned long int min_date(void)
-{
-	int mday;
-	int mon;
-	int year;
-	unsigned long int temp;
+#define BEGIN_TIME     1900
 
-	mday = 1;
-	mon = 1;
-	year = BEGIN_TIME;
+/*
+#define ERROR_OPEN_WARNING_FILE  70
+#define ABORT_GET_OPTION         71
+#define ERROR_GTK_INIT           72
+#define ERROR_MAIN_WINDOW        73
+*/
 
-	temp = YEARtoTIME(year);
-	temp += MONtoTIME(mon);
-	temp += DAYtoTIME(mday);
+#define WORK_CATALOG             "work_catalog"
 
-	return temp;
-}
-/*****************************************************************************/
-/* Основная функция                                                          */
-/*****************************************************************************/
+#ifdef DEBUG_INFO
+#define DEBUG   printf("\n <: debug :>\n")
+#endif 
 
-/*****************************************************************************/
+#define AMOUNT_DAY_YEAR                  366
+#define DEFAULT_AMOUNT_DAY_VACATION      28
+
+#define YEARtoTIME(x)   ((x<<16) & 0xFFFF0000)
+#define TIMEtoYEAR(x)   ((x>>16) & 0x0000FFFF)
+#define MONtoTIME(x)    ((x<<8) & 0x00000F00)
+#define TIMEtoMON(x)    ((x>>8) & 0x0F)
+#define DAYtoTIME(x)    (x & 0x0000001F)
+#define TIMEtoDAY(x)    (x & 0x1F)
+
+#define ADD_NEW_ACTION     1
+#define ADD_LOAD_ACTION    2	
+#define DELETE_ACTION      3
+#define CHANGE_ACTION      4
+
+#endif
+
+

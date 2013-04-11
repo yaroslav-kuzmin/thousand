@@ -20,16 +20,15 @@
 #                                                                             #
 ###############################################################################
 
-EXEC=thp
-OBJS=total.o
+LIB=libthp.a
+OBJS=warning.o alloc.o log.o ini.o total.o
 AR=ar
 CXX=gcc
 CFLAGS=-g2 -Wall
-LDFLAGS=-g2
-LIB=
+ARFLAGS=sru
 
-$(EXEC):$(OBJS)
-	$(CXX) $(LDFLAGS) -o $@ $^ $(LIB)
+$(LIB):$(OBJS)
+	$(AR) $(ARFLAGS) $@ $^ 
 
 .c.o:
 	$(CXX) $(CFLAGS) -c $< -o $@
@@ -37,4 +36,16 @@ $(EXEC):$(OBJS)
 .PHONY:clean
 clean:
 	-rm -f $(EXEC) *.o *~ 
+
+
+
+
+
+
+
+
+
+
+
+
 

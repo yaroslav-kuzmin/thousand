@@ -21,70 +21,14 @@
 /*****************************************************************************/
 
 /*****************************************************************************/
-/* Дополнительные файлы                                                      */
-/*****************************************************************************/
-#include <time.h>
-
-#include "pub.h"
-#include "log.h"
-
-/*****************************************************************************/
-/* глобальные переменые                                                      */
-/*****************************************************************************/
-int registration_operation = YES;
-
-static unsigned long int date_current = 0;
-/*****************************************************************************/
-/* Вспомогательные функция                                                   */
+/* Модуль выделения памяти                                                   */
 /*****************************************************************************/
 
-unsigned long int current_date(void)
-{
-	return date_current;
-}
+#ifndef ALLOC_H
+#define ALLOC_H
 
-int init_current_date(void)
-{
-	struct tm * tm_current;
-	time_t time_current = 0;
+int init_str_alloc(void);
+int deinit_str_alloc(void);
+char * str_alloc(int size);
 
-	int mday;
-	int mon;
-	int year;
-
-	time_current = time(NULL);
-	tm_current = gmtime(&time_current);
-
-	mday = tm_current->tm_mday;
-	mon = tm_current->tm_mon + 1;
-	year = tm_current->tm_year + BEGIN_TIME;
-
-	date_current = YEARtoTIME(year);
-	date_current += MONtoTIME(mon);
-	date_current += DAYtoTIME(mday);
-	global_log("Current day : 0x%x",date_current);
-	return SUCCESS;
-}
-
-unsigned long int min_date(void)
-{
-	int mday;
-	int mon;
-	int year;
-	unsigned long int temp;
-
-	mday = 1;
-	mon = 1;
-	year = BEGIN_TIME;
-
-	temp = YEARtoTIME(year);
-	temp += MONtoTIME(mon);
-	temp += DAYtoTIME(mday);
-
-	return temp;
-}
-/*****************************************************************************/
-/* Основная функция                                                          */
-/*****************************************************************************/
-
-/*****************************************************************************/
+#endif

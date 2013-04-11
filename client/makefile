@@ -23,9 +23,9 @@
 EXEC=ths
 OBJS=main.o
 CXX=gcc
-CFLAGS=-g2 -Wall
-LDFLAGS=-g2
-LIB=
+CFLAGS=-g2 -Wall -I../pub
+LDFLAGS=-g2 -L../pub
+LIB=thp
 
 $(EXEC):$(OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LIB)
