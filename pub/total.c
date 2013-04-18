@@ -31,7 +31,7 @@
 /*****************************************************************************/
 /* глобальные переменые                                                      */
 /*****************************************************************************/
-int registration_operation = YES;
+static int registration_operation = YES;
 
 static unsigned long int date_current = 0;
 /*****************************************************************************/
@@ -83,8 +83,28 @@ unsigned long int min_date(void)
 
 	return temp;
 }
+
 /*****************************************************************************/
-/* Основная функция                                                          */
+int get_registration_operation(void)
+{
+	return registration_operation;
+}
+void set_registration_operation(int rg)
+{
+	if(rg != NO){
+		registration_operation = YES;
+	}
+	else{
+		registration_operation = NO;
+	}
+}
 /*****************************************************************************/
+
+
+int check_config(void)
+{
+
+char *getenv(const char *name);
+}
 
 /*****************************************************************************/

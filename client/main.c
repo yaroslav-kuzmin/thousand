@@ -36,8 +36,6 @@
 
 const char * programm_name;
 
-int registration_operation = YES; 
-
 const char * const short_options = "hVl";
 const struct option long_options[] = 
 {
@@ -89,7 +87,7 @@ int main(int argc,char * argv[])
 				exit(SUCCESS);
 				break;
 			case 'l':
-				registration_operation = YES;
+				get_registration_operation(YES);
 				break;
 			case '?':
 				print_help(stderr);
@@ -101,6 +99,9 @@ int main(int argc,char * argv[])
 				exit(SUCCESS);
 		}
 	}
+
+	/*rc = init_current_date();*/
+	rc = check_config();
 
 	return 0;	  
 }

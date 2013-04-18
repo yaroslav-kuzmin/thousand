@@ -27,10 +27,12 @@
 #ifndef TOTAL_H
 #define TOTAL_H
 
-extern int registration_operation; 
-
 int init_current_date(void);
 unsigned long int current_date(void);
 unsigned long int min_date(void);
 
+int get_registration_operation(void);
+void set_registration_operation(int rg);
+
+int check_config(void);
 #endif

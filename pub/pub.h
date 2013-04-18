@@ -35,11 +35,6 @@
 
 #define NOT_PARAMETER                 -1
 #define LONG_SIZE_VALUE_PARAMETER     -2
-#define NAME_BUSY                     -3
-#define CONSILIENCE_NUMBER            -4
-#define LESS_DATE                     -5
-#define MORE_DATE                     -6
-#define NOT_PERSON_LIST               -8
 
 
 #undef FALSE
@@ -48,7 +43,6 @@
 #define TRUE           (!FALSE)
 
 #define BEGIN_TIME     1900
-
 
 #ifdef DEBUG_INFO
 #define DEBUG   printf("\n <: debug :>\n")
