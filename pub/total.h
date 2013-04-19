@@ -27,12 +27,12 @@
 #ifndef TOTAL_H
 #define TOTAL_H
 
-int init_current_date(void);
-unsigned long int current_date(void);
-unsigned long int min_date(void);
-
 int get_registration_operation(void);
 void set_registration_operation(int rg);
 
-int check_config(void);
+char * get_user_name(void);
+char * get_home_catalog(void);
+char * get_ini_file(void);
+char * get_log_catalog(void);
+int total_check(void);
 #endif

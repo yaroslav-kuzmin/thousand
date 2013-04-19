@@ -24,7 +24,7 @@ LIB=libthp.a
 OBJS=warning.o alloc.o log.o ini.o total.o
 AR=ar
 CXX=gcc
-CFLAGS=-g2 -Wall
+CFLAGS=-g2 -Wall -I. -DDEBUG
 ARFLAGS=sru
 
 $(LIB):$(OBJS)
@@ -35,7 +35,7 @@ $(LIB):$(OBJS)
 
 .PHONY:clean
 clean:
-	-rm -f $(EXEC) *.o *~ 
+	-rm -f $(LIB) *.o *~ 
 
 
 

@@ -24,6 +24,9 @@
 /*  Модуль: Работы с файлом параметров                                       */
 /*****************************************************************************/
 
+/*****************************************************************************/
+/* Дополнительные файлы                                                      */
+/*****************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -33,15 +36,25 @@
 #include <assert.h>
 
 #include "pub.h"
+#include "total.h"
+#include "alloc.h"
 #include "log.h"
 #include "warning.h"
 
+/*****************************************************************************/
+/* глобальные переменые                                                      */
+/*****************************************************************************/
 #define MIN_SIZE_CONFIG_FILE   30 
 
-static char file_name[] = "vacation.ini";
+static char * file_ini = NULL;
+
 static char * buffer_config = NULL;
 static int size_buffer_config = 0;
 static int change_config = NO;
+
+/*****************************************************************************/
+/* Вспомогательные функция                                                   */
+/*****************************************************************************/
 
 int read_config(void)
 {
@@ -50,46 +63,65 @@ int read_config(void)
 	struct stat buffer_stat_file;
 	off_t size_file = 0;
 
-	rc = stat(file_name,&buffer_stat_file);
+	file_ini = get_ini_file();	
+
+	rc = stat(file_ini,&buffer_stat_file);
 	if(rc != 0){
-		global_warning("Not file ini %s",file_name);
+		global_warning("Нет файла конфигурации %s",file_ini);
  		return FAILURE;
 	}
 	size_file = buffer_stat_file.st_size;
 	if(size_file <= MIN_SIZE_CONFIG_FILE){
-		 global_warning("Not config data %d",MIN_SIZE_CONFIG_FILE);
+		global_warning("Нет данных в конфигурационом файле %d",MIN_SIZE_CONFIG_FILE);
 		return FAILURE;
 	}
 	
 	buffer_config = malloc(size_file + 1);
 		assert(buffer_config);
-	stream = fopen(file_name,"r");
+	stream = fopen(file_ini,"r");
 	if(stream == NULL){
-		 global_warning("Not open file ini %s",file_name);
+		 global_warning("Немогу открыть файл конфигурации %s",file_ini);
 		return FAILURE; 
 	}
-	global_log("Open ini file %s",file_name);
+	global_log("Открыл файл конфигурации %s",file_ini);
 	rc = fread(buffer_config,size_file,1,stream);
-	global_log("Read ini file : %d",rc);
+	global_log("Считал файл конфигурации : %d",rc);
 	buffer_config[size_file] = 0;
 	size_buffer_config = size_file;
 
-#ifdef _DEBUG
-	DEBUG;
-	printf("%s\n",buffer_config);
-	DEBUG;
-#endif
+	/*DEBUG_PRINTF_S(buffer_config);*/
 	fclose(stream);	 
 	
  	return SUCCESS;	
 }
 
+int close_config(void)
+{
+	FILE * stream = NULL;
+
+	if(change_config == YES){
+		stream = fopen(file_ini,"w");
+		if(stream == NULL){
+			global_warning("Немогу открыть файл конфигурации для записи !");
+ 			goto exit_close_config;
+		}
+ 		fputs(buffer_config,stream);
+		global_log("Записал файл конфигурации %s",file_ini);
+		fclose(stream);
+ 	}
+
+exit_close_config:
+	free(buffer_config);
+	return SUCCESS;
+}
+
+/*****************************************************************************/
 int search_parameter(char * parameter)
 {
 	int i;
 	char * buffer = strstr(buffer_config,parameter);
 	if(buffer == NULL){
-		global_warning("Not name parametr in ini file : %s",parameter);
+		global_warning("Нет параметра в конфигурационом файле : %s",parameter);
 		return 0;
 	}
 	for(i = 0; i < size_buffer_config;i++,buffer++){
@@ -106,7 +138,7 @@ int search_parameter(char * parameter)
 			break;
 		}	
 	}
-	global_log("Find parametr : %s size %d",parameter,i);
+	global_log("Найден парметр : %s . %d",parameter,i);
 	return i;
 }
 
@@ -117,7 +149,7 @@ int full_value_parameter(char * parameter,char ** value_parameter,int count)
 	char * buffer_temp = *value_parameter;
 	buffer = strstr(buffer_config,parameter);
 	if(buffer == NULL){
-		global_warning("Not name parametr in ini file : %s",parameter);
+		global_warning("Нет параметра в конфигурационом файле : %s",parameter);
 		return NOT_PARAMETER;
 	}
 	for(i = 0;i<size_buffer_config;i++,buffer++){
@@ -128,9 +160,6 @@ int full_value_parameter(char * parameter,char ** value_parameter,int count)
 		 	break;
 		} 
 	}
-#ifdef _DEBUG
-	printf(" name parameter :> %s : value parameter :> %s",parameter,buffer);
-#endif		
 	for(i = 0;i < count;i++,buffer_temp++,buffer++){
 		if((*buffer == ' ') || (*buffer == '\n')){
 			*buffer_temp = 0;
@@ -141,11 +170,11 @@ int full_value_parameter(char * parameter,char ** value_parameter,int count)
 	if(i == count){
 		buffer_temp--;
 		*buffer_temp = 0;
-		global_warning("Long size value parametr : %s",*value_parameter);
+		global_warning("Слишком длиное значение параметра : %s",*value_parameter);
 		return LONG_SIZE_VALUE_PARAMETER;
 	}
-	global_log("Find parametr : %s",parameter);
-	global_log("              :> %s",*value_parameter);
+	global_log("Найден параметр : %s",parameter);
+	global_log("                :> %s",*value_parameter);
 	return SUCCESS; 
 }
 
@@ -161,7 +190,7 @@ int add_new_parameter(char * parameter,char * value_parameter)
 
 	buffer = strstr(buffer_config,parameter);
 	if(buffer != NULL){
-		global_warning("There name parametr in ini file : %s",parameter);
+		global_warning("Этот параметр есть в конфигурацоином файле : %s",parameter);
 		return FAILURE;
 	}
 
@@ -182,9 +211,6 @@ int add_new_parameter(char * parameter,char * value_parameter)
 	free(buffer_config);
 	buffer_config = buffer;
 	size_buffer_config = size_buffer;
-#ifdef _DEBUG
-	printf(" config :>\n%s\n",buffer_config);
-#endif	
 	change_config = YES;
 	return SUCCESS;
 }
@@ -243,24 +269,5 @@ int rewrite_parameter(char * parameter,char * value_parameter)
 	return SUCCESS;
 }
 
-int close_config(void)
-{
-	FILE * stream = NULL;
-
-	if(change_config == YES){
-		stream = fopen(file_name,"w");
-		if(stream == NULL){
-			global_warning("Not open ini file from write !");
- 			goto exit_close_config;
-		}
- 		fputs(buffer_config,stream);
-		fclose(stream);
- 	}
-
-exit_close_config:
-	free(buffer_config);
-	global_log("Close ini file %s",file_name);
-	return SUCCESS;
-}
-
+/*****************************************************************************/
 

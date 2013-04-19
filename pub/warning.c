@@ -26,6 +26,9 @@
 /* Модуль: работа с предупреждениями в  программе                            */
 /*****************************************************************************/
 
+/*****************************************************************************/
+/* Дополнительные файлы                                                      */
+/*****************************************************************************/
 #include <time.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -33,9 +36,12 @@
 #include <string.h>
 
 #include "pub.h"
+#include "total.h" 
 #include "alloc.h"
-#include "ini.h"
 
+/*****************************************************************************/
+/* глобальные переменые                                                      */
+/*****************************************************************************/
 int len_record;
 
 static struct tm * tm_current;
@@ -48,6 +54,7 @@ static int hour;
 static int min;
 static int sec;
 
+/*****************************************************************************/
 inline static void current_time(void)
 {
 	time_current = time(NULL);
@@ -61,43 +68,38 @@ inline static void current_time(void)
 	sec = tm_current->tm_sec;
 } 
 
-static char * full_file_name; 
-#define LEN_FILE_NAME_STR  28
-static char file_name[] = "log/vacation.000000.warning";
+/*****************************************************************************/
+static char * file_warning; 
+static char FILE_WARNING[] = "vacation.000000.warning";
+#define SIZE_STR_FILE_WARNING 24
 #define SIZE_TEMP_STR   9
 
 inline static int init_file_name(void)
 {
 	int rc = 0;
 	char temp[SIZE_TEMP_STR] = {0};
-	char * str_const = file_name; 
+	char * catalog_log = NULL;
 
 	current_time();
 	sprintf(temp,"%02d%02d%04d",mday,mon,year);
 
-	str_const[13] = temp[6];
-	str_const[14] = temp[7];
+	FILE_WARNING[9] = temp[6];
+	FILE_WARNING[10] = temp[7];
 
-	str_const[15] = temp[2];
-	str_const[16] = temp[3];
+	FILE_WARNING[11] = temp[2];
+	FILE_WARNING[12] = temp[3];
 
-	str_const[17] = temp[0];
-	str_const[18] = temp[1];
+	FILE_WARNING[13] = temp[0];
+	FILE_WARNING[14] = temp[1];
 
-	rc = search_parameter(WORK_CATALOG);
-	if(rc == 0)
-		return FAILURE;
+	catalog_log = get_log_catalog();
+	rc = strlen(catalog_log);
+	rc += SIZE_STR_FILE_WARNING;
 
-	full_file_name = str_alloc(rc + LEN_FILE_NAME_STR);
-	rc = full_value_parameter(WORK_CATALOG,&full_file_name,rc + 1);
-
-	if((rc == NOT_PARAMETER) || (rc == LONG_SIZE_VALUE_PARAMETER ) )
-		return FAILURE;
-
-	strcat(full_file_name,str_const);
-#ifdef _DEBUG
-	printf("warning file :> %s\n",full_file_name);
-#endif 	
+	file_warning = str_alloc(rc);
+	strcat(file_warning,catalog_log);
+	strcat(file_warning,FILE_WARNING);
+	/*DEBUG_PRINTF_S(file_warning);*/
 	return SUCCESS;
 }
 
@@ -105,23 +107,20 @@ static FILE * warning_stream;
 #define NOT_OPEN      1
 #define OPEN          0
 static int open_warnig = NOT_OPEN;
+
 int init_warning_system(void)
 {
-	int rc = 0;
-	rc = init_file_name();
-	if(rc == FAILURE){
-		fprintf(stderr,"Not parametr work_catalog in ini file\n");
-		return FAILURE;
-	}
-	warning_stream = fopen(full_file_name,"a");
+	init_file_name();
+
+	warning_stream = fopen(file_warning,"a");
 	if(warning_stream == NULL){
-		fprintf(stderr,"Not open file warning - %s\n",full_file_name);
+		fprintf(stderr,"Немогу открыть файл : %s\n",file_warning);
 		open_warnig = NOT_OPEN;
 		return FAILURE;
 	}
 	else{
 		current_time();
-		fprintf(warning_stream,"\n %02d.%02d.%02d %02d:%02d:%02d :> Start programm !\n",mday,mon,year,hour,min,sec);
+		fprintf(warning_stream," %02d.%02d.%02d %02d:%02d:%02d :> Start programm !\n",mday,mon,year,hour,min,sec);
 		open_warnig = OPEN;
 	}
 	return SUCCESS;
@@ -129,13 +128,16 @@ int init_warning_system(void)
 
 int close_warning_system(void)
 {
-	current_time();
-	fprintf(warning_stream," %02d.%02d.%02d %02d:%02d:%02d :> Shutdown programm !\n",mday,mon,year,hour,min,sec);
-	fclose(warning_stream);	
-	open_warnig = NOT_OPEN;
+	if(open_warnig == OPEN){
+		current_time();
+		fprintf(warning_stream," %02d.%02d.%02d %02d:%02d:%02d :> Shutdown programm !\n",mday,mon,year,hour,min,sec);
+		fclose(warning_stream);	
+		open_warnig = NOT_OPEN;
+	}
 	return SUCCESS;
 }
 
+/*****************************************************************************/
 int global_warning(char * str,...)
 {
 	va_list arg;

@@ -44,17 +44,17 @@
 
 #define BEGIN_TIME     1900
 
-#ifdef DEBUG_INFO
-#define DEBUG   printf("\n <: debug :>\n")
+#ifdef DEBUG
+#define DEBUG_PRINTF_S(n) printf(" debug :> %s\n",n);
+#define DEBUG_PRINTF_D(n) printf(" debug :> %d\n",n);
+#define DEBUG_PRINTF_X(n) printf(" debug :> %#x\n",n);
+#define DEBUG_PRINTF_LD(n) printf(" debug :> %lld\n",n);
+#else 
+#define DEBIG_PRINTF_S(n)   ;
+#define DEBIG_PRINTF_D(n)   ;
+#define DEBIG_PRINTF_X(n)   ;
+#define DEBIG_PRINTF_LD(n)   ;
 #endif 
-
-
-#define YEARtoTIME(x)   ((x<<16) & 0xFFFF0000)
-#define TIMEtoYEAR(x)   ((x>>16) & 0x0000FFFF)
-#define MONtoTIME(x)    ((x<<8) & 0x00000F00)
-#define TIMEtoMON(x)    ((x>>8) & 0x0F)
-#define DAYtoTIME(x)    (x & 0x0000001F)
-#define TIMEtoDAY(x)    (x & 0x1F)
 
 #endif
 

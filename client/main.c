@@ -28,7 +28,11 @@
 #include <getopt.h>
 
 #include "pub.h"
+#include "alloc.h"
 #include "total.h"
+#include "warning.h"
+#include "log.h"
+#include "ini.h"
 
 /*****************************************************************************/
 /* глобальные переменые                                                      */
@@ -51,19 +55,20 @@ const struct option long_options[] =
 
 void print_help(FILE * stream)
 {
-	fprintf(stream,"Using programm : %s option \n",programm_name);
-	fprintf(stream,"    -h  --help      Display this usage information \n"
-	               "    -V  --version   Version programm\n"
-	               "    -l  --log       Registration of operation\n");
+	fprintf(stream,"использоание программы : %s [ОПЦИИ] \n",programm_name);
+	fprintf(stream,"    -h  --help      Выводит помощь \n"
+	               "    -V  --version   Версия программы\n"
+	               "    -l  --log       Включить запись действий в программе\n");
 }
 
 #define VERSION           "0.1"
 #define DATA_COM          __DATE__" : "__TIME__
 #define AUTOR             "Yaroslav Kuzmin"
+#define EMAIL             "esdt@mail.ru" 
 
 void print_version(FILE * stream)
 {
-	fprintf(stream,"\n  Version  %s : Data \'%s\' : Autor \'%s\'\n\n",VERSION,DATA_COM,AUTOR);
+	fprintf(stream,"\n  Version  %s : Data \'%s\' : Autor \'%s\' : Email \'%s\'\n\n",VERSION,DATA_COM,AUTOR,EMAIL);
 }
 
 /*****************************************************************************/
@@ -79,18 +84,18 @@ int main(int argc,char * argv[])
  		next_option = getopt_long(argc,argv,short_options,long_options,NULL);
 		switch(next_option){
 			case 'h': 
-				print_help(stderr);
+				print_help(stdout);
 				exit(SUCCESS);
 				break;
 			case 'V':
-				print_version(stderr);
+				print_version(stdout);
 				exit(SUCCESS);
 				break;
 			case 'l':
-				get_registration_operation(YES);
+				set_registration_operation(YES);
 				break;
 			case '?':
-				print_help(stderr);
+				print_help(stdout);
 				exit(SUCCESS);
 				break; 
 			case -1:
@@ -100,9 +105,29 @@ int main(int argc,char * argv[])
 		}
 	}
 
-	/*rc = init_current_date();*/
-	rc = check_config();
+	init_str_alloc(); 
+	total_check();
+/*************************************/
+	rc = init_warning_system();
+	if(rc == FAILURE){
+		fprintf(stderr,"Несмог инициализировать систему предупреждений !!");
+	}
+	rc = init_log_system();
+	if(rc == FAILURE){
+		global_warning("Несмог ининциализировать систему логирования!");
+	}
+	rc = read_config();
+	if(rc == FAILURE){
+		global_warning("Несмог инициализировать конфигурацию!");
+		goto exit_client;
+	}
+/*************************************/
 
+/*************************************/
+exit_client:
+	close_config();
+	close_log_system();
+	close_warning_system();
 	return 0;	  
 }
 /*****************************************************************************/

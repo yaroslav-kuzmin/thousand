@@ -20,22 +20,53 @@
 #                                                                             #
 ###############################################################################
 
-EXEC=thc
-OBJS=main.o
-CXX=gcc
-PUB_CATALOG=../pub/
-CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. -DDEBUG
-LDFLAGS=-g2 -L$(PUB_CATALOG)
-LIB_PUB=$(PUB_CATALOG)libthp.a
-LIB=-lthp
+all:
+	make -C pub
+	make -C server
+	make -C client
+	make -C robot
 
-$(EXEC):$(OBJS) $(LIB_PUB)
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIB)
+.PHONY:server
+server:
+	make -C pub
+	make -C server
 
-.c.o:
-	$(CXX) $(CFLAGS) -c $< -o $@
+.PHONY:client
+client:	
+	make -C pub
+	make -C client
+
+.PHONY:robot
+robot:
+	make -C pub
+	make -C robot
 
 .PHONY:clean
-clean:
-	-rm -f $(EXEC) *.o *~ 
+.PHONY:clean_all
+.PHONY:clean_client
+.PHONY:clean_server
+.PHONY:clean_robot
+.PHONY:clean_pub
+
+
+clean:clean_all
+	
+clean_all:
+	make -C pub clean 
+	make -C server clean
+	make -C client clean
+	make -C robot clean
+
+clean_pub:
+	make -C pub clean
+
+clean_server:
+	make -C server clean
+
+clean_client:
+	make -C client clean
+
+clean_robot:
+	make -C robot clean
+
 

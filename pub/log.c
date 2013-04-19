@@ -24,17 +24,22 @@
 /* Модуль: работа с логом программы                                          */
 /*****************************************************************************/
 
+/*****************************************************************************/
+/* Дополнительные файлы                                                      */
+/*****************************************************************************/
 #include <stdio.h>
 #include <time.h>
 #include <stdarg.h>
 #include <string.h>
 
+#include "pub.h"
 #include "total.h"
 #include "alloc.h"
-#include "ini.h"
 #include "warning.h"
-#include "pub.h"
 
+/*****************************************************************************/
+/* глобальные переменые                                                      */
+/*****************************************************************************/
 static struct tm * tm_current;
 static time_t time_current = 0;
 
@@ -45,6 +50,9 @@ static int hour;
 static int min;
 static int sec;
 
+/*****************************************************************************/
+/* Вспомогательные функция                                                   */
+/*****************************************************************************/
 inline static void current_time(void)
 {
 	time_current = time(NULL);
@@ -58,46 +66,39 @@ inline static void current_time(void)
 	sec = tm_current->tm_sec;
 } 
 
-static char * full_file_name;
-#define LEN_FILE_NAME_STR  28
-static char file_name[] = "log/vacation.000000.log";
+/*****************************************************************************/
+static char * file_log;
+static char FILE_LOG[] = "vacation.000000.log";
+#define SIZE_STR_FILE_LOG  20
 #define SIZE_TEMP_STR     9
 
 inline static int init_file_name(void)
 {
 	int rc = 0;
 	char temp[SIZE_TEMP_STR] = {0};
-	char * str_const = file_name;
+	char * catalog_log = NULL;
 
 	current_time();
 	sprintf(temp,"%02d%02d%04d",mday,mon,year);
 
-	file_name[13] = temp[6];
-	file_name[14] = temp[7];
+	FILE_LOG[9] = temp[6];
+	FILE_LOG[10] = temp[7];
 
-	file_name[15] = temp[2];
-	file_name[16] = temp[3];
+	FILE_LOG[11] = temp[2];
+	FILE_LOG[12] = temp[3];
 
-	file_name[17] = temp[0];
-	file_name[18] = temp[1];
+	FILE_LOG[13] = temp[0];
+	FILE_LOG[14] = temp[1];
 	
-	rc = search_parameter(WORK_CATALOG);
 
-	if(rc == 0)
-		return FAILURE;
+	catalog_log = get_log_catalog();
+	rc = strlen(catalog_log);
+	rc += SIZE_STR_FILE_LOG;
 
-	full_file_name = str_alloc(rc + LEN_FILE_NAME_STR);
-
-	rc = full_value_parameter(WORK_CATALOG,&full_file_name,rc + 1);
-
-	if((rc == NOT_PARAMETER) || (rc == LONG_SIZE_VALUE_PARAMETER ) )
-		return FAILURE;
-	
-	strcat(full_file_name,str_const);
-
-#ifdef _DEBUG
-	printf("log file :> %s\n",full_file_name);
-#endif 	
+	file_log = str_alloc(rc);
+	strcat(file_log,catalog_log);
+	strcat(file_log,FILE_LOG);
+	/*DEBUG_PRINTF_S(file_log);*/
 	return SUCCESS;
 }
 
@@ -111,24 +112,28 @@ static FILE * stream_log;
 #define NOT_OPEN      1
 #define OPEN          0
 static int open_log = NOT_OPEN;
+
 int init_log_system(void)
 {
 	int rc = 0;
 	char * str = buffer_log;
 	rc = 	init_file_name();
-	if(rc == FAILURE){
-		global_warning("Not work catalog in file ini");
-		return FAILURE;
+
+	rc = get_registration_operation();
+	if(rc != YES){
+		open_log = NOT_OPEN;
+		return SUCCESS;
 	}
-	stream_log = fopen(full_file_name,"a");
+
+	stream_log = fopen(file_log,"a");
 	if(stream_log == NULL){
-		global_warning("Not open file log %s",full_file_name);
+		global_warning("Немогу открыть файл для записи лога %s",file_log);
 		open_log = NOT_OPEN;
 		return FAILURE;
 	}
 	else{
 		current_time();
-		sprintf(str,"\n %02d.%02d.%02d %02d:%02d:%02d :> Start log system !\n",mday,mon,year,hour,min,sec);
+		sprintf(str," %02d.%02d.%02d %02d:%02d:%02d :> Start log system !\n",mday,mon,year,hour,min,sec);
 		len_buffer_log = strlen(str);
 		open_log = OPEN;
 	}
@@ -138,16 +143,17 @@ int init_log_system(void)
 int close_log_system(void)
 {
 	char * str = buffer_log;
-	if(registration_operation == YES){
-		fprintf(stream_log,str);
+	if(open_log == OPEN){
+		fprintf(stream_log,"%s",str);
 		current_time(); 
 		fprintf(stream_log," %02d.%02d.%02d %02d:%02d:%02d :> Shutdown log system !\n",mday,mon,year,hour,min,sec);
+		fclose(stream_log);	
+		open_log = NOT_OPEN;
 	}	
-	fclose(stream_log);	
-	open_log = NOT_OPEN;
 	return SUCCESS;
 }
 
+/*****************************************************************************/
 int global_log(char * str,...)
 {
 	char * buf = buffer_log + len_buffer_log;
@@ -156,13 +162,7 @@ int global_log(char * str,...)
 	va_list arg;
 	va_start(arg,str);
 
-	if(registration_operation == NO){
-		va_end(arg);
-		return FAILURE;
-	}
 	if(open_log != OPEN ){
-		vfprintf(stderr,str,arg);
-		fprintf(stderr,"\n");
 		va_end(arg);
 		return SUCCESS;
 	}
@@ -180,7 +180,7 @@ int global_log(char * str,...)
 	len_buf_temp ++;
 	if((len_buffer_log + len_buf_temp) >= SIZE_BUFFER_LOG){
 		buf = buffer_log;
-		fprintf(stream_log,buf);
+		fprintf(stream_log,"%s",buf);
 		len_buffer_log = 0;
 	}
 	buf_temp = buffer_temp;
