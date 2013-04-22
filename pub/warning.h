@@ -27,7 +27,7 @@
 #ifndef WARNING_H
 #define WARNING_H
 
-int init_warning_system(void);
+int init_warning_system(int flag);
 int close_warning_system(void);
 
 int global_warning(char * str,...);

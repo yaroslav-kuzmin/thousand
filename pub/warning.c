@@ -70,11 +70,12 @@ inline static void current_time(void)
 
 /*****************************************************************************/
 static char * file_warning; 
-static char FILE_WARNING[] = "vacation.000000.warning";
+static char FILE_WARNING[] = ".000000.warning";
+
 #define SIZE_STR_FILE_WARNING 24
 #define SIZE_TEMP_STR   9
 
-inline static int init_file_name(void)
+inline static int init_file_name(int flag)
 {
 	int rc = 0;
 	char temp[SIZE_TEMP_STR] = {0};
@@ -83,14 +84,14 @@ inline static int init_file_name(void)
 	current_time();
 	sprintf(temp,"%02d%02d%04d",mday,mon,year);
 
-	FILE_WARNING[9] = temp[6];
-	FILE_WARNING[10] = temp[7];
+	FILE_WARNING[1] = temp[6];
+	FILE_WARNING[2] = temp[7];
 
-	FILE_WARNING[11] = temp[2];
-	FILE_WARNING[12] = temp[3];
+	FILE_WARNING[3] = temp[2];
+	FILE_WARNING[4] = temp[3];
 
-	FILE_WARNING[13] = temp[0];
-	FILE_WARNING[14] = temp[1];
+	FILE_WARNING[5] = temp[0];
+	FILE_WARNING[6] = temp[1];
 
 	catalog_log = get_log_catalog();
 	rc = strlen(catalog_log);
@@ -98,6 +99,20 @@ inline static int init_file_name(void)
 
 	file_warning = str_alloc(rc);
 	strcat(file_warning,catalog_log);
+	switch(flag){
+		case SERVER_FLAG:
+			strcat(file_warning,SERVER);
+			break;
+		case CLIENT_FLAG:
+			strcat(file_warning,CLIENT);
+			break;
+		case ROBOT_FLAG:
+			strcat(file_warning,ROBOT);
+			break;
+		default:
+			strcat(file_warning,DEFAULT);
+			break;
+	}
 	strcat(file_warning,FILE_WARNING);
 	/*DEBUG_PRINTF_S(file_warning);*/
 	return SUCCESS;
@@ -108,9 +123,9 @@ static FILE * warning_stream;
 #define OPEN          0
 static int open_warnig = NOT_OPEN;
 
-int init_warning_system(void)
+int init_warning_system(int flag)
 {
-	init_file_name();
+	init_file_name(flag);
 
 	warning_stream = fopen(file_warning,"a");
 	if(warning_stream == NULL){

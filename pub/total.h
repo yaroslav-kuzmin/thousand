@@ -27,6 +27,11 @@
 #ifndef TOTAL_H
 #define TOTAL_H
 
+extern char SERVER[];
+extern char CLIENT[];
+extern char ROBOT[];
+extern char DEFAULT[];
+
 int get_registration_operation(void);
 void set_registration_operation(int rg);
 

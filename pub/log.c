@@ -68,11 +68,11 @@ inline static void current_time(void)
 
 /*****************************************************************************/
 static char * file_log;
-static char FILE_LOG[] = "vacation.000000.log";
+static char FILE_LOG[] = ".000000.log";
 #define SIZE_STR_FILE_LOG  20
 #define SIZE_TEMP_STR     9
 
-inline static int init_file_name(void)
+inline static int init_file_name(flag)
 {
 	int rc = 0;
 	char temp[SIZE_TEMP_STR] = {0};
@@ -81,14 +81,14 @@ inline static int init_file_name(void)
 	current_time();
 	sprintf(temp,"%02d%02d%04d",mday,mon,year);
 
-	FILE_LOG[9] = temp[6];
-	FILE_LOG[10] = temp[7];
+	FILE_LOG[1] = temp[6];
+	FILE_LOG[2] = temp[7];
 
-	FILE_LOG[11] = temp[2];
-	FILE_LOG[12] = temp[3];
+	FILE_LOG[3] = temp[2];
+	FILE_LOG[4] = temp[3];
 
-	FILE_LOG[13] = temp[0];
-	FILE_LOG[14] = temp[1];
+	FILE_LOG[5] = temp[0];
+	FILE_LOG[6] = temp[1];
 	
 
 	catalog_log = get_log_catalog();
@@ -97,6 +97,20 @@ inline static int init_file_name(void)
 
 	file_log = str_alloc(rc);
 	strcat(file_log,catalog_log);
+	switch(flag){
+		case SERVER_FLAG:
+			strcat(file_log,SERVER);
+			break;
+		case CLIENT_FLAG:
+			strcat(file_log,CLIENT);
+			break;
+		case ROBOT_FLAG:
+			strcat(file_log,ROBOT);
+			break;
+		default:
+			strcat(file_log,DEFAULT);
+			break;
+	}
 	strcat(file_log,FILE_LOG);
 	/*DEBUG_PRINTF_S(file_log);*/
 	return SUCCESS;
@@ -113,11 +127,11 @@ static FILE * stream_log;
 #define OPEN          0
 static int open_log = NOT_OPEN;
 
-int init_log_system(void)
+int init_log_system(flag)
 {
 	int rc = 0;
 	char * str = buffer_log;
-	rc = 	init_file_name();
+	rc = 	init_file_name(flag);
 
 	rc = get_registration_operation();
 	if(rc != YES){

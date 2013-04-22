@@ -76,7 +76,6 @@ void print_version(FILE * stream)
 /*****************************************************************************/
 int main(int argc,char * argv[])
 {
-
   	int rc = 0;
 	int next_option = 0;
 	programm_name = argv[0];
@@ -108,11 +107,11 @@ int main(int argc,char * argv[])
 	init_str_alloc(); 
 	total_check();
 /*************************************/
-	rc = init_warning_system();
+	rc = init_warning_system(CLIENT_FLAG);
 	if(rc == FAILURE){
 		fprintf(stderr,"Несмог инициализировать систему предупреждений !!");
 	}
-	rc = init_log_system();
+	rc = init_log_system(CLIENT_FLAG);
 	if(rc == FAILURE){
 		global_warning("Несмог ининциализировать систему логирования!");
 	}

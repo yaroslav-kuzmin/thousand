@@ -27,7 +27,7 @@
 #ifndef LOG_H
 #define LOG_H
 
-int init_log_system(void);
+int init_log_system(int flag);
 int close_log_system(void);
 
 int global_log(char * str,...);

@@ -23,12 +23,14 @@
 EXEC=ths
 OBJS=main.o
 CXX=gcc
-CFLAGS=-g2 -Wall -I. -I../pub
-LDFLAGS=-g2
-LIB=
+PUB_CATALOG=../pub/
+CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. -DDEBUG
+LDFLAGS=-g2 -L$(PUB_CATALOG)
+LIB_PUB=$(PUB_CATALOG)libthp.a
+LIB=-lthp
 
-$(EXEC):$(OBJS)
-	$(CXX) $(LDFLAGS) -o $@ $^ $(LIB)
+$(EXEC):$(OBJS) $(LIB_PUB)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIB)
 
 .c.o:
 	$(CXX) $(CFLAGS) -c $< -o $@

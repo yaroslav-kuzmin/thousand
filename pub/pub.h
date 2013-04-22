@@ -56,6 +56,9 @@
 #define DEBIG_PRINTF_LD(n)   ;
 #endif 
 
+#define SERVER_FLAG       0x01
+#define CLIENT_FLAG       0x02
+#define ROBOT_FLAG        0x03
 #endif
 
 
