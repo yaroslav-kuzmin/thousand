@@ -81,6 +81,10 @@ char * log_catalog = NULL;
 static const char * LOG_CATALOG = "log/";
 #define SIZE_STR_LOG_CATALOG 5
 
+char * local_socket = NULL;
+static const char * LOCAL_SOCKET = "socket";
+#define SIZE_STR_LOCAL_SOCKET  7
+
 char * get_user_name(void)
 {
 	return user_name;
@@ -96,6 +100,10 @@ char * get_ini_file(void)
 char * get_log_catalog(void)
 {
 	return log_catalog;
+}
+char * get_local_socket(void)
+{
+	return local_socket;
 }
 
 int total_check(void)
@@ -155,6 +163,13 @@ int total_check(void)
 		perror(log_catalog);
 		exit(0);
 	}	
+
+	size = strlen(home_catalog);
+	size += SIZE_STR_LOCAL_SOCKET;
+	local_socket = str_alloc(size);
+	strcat(local_socket,home_catalog);
+	strcat(local_socket,LOCAL_SOCKET);
+	/*DEBUG_PRINTF_S(local_socket);*/
 	return SUCCESS;
 }
 

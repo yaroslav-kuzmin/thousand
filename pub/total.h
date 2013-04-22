@@ -39,5 +39,6 @@ char * get_user_name(void);
 char * get_home_catalog(void);
 char * get_ini_file(void);
 char * get_log_catalog(void);
+char * get_local_socket(void);
 int total_check(void);
 #endif
