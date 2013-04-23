@@ -26,6 +26,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <getopt.h>
+#include <signal.h>
+#include <string.h>
 
 #include "pub.h"
 #include "alloc.h"
@@ -71,6 +73,114 @@ void print_version(FILE * stream)
 	fprintf(stream,"\n  Version  %s : Data \'%s\' : Autor \'%s\' : Email \'%s\'\n\n",VERSION,DATA_COM,AUTOR,EMAIL);
 }
 
+void close_server(int signal_num);
+/* TODO
+volatile sig_atomic_t amount_alrm = 0;
+void handler_timer(int signal_num)
+{
+	amount_alrm++;
+}
+*/
+volatile sig_atomic_t amount_sig_io = 1;
+void sigaction_io(int num,siginfo_t * sig,void * test)
+{
+	amount_sig_io++;
+}
+
+static int set_signals(void)
+{
+	struct sigaction act;
+	sigset_t set;
+
+	/*signal action handler setup*/
+	memset(&act, 0x0, sizeof(act));
+	if(sigfillset(&set) < 0){
+		perror("sigfillset failed");
+		return FAILURE;
+	}	
+
+	act.sa_handler = SIG_IGN;
+	if(sigaction(SIGHUP, &act, NULL) < 0){
+		perror("sigaction failed SIGHUP");
+		return FAILURE;
+	}
+	if(sigaction(SIGPIPE, &act, NULL) < 0){
+		perror("sigaction failed SIGPIPE");
+		return FAILURE;
+	}
+	if(sigaction(SIGCHLD, &act, NULL) < 0){
+		perror("sigaction failed SIGCHLD");
+		return FAILURE;
+	}
+
+	/*act.sa_handler = handler_timer; TODO*/
+	if(sigaction(SIGALRM, &act, NULL) < 0){
+		perror("sigaction failed SIGALRM");
+		return FAILURE;
+	}
+
+	act.sa_sigaction = sigaction_io;
+	act.sa_flags = SA_SIGINFO;
+	if(sigaction(SIGIO, &act, NULL) < 0){
+		perror("sigaction failed SIGIO");
+		return FAILURE;
+	}
+
+	act.sa_handler = close_server;
+	if(sigaction(SIGQUIT, &act, NULL) < 0){
+		perror("sigaction failed SIGQUIT");
+		return FAILURE;
+	}
+	if(sigaction(SIGINT, &act , NULL) < 0){
+		perror("sigaction failed SIGINT");
+		return FAILURE;
+	}	
+	if(sigaction(SIGTERM, &act, NULL) < 0){
+		perror("sigaction failed SIGTERM");
+		return FAILURE;
+	}
+
+	act.sa_handler = SIG_DFL;
+	if(sigaction(SIGBUS, &act, NULL) < 0){
+		perror("sigaction failed SIGBUS");
+		return FAILURE;
+	}
+	if(sigaction(SIGFPE, &act, NULL) < 0){
+		perror("sigaction failed SIGFPE");
+		return FAILURE;
+	}
+	if(sigaction(SIGILL, &act, NULL) < 0){
+		perror("sigaction failed SIGILL");
+		return FAILURE;
+	}
+	if(sigaction(SIGSEGV, &act, NULL) < 0){
+		perror("sigaction failed SIGSEGV");
+		return FAILURE;
+	}
+	if(sigaction(SIGXCPU, &act, NULL) < 0){
+		perror("sigaction failed SIGCPU");
+		return FAILURE;
+	}
+	if(sigaction(SIGXFSZ, &act, NULL) < 0){
+		perror("sigaction failed SIGFSZ");
+		return FAILURE;
+	}
+	if(sigaction(SIGPWR, &act, NULL) < 0){
+		perror("sigaction failed SIGPWR");
+		return FAILURE;
+	}
+	if(sigaction(SIGSYS, &act, NULL) < 0){
+		perror("sigaction failed SIGSYS");
+		return FAILURE;
+	}
+
+	if(sigemptyset(&set) < 0){
+		perror("sigemptyset failed");
+		return FAILURE;
+	}
+	return SUCCESS;
+}
+
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
@@ -104,6 +214,9 @@ int main(int argc,char * argv[])
 		}
 	}
 
+	rc = set_signals();
+	if(rc == FAILURE)
+		exit(0);
 	init_str_alloc(); 
 	total_check();
 /*************************************/
@@ -118,15 +231,22 @@ int main(int argc,char * argv[])
 	rc = read_config();
 	if(rc == FAILURE){
 		global_warning("Несмог инициализировать конфигурацию!");
-		goto exit_client;
+		goto exit_server;
 	}
 /*************************************/
 
 /*************************************/
-exit_client:
+exit_server:
+	close_server(SIGQUIT);
+	return 0;	  
+}
+
+void close_server(int signal_num)
+{
 	close_config();
 	close_log_system();
 	close_warning_system();
-	return 0;	  
+	exit(0);
 }
+
 /*****************************************************************************/

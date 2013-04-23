@@ -60,13 +60,13 @@ clean_all:
 clean_pub:
 	make -C pub clean
 
-clean_server:
+clean_server:clean_pub
 	make -C server clean
 
-clean_client:
+clean_client:clean_pub
 	make -C client clean
 
-clean_robot:
+clean_robot:clean_pub
 	make -C robot clean
 
 

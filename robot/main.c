@@ -118,12 +118,12 @@ int main(int argc,char * argv[])
 	rc = read_config();
 	if(rc == FAILURE){
 		global_warning("Несмог инициализировать конфигурацию!");
-		goto exit_client;
+		goto exit_robot;
 	}
 /*************************************/
 
 /*************************************/
-exit_client:
+exit_robot:
 	close_config();
 	close_log_system();
 	close_warning_system();
