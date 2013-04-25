@@ -24,7 +24,7 @@ LIB=libthp.a
 OBJS=warning.o alloc.o log.o ini.o total.o
 AR=ar
 CXX=gcc
-CFLAGS=-g2 -Wall -I. -DDEBUG
+CFLAGS=-g2 -Wall -I. -DDEBUG -D_GNU_SOURCE
 ARFLAGS=sru
 
 $(LIB):$(OBJS)

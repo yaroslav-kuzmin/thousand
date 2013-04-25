@@ -129,7 +129,7 @@ int init_warning_system(int flag)
 
 	warning_stream = fopen(file_warning,"a");
 	if(warning_stream == NULL){
-		fprintf(stderr,"Немогу открыть файл : %s\n",file_warning);
+		perror(file_warning);
 		open_warnig = NOT_OPEN;
 		return FAILURE;
 	}

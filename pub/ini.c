@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
 
 #include "pub.h"
 #include "total.h"
@@ -67,7 +68,7 @@ int read_config(void)
 
 	rc = stat(file_ini,&buffer_stat_file);
 	if(rc != 0){
-		global_warning("Нет файла конфигурации %s",file_ini);
+		global_warning("Нет файла конфигурации %s : %s",file_ini,strerror(errno));
  		return FAILURE;
 	}
 	size_file = buffer_stat_file.st_size;
@@ -80,7 +81,7 @@ int read_config(void)
 		assert(buffer_config);
 	stream = fopen(file_ini,"r");
 	if(stream == NULL){
-		 global_warning("Немогу открыть файл конфигурации %s",file_ini);
+		 global_warning("Немогу открыть файл конфигурации %s : %s",file_ini,strerror(errno));
 		return FAILURE; 
 	}
 	global_log("Открыл файл конфигурации %s",file_ini);

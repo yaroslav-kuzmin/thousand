@@ -31,6 +31,7 @@
 #include <time.h>
 #include <stdarg.h>
 #include <string.h>
+#include <errno.h>
 
 #include "pub.h"
 #include "total.h"
@@ -141,7 +142,7 @@ int init_log_system(flag)
 
 	stream_log = fopen(file_log,"a");
 	if(stream_log == NULL){
-		global_warning("Немогу открыть файл для записи лога %s",file_log);
+		global_warning("Немогу открыть файл для записи лога %s : %s",file_log,strerror(errno));
 		open_log = NOT_OPEN;
 		return FAILURE;
 	}
