@@ -24,23 +24,10 @@
 /* Объявлене глобальных макросов                                             */
 /*****************************************************************************/
 
-#ifndef TOTAL_H
-#define TOTAL_H
-
-extern char SERVER[];
-extern char CLIENT[];
-extern char ROBOT[];
-extern char DEFAULT[];
-
-int get_registration_operation(void);
-void set_registration_operation(int rg);
-
-char * get_user_name(void);
-char * get_home_catalog(void);
-char * get_ini_file(void);
-char * get_log_catalog(void);
-char * get_local_socket(void);
-int total_check(void);
+#ifndef NETWORK_H
+#define NETWORK_H
 
 #endif
+
 /*****************************************************************************/
+
