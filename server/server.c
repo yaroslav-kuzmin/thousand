@@ -38,6 +38,7 @@
 #include "ini.h"
 #include "kernel.h"
 #include "net_server.h"
+#include "list_user.h"
 
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -78,10 +79,12 @@ void print_version(FILE * stream)
 
 void close_server(int signal_num)
 {
-	close_soket();
+	/*close_soket();*/
+	deinit_list_user();
 	close_config();
 	close_log_system();
 	close_warning_system();
+	deinit_str_alloc();
 	exit(0);
 }
 
@@ -137,7 +140,13 @@ int main(int argc,char * argv[])
 		global_warning("Несмог инициализировать конфигурацию!");
 		goto exit_server;
 	}
+	rc = init_list_user();
+	if(rc == FAILURE){
+		global_warning("Несмог инициализировать Пользователей!")
+		goto exit_server;	
+	}
 /*************************************/
+/*	
 	rc = init_socket();
 	if(rc == FAILURE){
 		global_warning("Несмог инициализировать серверное соединение!");
@@ -146,7 +155,7 @@ int main(int argc,char * argv[])
 	global_log("Инициализировали локальный сокет!");
 
 	connect_socket();
-
+*/
 /*************************************/
 exit_server:
 	close_server(SUCCESS);

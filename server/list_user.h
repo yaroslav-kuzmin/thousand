@@ -27,6 +27,8 @@
 #ifndef LIST_USER_H
 #define LIST_USER_H
 
+int init_list_user(void);
+int deinit_list_user(void);
 #endif
 
 /*****************************************************************************/

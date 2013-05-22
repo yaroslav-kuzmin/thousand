@@ -23,8 +23,12 @@
 /*****************************************************************************/
 /* Дополнительные файлы                                                      */
 /*****************************************************************************/
+#include <assert.h>
 #include <openssl/md5.h>
 #include <time.h>
+
+#include "pub.h"
+
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
@@ -38,15 +42,45 @@ typedef struct user_s
 	time_t timeout;
 }user_t;
 
+#define ADD_USER    3
+unsigned long int amount_user = 0;
 user_t * begin_list_user = NULL;
+user_t * current_user = NULL;
 
 /*****************************************************************************/
 /* Основные функции                                                          */
 /*****************************************************************************/
 
-int init_list_user(void)
+int resize_list_user(void)
 {
+	unsigned long int size;
+	user_t * ptu_new;
+	user_t * ptu_old = begin_list_user;
 
 }
 
+int init_list_user(void)
+{
+	user_t * ptu;
+	unsigned long int size;
+
+	size = ADD_USER * sizeof(user_t);
+	
+	ptu = (user_t*)malloc(size);
+		assert(ptu);
+	
+	amount_user = ADD_USER;	
+	memset(ptu,0,size);
+
+	begin_list_user = ptu;
+	current_user = ptu;
+			
+	return SUCCESS;	
+}
+
+int deinit_list_user(void)
+{
+
+	return SUCCESS;
+}
 /*****************************************************************************/
