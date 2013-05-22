@@ -21,7 +21,7 @@
 ###############################################################################
 
 EXEC=thc
-OBJS=main.o
+OBJS=client.o
 CXX=gcc
 PUB_CATALOG=../pub/
 CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. -DDEBUG -D_GNU_SOURCE
