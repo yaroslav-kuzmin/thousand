@@ -148,7 +148,7 @@ int init_log_system(flag)
 	}
 	else{
 		current_time();
-		sprintf(str," %02d.%02d.%02d %02d:%02d:%02d :> Start log system !\n",mday,mon,year,hour,min,sec);
+		sprintf(str," %02d.%02d.%02d %02d:%02d:%02d :> Запуск игрового сервера !\n",mday,mon,year,hour,min,sec);
 		len_buffer_log = strlen(str);
 		open_log = OPEN;
 	}
@@ -161,7 +161,7 @@ int close_log_system(void)
 	if(open_log == OPEN){
 		fprintf(stream_log,"%s",str);
 		current_time(); 
-		fprintf(stream_log," %02d.%02d.%02d %02d:%02d:%02d :> Shutdown log system !\n",mday,mon,year,hour,min,sec);
+		fprintf(stream_log," %02d.%02d.%02d %02d:%02d:%02d :> Останов игрового сервера !\n",mday,mon,year,hour,min,sec);
 		fclose(stream_log);	
 		open_log = NOT_OPEN;
 	}	
