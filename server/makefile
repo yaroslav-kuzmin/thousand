@@ -21,7 +21,7 @@
 ###############################################################################
 
 EXEC=ths
-OBJS=server.o kernel.o net_server.o
+OBJS=server.o kernel.o net_server.o list_user.o
 CXX=gcc
 PUB_CATALOG=../pub/
 CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. -DDEBUG -D_GNU_SOURCE
