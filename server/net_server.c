@@ -118,7 +118,10 @@ bind_success:
 int close_soket(void)
 {
 	char * name = get_local_socket();
-	close(fd_local_socket);
+	if(fd_local_socket != 0){
+		close(fd_local_socket);
+	}	
+	fd_local_socket = 0;
 	unlink(name);
 
 	return SUCCESS;
@@ -161,21 +164,22 @@ int read_sockect(int fd)
 	return FAILURE;
 }
 
-int connect_socket(void)
+int check_new_connect(void)
 {
 	struct sockaddr_un client_name;
 	socklen_t client_name_len;
 	int client_socket_fd;
 	int rc;
 
-	for(;;){
-		client_socket_fd = accept(fd_local_socket,&client_name,&client_name_len);
-		if(client_socket_fd == -1){
-			if(errno != EAGAIN){
-				global_warning("Клиент не смог соединится : %s",strerror(errno));
-			}
+	client_socket_fd = accept(fd_local_socket,&client_name,&client_name_len);
+	if(client_socket_fd == -1){
+		if(errno != EAGAIN){
+			global_warning("Клиент не смог соединится : %s",strerror(errno));
 		}
-		else{
+		return FAILURE;
+	}
+
+	else{
 			rc = read_sockect(client_socket_fd);
 			if(rc == SUCCESS){
 				break;

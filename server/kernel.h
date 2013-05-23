@@ -27,9 +27,9 @@
 #ifndef KERNEL_H
 #define KERNEL_H
 
-extern volatile sig_atomic_t amount_sig_io;
-int set_signals(void);
+void sigaction_io(int num,siginfo_t * sig,void * test);
 
+int main_loop(void);
 #endif
 
 /*****************************************************************************/

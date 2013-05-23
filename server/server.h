@@ -27,7 +27,6 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-void close_server(int signal_num);
 
 #endif
 
