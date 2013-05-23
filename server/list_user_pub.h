@@ -24,15 +24,19 @@
 /* Объявление глобальных макросов                                            */
 /*****************************************************************************/
 
-#ifndef LIST_USER_H
-#define LIST_USER_H
+#ifndef LIST_USER_PUB_H
+#define LIST_USER_PUB_H
 
-user_t * get_begin_user_list(void);
-unsigned long int get_number_user(void);
-int init_list_user(void);
-int deinit_list_user(void);
-int add_user_list(int fd,char * name,char * passwd );
-int del_user_list(int fd);
+#define LEN_USER_NAME      64
+#define WAITING_USER       100  /*Проверка подключения в секундах*/ 
+
+typedef struct user_s
+{
+	int number_fd;
+	char name[LEN_USER_NAME];
+	unsigned char passwd[MD5_DIGEST_LENGTH];
+	time_t timeout;
+}user_t;
 
 #endif
 
