@@ -122,15 +122,17 @@ int deinit_list_user(void)
 	return SUCCESS;
 }
 
-int add_user_list(int fd,char * name,char * passwd )
+int add_user_list(int fd)
 {
-	char * temp;	
-	user_t * ptu; 
+	char * temp;
+	user_t * ptu;
 	unsigned long int i;
+	size_t size;
+
 	if(number_user == amount_user){
 		resize_list_user();
 	}
-	/*TODO проверить номера fd 0-stdin 1-stdout 2-stderr*/
+/*TODO проверить номера fd 0-stdin 1-stdout 2-stderr*/
 	if(fd < 0){
 		global_log("Некорректный идентификатор : %d!",fd);
 		return FAILURE;
@@ -145,16 +147,17 @@ int add_user_list(int fd,char * name,char * passwd )
 		ptu++;
 	}
 
-	current_user->number_fd = fd;
+	current_user->number_user = fd;
 	temp = current_user->name;
-	memcpy(temp,name,LEN_USER_NAME-1);
-	temp = (char*)current_user->passwd;
-	memcpy(temp,passwd,MD5_DIGEST_LENGTH);
-	current_user->timeout = time(NULL); 
-	
-	global_log("Присоединился игрок %s под номером %d!",current_user->name,current_user->number_fd);
-	current_user ++;
-	number_user++;
+	memset(temp,0,LEN_USER_NAME);
+	temp = current_user->passwd;
+	memset(temp,0,MD5_DIGEST_LENGTH);
+	current_user->timeout = time(NULL);
+/*TODO преобразовать время*/	
+	global_log("Соединения с сервером под номером %d время %ld!",current_user->number_fd,current_user->timeout);
+
+	current_user++;
+	number++;
 
 	return SUCCESS;
 }

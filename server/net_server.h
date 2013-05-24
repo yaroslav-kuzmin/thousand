@@ -29,6 +29,7 @@
 
 int init_socket(void);
 int close_soket(void);
+int check_new_connect(void);
 
 #endif
 

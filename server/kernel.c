@@ -27,6 +27,8 @@
 #include <signal.h>
 
 #include "pub.h"
+
+#include "net_server.h"
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
@@ -51,7 +53,30 @@ void sigaction_io(int num,siginfo_t * sig,void * test)
 /*****************************************************************************/
 int main_loop(void)
 {
+	int rc;
+	user_t * ptu;
+	unsigned long int nu,i;
+
 	DEBUG_PRINTF_S("main_loop");
+
+	for(;;){
+/*Проверка нового подсоединения*/
+		check_new_connect(); 
+/*Чтение информации от клиентов*/
+		ptu = get_begin_user_list();
+		nu = get_number_user()
+		for(i = 0;i < nu;i++,ptu++){
+
+		}
+/* Ожидание сигналов на дискрипторах*/
+		if(amount_sig_io <= 1){	
+			amount_sig_io = 0;
+			rc = pause();
+		}
+		else{
+			amount_sig_io--;
+		}
+	}
 
 	return SUCCESS;
 }

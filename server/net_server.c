@@ -36,7 +36,9 @@
 #include "total.h"
 #include "warning.h"
 #include "log.h"
-#include "kernel.h"
+
+#include "list_user_pub.h"
+#include "list_user.h"
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
@@ -44,8 +46,10 @@
 /*****************************************************************************/
 /* Основные функции                                                          */
 /*****************************************************************************/
-#define BACKLOG              10 
-int fd_local_socket = 0;
+/*очередь ожидания*/
+#define BACKLOG              10  
+/*дискриптор  локального сокета*/
+static int fd_local_socket = 0;  
 
 int init_socket(void)
 {
@@ -90,14 +94,14 @@ bind_success:
 
 	rc = fcntl(s_fd,F_SETFL,O_NONBLOCK|O_ASYNC); /*Установить флаги работа в неблокируюшем и асинхроным режиме*/
 	if(rc == -1){
-		global_warning("Несмог установить режим доступа к сокету %#x",s_fd);
+		global_warning("Несмог установить режим доступа к сокету %#x : %s",s_fd,strerror(errno));
 		close(s_fd);
 		return FAILURE;
 	}
 	rc = fcntl(s_fd , F_SETSIG , SIGIO);/*Установить сигнал, который будет послан, 
 													  когда станет возможен ввод или вывод*/
 	if(rc == -1){
-		global_warning("Несмог привизать сигнал к сокету");
+		global_warning("Несмог привизать сигнал к сокету %#x : %s",s_fd,strerror(errno));
 		close(s_fd);
 		return FAILURE;
 	}
@@ -105,7 +109,7 @@ bind_success:
 															которые будут принимать сигналы SIGIO и SIGURG для 
 															событий на файловом дескрипторе */
 	if(rc == -1){
-		global_warning("Несмог установить привязку сигналов к процессу %#x",getpid());
+		global_warning("Несмог установить привязку сигналов к процессу %#x : %#x : %s",getpid(),s_fd,strerror(errno));
 		close(s_fd);
 		return FAILURE;
 	}
@@ -127,73 +131,49 @@ int close_soket(void)
 	return SUCCESS;
 }
 
-#define SIZE_BUFF  1024
-int read_sockect(int fd)
-{
-	char 	buff[SIZE_BUFF];
-	int rc;
-
-	//for(;;){
-		memset(buff,0,SIZE_BUFF);
-		rc = recv(fd,buff,SIZE_BUFF,0);
-		if(rc == -1){
-			if(errno != EAGAIN){
-				global_warning("Ошибка чтения сокета : %s",strerror(errno));
-			}
-		}
-		DEBUG_PRINTF_S(buff);
-		rc = strcmp(buff,"quit");
-		if(rc == 0 ){
-			return SUCCESS;
-		}
-		/*
-		if(amount_sig_io <= 1){	
-			amount_sig_io = 0;
-			rc = pause();
-		}
-		else{
-			amount_sig_io--;
-		}
-	}*/
-
-	memset(buff,0,SIZE_BUFF);
-	strcat(buff,"test send");
-	rc = strlen(buff);
-	DEBUG_PRINTF_S(buff);
-	send(fd,buff,rc,0);
-	return FAILURE;
-}
-
 int check_new_connect(void)
 {
 	struct sockaddr_un client_name;
 	socklen_t client_name_len;
-	int client_socket_fd;
+	int c_fd;
 	int rc;
 
-	client_socket_fd = accept(fd_local_socket,&client_name,&client_name_len);
-	if(client_socket_fd == -1){
+	c_fd = accept(fd_local_socket,&client_name,&client_name_len);
+	if(c_fd == -1){
 		if(errno != EAGAIN){
 			global_warning("Клиент не смог соединится : %s",strerror(errno));
 		}
 		return FAILURE;
 	}
-
-	else{
-			rc = read_sockect(client_socket_fd);
-			if(rc == SUCCESS){
-				break;
-			}
-		}
-			
-		if(amount_sig_io <= 1){	
-			amount_sig_io = 0;
-			rc = pause();
-		}
-		else{
-			amount_sig_io--;
-		}
+/*Установить флаги работа в неблокируюшем и асинхроным режиме*/
+	rc = fcntl(c_fd,F_SETFL,O_NONBLOCK|O_ASYNC); 
+	if( rc == -1){
+		global_warning("Несмог установить режим доступа к клиенту %#x : %s",c_fd,strerror(errno));
+		close(c_fd);
+		return FAILURE;
 	}
+/*Установить сигнал, который будет послан, когда станет возможен ввод или вывод*/
+	rc = fcntl(c_fd , F_SETSIG , SIGIO);
+	if(rc == -1){
+		global_warning("Несмог привизать сигнал к сокету %#x : %s",c_fd,strerror(errno));
+		close(c_fd);
+		return FAILURE;
+	}
+	rc = fcntl(c_fd , F_SETOWN , getpid()); /*Установить идентификатор процесса или группу процесса, 
+															которые будут принимать сигналы SIGIO и SIGURG для 
+															событий на файловом дескрипторе */
+	if(rc == -1){
+		global_warning("Несмог установить привязку сигналов к процессу %#x : %#x : %s",getpid(),c_fd,strerror(errno));
+		close(c_fd);
+		return FAILURE;
+	}
+
+	rc = add_user_list(c_fd);
+	if(rc == FAILURE){
+		close(c_fd);
+		return FAILURE;
+	}
+
 	return SUCCESS;
 }
 

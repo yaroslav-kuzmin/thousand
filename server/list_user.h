@@ -31,7 +31,7 @@ user_t * get_begin_user_list(void);
 unsigned long int get_number_user(void);
 int init_list_user(void);
 int deinit_list_user(void);
-int add_user_list(int fd,char * name,char * passwd );
+int add_user_list(int fd);
 int del_user_list(int fd);
 
 #endif
