@@ -29,6 +29,13 @@
 
 #define LEN_USER_NAME      64
 #define WAITING_USER       100  /*Проверка подключения в секундах*/ 
+#define SIZE_BUF           96
+
+typedef struct buffer_s
+{
+	unsigned short int command;
+	unsigned char data[SIZE_BUF - sizeof(unsigned short int)];
+}__attribute__((packed))buffer_t ;
 
 typedef struct user_s
 {
@@ -36,6 +43,12 @@ typedef struct user_s
 	char name[LEN_USER_NAME];
 	unsigned char passwd[MD5_DIGEST_LENGTH];
 	time_t timeout;
+	union
+	{
+		buffer_t 
+		unsigned char buf[SIZE_BUF];
+
+	}
 }user_t;
 
 #endif

@@ -159,9 +159,10 @@ int check_new_connect(void)
 		close(c_fd);
 		return FAILURE;
 	}
-	rc = fcntl(c_fd , F_SETOWN , getpid()); /*Установить идентификатор процесса или группу процесса, 
-															которые будут принимать сигналы SIGIO и SIGURG для 
-															событий на файловом дескрипторе */
+/*Установить идентификатор процесса или группу процесса, 
+	которые будут принимать сигналы SIGIO и SIGURG для 
+	событий на файловом дескрипторе */
+	rc = fcntl(c_fd , F_SETOWN , getpid()); 
 	if(rc == -1){
 		global_warning("Несмог установить привязку сигналов к процессу %#x : %#x : %s",getpid(),c_fd,strerror(errno));
 		close(c_fd);
