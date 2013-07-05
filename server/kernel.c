@@ -27,7 +27,9 @@
 #include <signal.h>
 
 #include "pub.h"
+#include "protocol.h"
 
+#include "kernel_pub.h"
 #include "net_server.h"
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -48,14 +50,19 @@ void sigaction_io(int num,siginfo_t * sig,void * test)
 {
 	amount_sig_io++;
 }
+
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
+
+unsigned char t_buff[SIZE_BUFF_MESSAGE];
+
 int main_loop(void)
 {
 	int rc;
 	user_t * ptu;
 	unsigned long int nu,i;
+	unsigned char buf;
 
 	DEBUG_PRINTF_S("main_loop");
 
@@ -65,8 +72,37 @@ int main_loop(void)
 /*Чтение информации от клиентов*/
 		ptu = get_begin_user_list();
 		nu = get_number_user()
-		for(i = 0;i < nu;i++,ptu++){
-
+		for(i = 0;i < nu;i++){
+			fd = ptu->fd;
+			rc = recv(fd,t_buff,SIZE_BUFF_MESSAGE,0);
+			if(rc == -1){
+			/*данных от клиента не поступало*/	
+				if(errno != EAGAIN){
+				/* TODO проверка ошибки*/
+					del_user_list(fd);
+					nu = get_number_user();
+					continue;
+				}
+				if(ptu->timeout <= time(NULL)){
+					message_cmd_u temp;					
+					temp.msg.type = CMD_CHECK_CONNECT;
+					temp.msg.len = 0;
+					rc = send(fd,temp.buf,(sizeof(message_cmd_s)),0);
+					if(rc == -1){
+					/*TODO корректное сохранение игры */
+					/*TODO проверка ошибки отправки сообщения*/	
+						del_user_list(fd);
+						nu = get_number_user();
+						continue;
+					}
+					ptu->timeout = time(NULL) + WAITING_USER;
+				}
+				ptu++;
+				continue;
+			}
+			/*TODO проверка на переполнение буфера при приеме сообщения */
+			add_message_list(ptu,t_buff,rc);
+			ptu++;
 		}
 /* Ожидание сигналов на дискрипторах*/
 		if(amount_sig_io <= 1){	

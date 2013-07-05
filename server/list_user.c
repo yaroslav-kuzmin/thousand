@@ -152,7 +152,10 @@ int add_user_list(int fd)
 	memset(temp,0,LEN_USER_NAME);
 	temp = current_user->passwd;
 	memset(temp,0,MD5_DIGEST_LENGTH);
-	current_user->timeout = time(NULL);
+	current_user->timeout = time(NULL) + WAITING_USER;
+	current_user->list_message = init_list_message();
+	current_user->first_message = current_user->list_message;
+	current_user->last_message = current_user->list_message;
 /*TODO преобразовать время*/	
 	global_log("Соединения с сервером под номером %d время %ld!",current_user->number_fd,current_user->timeout);
 
@@ -175,7 +178,7 @@ int del_user_list(int fd)
 		return FAILURE;
 	}
 	for(number = 0;number < number_user;number++){
-		if(fd == ptu->number_fd){
+		if(fd == ptu->fd){
 			global_log("Удаление из списка игрока %s под номером %d!",ptu->name,ptu->number_fd);
 			break;
 		}
@@ -186,11 +189,14 @@ int del_user_list(int fd)
 		return FAILURE;
 	}
 	if((number + 1) != number_user){
-		ptu_new += number;
-		ptu_old += (number + 1);
+		ptu_old += number;
+		ptu_new += (number + 1);
+			
+		deinit_list_message(ptu_old->list_message);
+
 		size = number_user - (number + 1);
 		size *= sizeof(user_t);
-		memmove(ptu_new,ptu_old,size);
+		memmove(ptu_old,ptu_new,size);
 	}
 	
 	current_user --;
