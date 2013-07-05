@@ -54,17 +54,54 @@ int deinit_list_message(all_message_u * m)
 	return SUCCESS;
 }	
 
+static unsigned char temp_buff[SIZE_BUFF_MESSAGE];
+
 int add_message_list(user_s * psu,unsigned char * buf,int len)
 {
+	unsigned char * t_new;
+	unsigned char * t_old;
 	all_message_u * begin = psu->list_message;
 	all_message_u * first = psu->first_message;
 	all_message_u * last = psu->last_message;
 	all_message_u * msg = (all_message_u *)buf;
+	int len_buff = len;
+	int len_msg;
+	int t_len;
+	
+	if(psu->partial == YES){
+		t_new = temp_buff;
+		t_old = psu->partial_buff;
+		t_len = psu->len_partial;
+
+		memset(t_new,0,SIZE_BUFF_MESSAGE);
+		memcpy(t_new,t_old,t_len);
+		t_new += t_len;
+		/*TODO проверка на переполнение*/
+		memcpy(t_new,buf,len_buff);
+		msg = (all_message_u*)temp_buff;
+		len_buff += t_len;
+		psu->partial = NO'
+		memset(t_old,0,SIZE_BUFF_PARTIAL);
+	}
+
+	len_msg = msg->len + (sizeof(message_cmd_s));
+
+	for(;len_buff;){
+		if(len_msg > len_buff){
+		/*TODO проверка на переполнение*/
+			t_new = psu->partial_buff;
+			memcpy(t_new,buf,len_buff);
+			psu->len_partial = len_buff;
+			psu->partial = YES;
+			break;
+		}
 		
-			
+	}
+	
+	return SUCCESS		
 }	
 
-int del_message_list(user_s * psu,unsigned char * buf,int len)
+int del_message_list(user_s * psu,all_message_u * msg)
 {
 	all_message_u * begin = psu->list_message;
 	all_message_u * first = psu->first_message;

@@ -29,13 +29,7 @@
 
 #define LEN_USER_NAME      64
 #define SIZE_BUFF_PARTIAL  256
-/*TODO
-typedef struct buffer_s
-{
-	unsigned short int command;
-	unsigned char data[SIZE_BUF - sizeof(unsigned short int)];
-}__attribute__((packed))buffer_t ;
-*/
+
 typedef struct _user_s user_s;
 
 struct _user_s
@@ -47,6 +41,8 @@ struct _user_s
 	all_message_u * list_message;
 	all_message_u * first_message;
 	all_message_u * last_message;
+	char partial;
+	int len_partial;
 	unsigned char partial_buff[SIZE_BUFF_PARTIAL];
 
 };

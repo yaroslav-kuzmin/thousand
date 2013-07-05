@@ -156,6 +156,10 @@ int add_user_list(int fd)
 	current_user->list_message = init_list_message();
 	current_user->first_message = current_user->list_message;
 	current_user->last_message = current_user->list_message;
+	current_user->partial = NO;
+	current_user->len_partial = 0;
+	temp = current_user->partial_buff;
+	memset(temp,0,SIZE_BUFF_PARTIAL);
 /*TODO преобразовать время*/	
 	global_log("Соединения с сервером под номером %d время %ld!",current_user->number_fd,current_user->timeout);
 

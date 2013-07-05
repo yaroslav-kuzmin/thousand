@@ -30,9 +30,8 @@
 all_message_u * init_list_message(void);
 int deinit_list_message(all_message_u * m);
 
-int add_message_list(all_message_u * begin,all_message_u * first,all_message_u * last,all_message_u * msg);
-int del_message_list(all_message_u * begin,all_message_u * first,all_message_u * last,all_message_u * msg);
-
+int add_message_list(user_s * psu,unsigned char * buf,int len);
+int del_message_list(user_s * psu,all_message_u * msg);
 #endif
 
 /*****************************************************************************/
