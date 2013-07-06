@@ -153,9 +153,7 @@ int add_user_list(int fd)
 	temp = current_user->passwd;
 	memset(temp,0,MD5_DIGEST_LENGTH);
 	current_user->timeout = time(NULL) + WAITING_USER;
-	current_user->list_message = init_list_message();
-	current_user->first_message = current_user->list_message;
-	current_user->last_message = current_user->list_message;
+	add_list_message(current_user);
 	current_user->partial = NO;
 	current_user->len_partial = 0;
 	temp = current_user->partial_buff;

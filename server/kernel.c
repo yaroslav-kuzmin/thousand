@@ -101,7 +101,7 @@ int main_loop(void)
 				continue;
 			}
 			/*TODO проверка на переполнение буфера при приеме сообщения и неполном приходе данных */
-			add_message_list(ptu,t_buff,rc);
+			(ptu,t_buff,rc);
 			ptu++;
 		}
 /* Ожидание сигналов на дискрипторах*/

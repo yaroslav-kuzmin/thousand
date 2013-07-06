@@ -44,7 +44,6 @@ struct _user_s
 	char partial;
 	int len_partial;
 	unsigned char partial_buff[SIZE_BUFF_PARTIAL];
-
 };
 
 #endif

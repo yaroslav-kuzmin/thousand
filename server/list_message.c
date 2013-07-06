@@ -28,25 +28,100 @@
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
+#define AMOUNT_LISTS         3
 #define SIZE_LIST_MESSAGE    4096
+typedef struct _node_message_s node_message_s;
+struct _node_message_s
+{
+	int free;
+	unsigned char * begin;
+	unsigned char * current;
+};
+int amount_node;
+node_message_s * list_node = NULL;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
 
 /*****************************************************************************/
-/* Основная функция                                                          */
+/* Основные функции                                                          */
 /*****************************************************************************/
-/*TODO Переделать блок выделения памяти*/
-all_message_u * init_list_message(void)
+/*Создает списки для хранения сообщений*/
+int init_list_message(void)
 {
-	void * buff = NULL;
+	int i;
+	size_t size = 0;
+	node_messagw_s * t_node;
+	unsigned char * tpucb;
+	unsigned char * tpuc;
 
-	buff = malloc(SIZE_LIST_MESSAGE);
-		assert(buff);
-	return (all_message_u *)buff;	
+	amount_node = 1 << AMOUNT_LISTS;
+	size = amount_node * sizeof(node_message_s);
+
+	list_node = (node_messagw_s *)malloc(size);
+		assert(list_node);
+	size = amount_node * SIZE_LIST_MESSAGE;
+	tpucb = (unsigned char *)malloc(size);
+		assert(tpucb);
+	
+	t_node = list_node;
+	tpuc = tpucb;
+
+	for(i = 0;i < amount_node;i++){
+		t_node->free = YES;
+		t_node->begin = tpucb;
+		t_node->current = tpuc;
+		t_node++;
+		tpuc += SIZE_LIST_MESSAGE;
+	}
+
+	return SUCCESS;
 }
 
-int deinit_list_message(all_message_u * m)
+int reinit_list_message(void)
+{
+	
+	return SUCCESS;
+}
+
+int deinit_list_message(void)
+{
+	int i;
+	unsigned char * t;
+	node_message_s * tb = list_node;
+	for(i = 0;i < amount_node;i+= (1<<AMOUNT_LISTS)){
+		t = tb->begin;
+		free(t);
+		tb += (1<<AMOUNT_LISTS); 
+	}
+	free(list_node);
+	amount_node = 0;
+	return SUCCESS;
+}
+/*Добавить список сообшений клиента*/
+int add_list_message(user_s * psu)
+{
+	int i;
+	node_message_s * t_node = list_node;
+	unsigned char * t = NULL;
+	for(i = 0;i < amount_node;i++){
+		if(t_node->free == YES){
+			t = t_node->begin;
+			memset(t,0,SIZE_LIST_MESSAGE);
+			psu->list_message =(all_message_u*)t;
+			psu->first_message = (all_message_u*)t;
+			psu->last_message = (all_message_u*)t;
+			break;
+		}
+		t_node ++;
+	}
+	if(t == NULL){
+	}
+
+	return ;	
+}
+/*Удалить список сообщений клиента*/
+int del_list_message(user_s * psu)
 {
 	void * buff = (void *)m;
 	if( buff != NULL) 
