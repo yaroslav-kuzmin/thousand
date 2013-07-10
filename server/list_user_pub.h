@@ -27,7 +27,6 @@
 #ifndef LIST_USER_PUB_H
 #define LIST_USER_PUB_H
 
-#define LEN_USER_NAME      64
 #define SIZE_BUFF_PARTIAL  256
 
 typedef struct _user_s user_s;

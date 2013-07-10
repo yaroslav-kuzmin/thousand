@@ -39,8 +39,10 @@
 #include "ini.h"
 #include "kernel.h"
 #include "net_server.h"
+#include "protocol.h"
 #include "list_user_pub.h"
 #include "list_user.h"
+#include "list_message.h"
 
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -82,6 +84,7 @@ void print_version(FILE * stream)
 void close_server(int signal_num)
 {
 	close_soket();
+	deinit_lists_message();
 	deinit_list_user();
 	close_config();
 	close_log_system();
@@ -241,6 +244,11 @@ int main(int argc,char * argv[])
 	rc = init_list_user();
 	if(rc == FAILURE){
 		global_warning("Несмог инициализировать Пользователей!");
+		goto exit_server;	
+	}
+	rc = init_lists_message();
+	if(rc == FAILURE){
+		global_warning("Несмог инициализировать Список Сообщений!");
 		goto exit_server;	
 	}
 	rc = init_socket();

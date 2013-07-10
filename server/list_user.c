@@ -32,8 +32,11 @@
 
 #include "pub.h"
 #include "log.h"
+#include "protocol.h"
 
+#include "kernel_pub.h"
 #include "list_user_pub.h"
+#include "list_message.h"
 
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -41,13 +44,13 @@
 #define ADD_USER    100
 static unsigned long int amount_user = 0;
 static unsigned long int number_user = 0;
-static user_t * begin_list_user = NULL;
-static user_t * current_user = NULL;
+static user_s * begin_list_user = NULL;
+static user_s * current_user = NULL;
 
 /*****************************************************************************/
 /* Основные функции                                                          */
 /*****************************************************************************/
-user_t * get_begin_user_list(void)
+user_s * get_begin_user_list(void)
 {
 	return begin_list_user;
 }
@@ -61,15 +64,16 @@ static int resize_list_user(void)
 {
 	unsigned long int size_new;
 	unsigned long int size_old;
-	user_t * ptu_new;
-	user_t * ptu_old = begin_list_user;
+	user_s * ptu_new;
+	user_s * ptu_old = begin_list_user;
 	
 	size_old = amount_user;
+	/*TODO переделать добавление увеличивать в 2*/
 	size_new = size_old + ADD_USER;
-	size_old *= sizeof(user_t);
-	size_new *= sizeof(user_t);
+	size_old *= sizeof(user_s);
+	size_new *= sizeof(user_s);
 	
-	ptu_new = (user_t*)malloc(size_new);	
+	ptu_new = (user_s*)malloc(size_new);	
 		assert(ptu_new);
 		
 	memset(ptu_new,0,size_new);
@@ -89,12 +93,12 @@ static int resize_list_user(void)
 
 int init_list_user(void)
 {
-	user_t * ptu;
+	user_s * ptu;
 	unsigned long int size;
 
-	size = ADD_USER * sizeof(user_t);
+	size = ADD_USER * sizeof(user_s);
 	
-	ptu = (user_t*)malloc(size);
+	ptu = (user_s*)malloc(size);
 		assert(ptu);
 	
 	amount_user = ADD_USER;	
@@ -110,7 +114,7 @@ int init_list_user(void)
 
 int deinit_list_user(void)
 {
-	user_t * ptu = begin_list_user;
+	user_s * ptu = begin_list_user;
 
 	ptu = begin_list_user;
 	if(ptu != NULL)
@@ -125,9 +129,8 @@ int deinit_list_user(void)
 int add_user_list(int fd)
 {
 	char * temp;
-	user_t * ptu;
+	user_s * ptu;
 	unsigned long int i;
-	size_t size;
 
 	if(number_user == amount_user){
 		resize_list_user();
@@ -140,29 +143,29 @@ int add_user_list(int fd)
 
 	ptu = begin_list_user;
 	for(i = 0;i < number_user;i++){
-		if(fd == ptu->number_fd){
+		if(fd == ptu->fd){
 			global_log("Номера идентификаторов совпадают : %d!",fd);
 			return FAILURE;
 		}
 		ptu++;
 	}
 
-	current_user->number_user = fd;
+	current_user->fd = fd;
 	temp = current_user->name;
 	memset(temp,0,LEN_USER_NAME);
-	temp = current_user->passwd;
+	temp = (char*)current_user->passwd;
 	memset(temp,0,MD5_DIGEST_LENGTH);
 	current_user->timeout = time(NULL) + WAITING_USER;
 	add_list_message(current_user);
 	current_user->partial = NO;
 	current_user->len_partial = 0;
-	temp = current_user->partial_buff;
+	temp = (char*)current_user->partial_buff;
 	memset(temp,0,SIZE_BUFF_PARTIAL);
 /*TODO преобразовать время*/	
-	global_log("Соединения с сервером под номером %d время %ld!",current_user->number_fd,current_user->timeout);
+	global_log("Соединения с сервером под номером %d время %ld!",current_user->fd,current_user->timeout);
 
 	current_user++;
-	number++;
+	number_user++;
 
 	return SUCCESS;
 }
@@ -171,9 +174,9 @@ int del_user_list(int fd)
 {
 	unsigned long int number;
 	int size;
-	user_t * ptu = begin_list_user;
-	user_t * ptu_new = begin_list_user;
-	user_t * ptu_old = begin_list_user;
+	user_s * ptu = begin_list_user;
+	user_s * ptu_new = begin_list_user;
+	user_s * ptu_old = begin_list_user;
 
 	if(number_user == 0){
 		global_log("В списке нет игроков!");
@@ -181,7 +184,7 @@ int del_user_list(int fd)
 	}
 	for(number = 0;number < number_user;number++){
 		if(fd == ptu->fd){
-			global_log("Удаление из списка игрока %s под номером %d!",ptu->name,ptu->number_fd);
+			global_log("Удаление из списка игрока %s под номером %d!",ptu->name,ptu->fd);
 			break;
 		}
 		ptu++;
@@ -194,10 +197,10 @@ int del_user_list(int fd)
 		ptu_old += number;
 		ptu_new += (number + 1);
 			
-		deinit_list_message(ptu_old->list_message);
+		del_list_message(ptu_old);
 
 		size = number_user - (number + 1);
-		size *= sizeof(user_t);
+		size *= sizeof(user_s);
 		memmove(ptu_old,ptu_new,size);
 	}
 	

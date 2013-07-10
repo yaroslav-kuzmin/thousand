@@ -27,6 +27,8 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
+#define LEN_USER_NAME      64
+
 typedef struct _message_cmd_s message_cmd_s;
 typedef union _message_cmd_u message_cmd_u;
 struct _message_cmd_s
@@ -41,13 +43,14 @@ union _message_cmd_u
 };
 
 typedef struct _message_login_s message_login_s;
-typedef struct _message_login_u message_login_u;
+typedef union _message_login_u message_login_u;
 struct _message_login_s
 {
 	unsigned short int type;
 	unsigned short int len;
 	unsigned char login[LEN_USER_NAME];
 }__attribute__((packed));
+
 union _message_login_u
 {
 	message_login_s msg;
@@ -55,7 +58,7 @@ union _message_login_u
 };
 
 typedef struct _message_passwd_s message_passwd_s;
-typedef struct _message_passwd_u message_passwd_u;
+typedef union _message_passwd_u message_passwd_u;
 struct _message_passwd_s
 {
 	unsigned short int type;

@@ -31,11 +31,13 @@
 #include <sys/un.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <openssl/md5.h>
 
 #include "pub.h"
 #include "total.h"
 #include "warning.h"
 #include "log.h"
+#include "protocol.h"
 
 #include "list_user_pub.h"
 #include "list_user.h"
