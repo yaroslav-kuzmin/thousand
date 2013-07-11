@@ -128,7 +128,7 @@ int main_loop(void)
 		nu = get_number_user()
 		for(i = 0;i < nu;i++){
 			fd = ptu->fd;
-			rc = recv(fd,t_buff,SIZE_BUFF_MESSAGE,0);
+			rc = recv(fd,t_buff,SIZE_TEMP_BUFF,0);
 			if(rc == -1){
 			/*данных от клиента не поступало*/	
 				if(errno != EAGAIN){

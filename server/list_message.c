@@ -49,6 +49,7 @@ struct _node_message_s
 static int amount_node;
 static node_message_s * list_node = NULL;
 
+static int size_temp_buff = 0;
 static unsigned char * temp_buff;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
@@ -95,6 +96,35 @@ static int reinit_lists_message(void)
 	return SUCCESS;
 }
 
+static int increase_list_message(user_s * psu)
+{
+	unsigned char * begin = (unsigned char *)psu->list_message;
+	unsigned char * first = (unsigned char *)psu->first_message;
+	unsigned char * last = (unsigned char *)psu->last_message;
+	unsigned char * end = (unsigned char *)psu->end_message;
+	unsigned char * t_old = begin;
+	unsigned char * t_new = NULL;
+	int size;
+	int i,j;
+	node_message_s * t_node;
+	
+	
+	size = (end - begin)/SIZE_BUFF_MESSAGE;
+	t_node = list_node;
+	for(i = 0;i < amount_node;i++){
+		if(t_node->free == YES){
+			node_message_s * t = t_node; 
+			for(j = 1;j< size;j++){
+				t++;
+				if(t->free == NO){
+					break;
+				}
+			}
+			if(j == size)
+		}
+	}
+	return SUCCESS;
+}
 /*****************************************************************************/
 /* Основные функции                                                          */
 /*****************************************************************************/
@@ -128,7 +158,9 @@ int init_lists_message(void)
 	}
 
 	global_log("Инициализировал Список Сообщений колличеством %d!",amount_node);
-	temp_buff = malloc(SIZE_BUFF_MESSAGE);
+
+	size_temp_buff = SIZE_BUFF_MESSAGE;
+	temp_buff = malloc(size_temp_buff);
 		assert(temp_buff);
 
 	return SUCCESS;
@@ -165,6 +197,9 @@ iteration_add:
 			psu->list_message =(all_message_u*)t;
 			psu->first_message = (all_message_u*)t;
 			psu->last_message = (all_message_u*)t;
+			t_node++;
+			t = t_node->current;
+			psu->end_message = (all_message_u*)t;
 			t_node->free = NO;
 			break;
 		}
@@ -177,6 +212,7 @@ iteration_add:
 	global_log("Добавил Список Сообщений Пользователю %d!",psu->fd);
 	return SUCCESS;
 }
+
 /*Удалить список сообщений клиента*/
 int del_list_message(user_s * psu)
 {
@@ -197,49 +233,85 @@ int del_list_message(user_s * psu)
 	return SUCCESS;
 }	
 
-
 int write_message_list(user_s * psu,unsigned char * buf,int len)
 {
 
 	unsigned char * t_new;
 	unsigned char * t_old;
-	all_message_u * begin = psu->list_message;
-	all_message_u * first = psu->first_message;
-	all_message_u * last = psu->last_message;
+	unsigned char * begin = (unsigned char *)psu->list_message;
+	unsigned char * first = (unsigned char *)psu->first_message;
+	unsigned char * last = (unsigned char *)psu->last_message;
+	unsigned char * end = (unsigned char *)psu->end_message;
 	all_message_u * msg = (all_message_u *)buf;
 	int len_buff = len;
 	int len_msg;
 	int t_len;
 	
 	if(psu->partial == YES){
-		t_new = temp_buff;
 		t_old = psu->partial_buff;
 		t_len = psu->len_partial;
-
-		memset(t_new,0,SIZE_BUFF_MESSAGE);
+		if( size_temp_buff < (t_len + len_buff)){
+			free(temp_buff);
+			size_temp_buff = (t_len + len_buff );
+			temp_buff = (unsigned char *)malloc(size_temp_buff);
+				assert(temp_buff);
+		}
+		t_new = temp_buff;
+		memset(t_new,0,size_temp_buff);
 		memcpy(t_new,t_old,t_len);
 		t_new += t_len;
-		/*TODO проверка на переполнение*/
 		memcpy(t_new,buf,len_buff);
+
 		msg = (all_message_u*)temp_buff;
 		len_buff += t_len;
+
 		psu->partial = NO;
 		memset(t_old,0,SIZE_BUFF_PARTIAL);
 	}
 
-	len_msg = msg->cmd.msg.len + (sizeof(message_cmd_s));
-
 	for(;len_buff;){
-		if(len_msg > len_buff){
-		/*TODO проверка на переполнение*/
-			t_new = psu->partial_buff;
-			memcpy(t_new,buf,len_buff);
-			psu->len_partial = len_buff;
-			psu->partial = YES;
+		if(len_buff < (sizeof(message_cmd_s))){
+			goto partial_exit;
+		}
+
+		len_msg = msg->cmd.field.len + (sizeof(message_cmd_s));
+
+		if(len_msg > len_buff ){
+			partial_exit;
+		}
+
+		t_new = (unsigned char *)msg;
+		if((last == begin) || ((last + len_msg) < end)){
+			memcpy(last,t_new,len_msg);
+			last += len_msg;
+			t_new += len_msg;
+			msg = (all_message_u*)t_new;
+			len_buff -= len_msg;
 			break;
 		}
-		
+		if((last + len_msg) > end){
+			if(begin == first){
+
+			}
+		}
+
+		if(len_buff < 0){
+			global_warning("Некоректная обработка сообщений : длина Буфера сообщений равна %d",len_buff);
+			break;
+		}
 	}
+	goto exit_write_ok;
+partial_exit:
+	t_new = psu->partial_buff;
+	/*TODO */
+	if(len_buff > SIZE_BUFF_PARTIAL){
+		global_warning("Переполнение буфера остаточных сообщений! - Данные потеряны");
+		return FAILED;
+	}
+	memcpy(t_new,buf,len_buff);
+	psu->len_partial = len_buff;
+	psu->partial = YES;
+exit_write_ok:
 	return SUCCESS;
 }	
 

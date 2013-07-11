@@ -33,19 +33,21 @@ typedef struct _message_cmd_s message_cmd_s;
 typedef union _message_cmd_u message_cmd_u;
 struct _message_cmd_s
 {
+	unsigned short int number;
 	unsigned short int type;
 	unsigned short int len;
 }__attribute__((packed));
 union _message_cmd_u
 {
-	message_cmd_s msg;
-	unsigned char buf[sizeof(message_cmd_s)];
+	message_cmd_s field;
+	unsigned char array[sizeof(message_cmd_s)];
 };
 
 typedef struct _message_login_s message_login_s;
 typedef union _message_login_u message_login_u;
 struct _message_login_s
 {
+	unsigned short int number;
 	unsigned short int type;
 	unsigned short int len;
 	unsigned char login[LEN_USER_NAME];
@@ -53,22 +55,23 @@ struct _message_login_s
 
 union _message_login_u
 {
-	message_login_s msg;
-	unsigned char buf[sizeof(message_login_s)];
+	message_login_s field;
+	unsigned char array[sizeof(message_login_s)];
 };
 
 typedef struct _message_passwd_s message_passwd_s;
 typedef union _message_passwd_u message_passwd_u;
 struct _message_passwd_s
 {
+	unsigned short int number;
 	unsigned short int type;
 	unsigned short int len;
 	unsigned char passwd[MD5_DIGEST_LENGTH];
 }__attribute__((packed));
 union _message_passwd_u
 {
-	message_passwd_s msg;
-	unsigned char buf[sizeof(message_passwd_s)];
+	message_passwd_s field;
+	unsigned char array[sizeof(message_passwd_s)];
 };
 
 typedef union _all_message_u all_message_u;

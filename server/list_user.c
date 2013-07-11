@@ -156,6 +156,7 @@ int add_user_list(int fd)
 	temp = (char*)current_user->passwd;
 	memset(temp,0,MD5_DIGEST_LENGTH);
 	current_user->timeout = time(NULL) + WAITING_USER;
+	current_user->package = 0;
 	add_list_message(current_user);
 	current_user->partial = NO;
 	current_user->len_partial = 0;
