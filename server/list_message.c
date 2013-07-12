@@ -39,15 +39,17 @@
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
 #define AMOUNT_LISTS         (1<<2)   /*начальное колличество кратно степени 2*/
+#define AMOUNT_BIT_IN_BYTE     3
 typedef struct _node_message_s node_message_s;
 struct _node_message_s
 {
-	int free;
 	unsigned char * begin;
 	unsigned char * current;
 };
 static int amount_node;
 static node_message_s * list_node = NULL;
+static int amount_free_node = 0;
+static unsigned char * free_node = NULL;
 
 static int size_temp_buff = 0;
 static unsigned char * temp_buff;
@@ -136,6 +138,7 @@ int init_lists_message(void)
 	node_message_s * t_node;
 	unsigned char * tpucb;
 	unsigned char * tpuc;
+	unsigned long int * tpul;
 
 	amount_node = AMOUNT_LISTS;
 	size = amount_node * sizeof(node_message_s);
@@ -150,12 +153,19 @@ int init_lists_message(void)
 	tpuc = tpucb;
 
 	for(i = 0;i < amount_node;i++){
-		t_node->free = YES;
 		t_node->begin = tpucb;
 		t_node->current = tpuc;
 		t_node++;
 		tpuc += SIZE_BUFF_MESSAGE;
 	}
+
+	size = amount_node >> AMOUNT_BIT_IN_BYTE; 
+	size++;
+	
+	free_node = (unsigned long int *)malloc(size);
+		assert(free_node);
+	memset(free_node,0,size);
+	amount_free_node = size;
 
 	global_log("Инициализировал Список Сообщений колличеством %d!",amount_node);
 
@@ -179,6 +189,8 @@ int deinit_lists_message(void)
 	}
 	free(list_node);
 	amount_node = 0;
+	free(free_node);
+	amount_free_node = 0;
 	global_log("Удалил Список Сообщений!");
 	return SUCCESS;
 }
@@ -191,6 +203,11 @@ int add_list_message(user_s * psu)
 iteration_add:	
 	t_node = list_node;
 	for(i = 0;i < amount_node;i++){
+#if 0
+i = bit >> AMOUNT_BIT_IN_BYTE;
+b = 1 << (bit - (i<<AMOUNT_BIT_IN_BYTE));
+buff[i] = buff[i] | b;
+#endif
 		if(t_node->free == YES){
 			t = t_node->current;
 			memset(t,0,SIZE_BUFF_MESSAGE);

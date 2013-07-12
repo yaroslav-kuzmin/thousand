@@ -28,7 +28,7 @@
 #define KERNEL_PUB_H
 
 #define SIZE_BUFF_MESSAGE           4096  /*размер буфера считывания и отправки сообщений*/
-#define WAITING_USER                100  /*Проверка подключения в секундах*/ 
+#define WAITING_USER                100   /*Проверка подключения в секундах*/ 
 
 #endif
 
