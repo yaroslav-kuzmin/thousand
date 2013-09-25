@@ -56,6 +56,17 @@ static unsigned char * temp_buff;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
+int check_free_node(int number,int size)
+{
+}
+
+int set_free_node(int number,int size)
+{
+}
+
+int get_free_node(int number,int size)
+{
+}
 
 static int reinit_lists_message(void)
 {
@@ -84,16 +95,27 @@ static int reinit_lists_message(void)
 	tpuc = tpucb;
 
 	list_node = t_node_new;
-	amount_node = new_an;
 
 	t_node_new += old_an; 
 	for(i = old_an;i < new_an;i++){
-		t_node_new->free = YES;
 		t_node_new->begin = tpucb;
 		t_node_new->current = tpuc;
 		t_node_new ++;
 		tpuc += SIZE_BUFF_MESSAGE; 
 	}
+
+	size = new_an >> AMOUNT_BIT_IN_BYTE; 
+	size++;
+	if(size > amount_free_node){	
+		tpuc = (unsigned char*)malloc(size);
+			assert(tpuc);
+		memset(tpuc,0,size);
+		memcpy(tpuc,free_node,amount_free_node);
+		free(free_node);
+		free_node = tpuc;
+		amount_free_node = size;
+	}
+	amount_node = new_an;
 	global_log("Увеличил Список Сообщений : %d!",amount_node);
 	return SUCCESS;
 }
@@ -110,20 +132,9 @@ static int increase_list_message(user_s * psu)
 	int i,j;
 	node_message_s * t_node;
 	
-	
 	size = (end - begin)/SIZE_BUFF_MESSAGE;
 	t_node = list_node;
 	for(i = 0;i < amount_node;i++){
-		if(t_node->free == YES){
-			node_message_s * t = t_node; 
-			for(j = 1;j< size;j++){
-				t++;
-				if(t->free == NO){
-					break;
-				}
-			}
-			if(j == size)
-		}
 	}
 	return SUCCESS;
 }
@@ -197,18 +208,19 @@ int deinit_lists_message(void)
 /*Добавить список сообшений клиента*/
 int add_list_message(user_s * psu)
 {
-	int i;
+	int i,n,b;
 	node_message_s * t_node = NULL;
 	unsigned char * t = NULL;
+	unsigned char *f_n = NULL;
 iteration_add:	
 	t_node = list_node;
 	for(i = 0;i < amount_node;i++){
-#if 0
-i = bit >> AMOUNT_BIT_IN_BYTE;
-b = 1 << (bit - (i<<AMOUNT_BIT_IN_BYTE));
-buff[i] = buff[i] | b;
-#endif
-		if(t_node->free == YES){
+		unsigned char c;
+	 	n = i >> AMOUNT_BIT_IN_BYTE;
+		b = 1 << ( i - (n <<AMOUNT_BIT_IN_BYTE));
+		f_n = free_node + n;
+		c = *f_n; 
+		if( !(c & b) ){
 			t = t_node->current;
 			memset(t,0,SIZE_BUFF_MESSAGE);
 			psu->list_message =(all_message_u*)t;
@@ -217,7 +229,7 @@ buff[i] = buff[i] | b;
 			t_node++;
 			t = t_node->current;
 			psu->end_message = (all_message_u*)t;
-			t_node->free = NO;
+			*f_n = c | b;
 			break;
 		}
 		t_node ++;
@@ -233,7 +245,8 @@ buff[i] = buff[i] | b;
 /*Удалить список сообщений клиента*/
 int del_list_message(user_s * psu)
 {
-	int i;
+	int i,n,b;
+	unsigned char * f_n;
 	unsigned char * t_check = NULL;
 	unsigned char * t_old = (unsigned char *)psu->list_message;
 	node_message_s * t_node = list_node;
@@ -241,7 +254,12 @@ int del_list_message(user_s * psu)
 	for(i = 0;i < amount_node;i++){
 		t_check = t_node->current;
 		if(t_old == t_check){
-			t_node->free = YES;
+			unsigned char c;
+	 		n = i >> AMOUNT_BIT_IN_BYTE;
+			b = 1 << ( i - (n <<AMOUNT_BIT_IN_BYTE));
+			f_n = free_node + n;
+			c = *f_n;
+			*f_n = c & (~b); 
 			break;
 		}
 		t_node ++;
