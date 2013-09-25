@@ -37,6 +37,7 @@
 #include "warning.h"
 #include "log.h"
 #include "ini.h"
+#include "bit_flag.h"
 #include "kernel.h"
 #include "net_server.h"
 #include "protocol.h"
@@ -86,11 +87,12 @@ void close_server(int signal_num)
 	close_soket();
 	deinit_lists_message();
 	deinit_list_user();
+	deinit_bit_fields();
 	close_config();
 	close_log_system();
 	close_warning_system();
 	deinit_str_alloc();
-	exit(0);
+	exit(0); 
 }
 
 int set_signals(void)
@@ -241,6 +243,7 @@ int main(int argc,char * argv[])
 		global_warning("Несмог инициализировать конфигурацию!");
 		goto exit_server;
 	}
+	rc = init_bit_fields();
 	rc = init_list_user();
 	if(rc == FAILURE){
 		global_warning("Несмог инициализировать Пользователей!");

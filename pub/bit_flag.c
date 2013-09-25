@@ -304,7 +304,7 @@ uint32_t free_bit_flag(int number,uint32_t size)
 	uint32_t a; 
 	
 	if(number >= current_bit_field){
-		return FAILURE;
+		return UINT32_MAX;
 	}
 	bft = bft + number;
 	bits = bft->bits;
@@ -312,7 +312,7 @@ uint32_t free_bit_flag(int number,uint32_t size)
 	a = as << AMOUNT_BIT_IN_UINT8; 
 
 	if( size > a ){
-		reinit_bit_flags(number,size+a);
+		return UINT32_MAX;
 	}
 
 	if(size == 0){
