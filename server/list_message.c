@@ -48,8 +48,6 @@ struct _node_message_s
 };
 static int amount_node;
 static node_message_s * list_node = NULL;
-static int amount_free_node = 0;
-static unsigned char * free_node = NULL;
 
 static int size_temp_buff = 0;
 static unsigned char * temp_buff;
