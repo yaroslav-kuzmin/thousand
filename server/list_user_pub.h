@@ -35,16 +35,13 @@ struct _user_s
 {
 	int fd;
 	char name[LEN_USER_NAME];
-	unsigned char passwd[MD5_DIGEST_LENGTH];
+	uint8_t passwd[MD5_DIGEST_LENGTH];
 	time_t timeout;
-	unsigned short int package;
-	all_message_u * list_message;
-	all_message_u * first_message;
-	all_message_u * last_message;
-	all_message_u * end_message;
-	char partial;
-	int len_partial;
-	unsigned char partial_buff[SIZE_BUFF_PARTIAL];
+	uint16_t package;
+	uint8_t * list_message;
+	uint8_t * first_message;
+	uint8_t * last_message;
+	uint8_t * end_message;
 };
 
 #endif

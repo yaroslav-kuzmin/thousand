@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <stdint.h>
 #include <openssl/md5.h>
 
 #include "pub.h"
@@ -39,22 +40,23 @@
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
 #define AMOUNT_LISTS         (1<<2)   /*начальное колличество кратно степени 2*/
-#define AMOUNT_BIT_IN_BYTE     3
-typedef struct _node_message_s node_message_s;
-struct _node_message_s
+#define SIZE_BLOCK           4096    /*размер одного блока */
+
+typedef struct _block_message_s block_message_s;
+struct block_message_s
 {
-	unsigned char * begin;
-	unsigned char * current;
+	uint8_t * begin;
+	uint8_t * current;
 };
-static int amount_node;
-static node_message_s * list_node = NULL;
-static free_node = 0;
+static uint32_t amount_block;
+static block_message_s * list_block = NULL;
+static int free_block = 0;
 /*
-static int amount_free_node = 0;
-static unsigned char * free_node = NULL;
+static int amount_free_block = 0;
+static uint8_t * free_block = NULL;
 */
 static int size_temp_buff = 0;
-static unsigned char * temp_buff;
+static uint8_t * temp_buff;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
@@ -62,60 +64,82 @@ static int reinit_lists_message(void)
 {
 	int i;
 	size_t size;
-	unsigned char * tpucb;
-	unsigned char * tpuc;
-	int old_an = amount_node;	
-	int new_an = amount_node << 1;
-	node_message_s * t_node_old = list_node;
-	node_message_s * t_node_new = NULL;
+	uint8_t * tpucb;
+	uint8_t * tpuc;
+	int old_ab = amount_block;	
+	int new_ab = amount_block << 1;
+	block_message_s * t_block_old = list_block;
+	block_message_s * t_block_new = NULL;
 
-	size = new_an * sizeof(node_message_s);	
-	t_node_new = (node_message_s *)malloc(size);
-		assert(t_node_new);
-	memset(t_node_new,0,size);
+	size = new_ab * sizeof(block_message_s);	
+	t_block_new = (block_message_s *)malloc(size);
+		assert(t_block_new);
+	memset(t_block_new,0,size);
 
-	size = old_an * sizeof(node_message_s);
-	memcpy(t_node_new,t_node_old,size);
-	free(t_node_old);
+	size = old_ab * sizeof(block_message_s);
+	memcpy(t_block_new,t_block_old,size);
+	free(t_block_old);
 
-	size = (new_an - old_an) * SIZE_BUFF_MESSAGE;
-	tpucb = (unsigned char *)malloc(size);
+	size = (new_an - old_an) * SIZE_BLOCK;
+	tpucb = (uint8_t *)malloc(size);
 		assert(tpucb);
 	memset(tpucb,0,size);
 	tpuc = tpucb;
 
-	list_node = t_node_new;
+	list_block = t_block_new;
 
-	t_node_new += old_an; 
+	t_block_new += old_an; 
 	for(i = old_an;i < new_an;i++){
-		t_node_new->begin = tpucb;
-		t_node_new->current = tpuc;
-		t_node_new ++;
-		tpuc += SIZE_BUFF_MESSAGE; 
+		t_block_new->begin = tpucb;
+		t_block_new->current = tpuc;
+		t_block_new ++;
+		tpuc += SIZE_BLOCK; 
 	}
 
-	reinit_bit_flags(free_node,new_an); 
-	amount_node = new_an;
-	global_log("Увеличил Список Сообщений : %d!",amount_node);
+	reinit_bit_flags(free_block,new_an); 
+	amount_block = new_an;
+	global_log("Увеличил Список Сообщений : %d!",amount_block);
 	return SUCCESS;
 }
 
 static int increase_list_message(user_s * psu)
 {
-	unsigned char * begin = (unsigned char *)psu->list_message;
-	unsigned char * first = (unsigned char *)psu->first_message;
-	unsigned char * last = (unsigned char *)psu->last_message;
-	unsigned char * end = (unsigned char *)psu->end_message;
-	unsigned char * t_old = begin;
-	unsigned char * t_new = NULL;
-	int size;
+	uint8_t * begin = psu->list_message;
+	uint8_t * first = psu->first_message;
+	uint8_t * last = psu->last_message;
+	uint8_t * end = psu->end_message;
+	uint8_t * t_old = begin;
+	uint8_t * t_new = NULL;
+	int abu; /*количество блоков и пользователя*/
 	int i,j;
-	node_message_s * t_node;
+	block_message_s * t_block;
 	
-	size = (end - begin)/SIZE_BUFF_MESSAGE;
-	t_node = list_node;
-	for(i = 0;i < amount_node;i++){
+	abu = (end - begin)/SIZE_BLOCK;
+	t_block = list_block;
+
+
+	return SUCCESS;
+}
+
+static int check_list_message(user_s * psu)
+{
+	uint8_t * begin = psu->list_message;
+	uint8_t * first = psu->first_message;
+	uint8_t * last = psu->last_message;
+	uint8_t * end = psu->end_message;
+	size_t size;
+
+	if(begin == first){
+		return SUCCESS;
 	}
+	if( (begin < first) && (first < last)){
+		size = (size_t) last - (size_t) first;
+		memmove(begin,first,size);
+		psu->first_message = begin;
+		psu->last_message = begin + size;
+		return SUCCESS;
+	}
+
 	return SUCCESS;
 }
 /*****************************************************************************/
@@ -126,35 +150,34 @@ int init_lists_message(void)
 {
 	int i;
 	size_t size = 0;
-	node_message_s * t_node;
-	unsigned char * tpucb;
-	unsigned char * tpuc;
-	unsigned long int * tpul;
+	block_message_s * t_block;
+	uint8_t * tpucb;
+	uint8_t * tpuc;
 
-	amount_node = AMOUNT_LISTS;
-	size = amount_node * sizeof(node_message_s);
+	amount_block = AMOUNT_LISTS;
+	size = amount_block * sizeof(block_message_s);
 
-	list_node = (node_message_s *)malloc(size);
-		assert(list_node);
-	size = amount_node * SIZE_BUFF_MESSAGE;
-	tpucb = (unsigned char *)malloc(size);
+	list_block = (block_message_s *)malloc(size);
+		assert(list_block);
+	size = amount_block * SIZE_BLOCK;
+	tpucb = (uint8_t *)malloc(size);
 		assert(tpucb);
 	
-	t_node = list_node;
+	t_block = list_block;
 	tpuc = tpucb;
 
-	for(i = 0;i < amount_node;i++){
-		t_node->begin = tpucb;
-		t_node->current = tpuc;
-		t_node++;
-		tpuc += SIZE_BUFF_MESSAGE;
+	for(i = 0;i < amount_block;i++){
+		t_block->begin = tpucb;
+		t_block->current = tpuc;
+		t_block++;
+		tpuc += SIZE_BLOCK;
 	}
 
-	free_node = init_bit_flags(amount_node); 
+	free_block = init_bit_flags(amount_block); 
 
-	global_log("Инициализировал Список Сообщений колличеством %d!",amount_node);
+	global_log("Инициализировал Список Сообщений колличеством %d!",amount_block);
 
-	size_temp_buff = SIZE_BUFF_MESSAGE;
+	size_temp_buff = SIZE_BLOCK;
 	temp_buff = malloc(size_temp_buff);
 		assert(temp_buff);
 
@@ -164,42 +187,46 @@ int init_lists_message(void)
 int deinit_lists_message(void)
 {
 	unsigned int i;
-	unsigned char * t;
-	node_message_s * tb = list_node;
+	uint8_t * t;
+	block_message_s * tb = list_block;
 
-	for(i = AMOUNT_LISTS;i < amount_node; i = i<<1 ){
+	for(i = AMOUNT_LISTS;i < amount_block; i = i<<1 ){
 		t = tb->begin;
 		free(t);
-		tb = list_node + i; 
+		tb = list_block + i; 
 	}
-	free(list_node);
-	amount_node = 0;
-	deinit_bit_flag(free_node);
+	free(list_block);
+	amount_block = 0;
+	deinit_bit_flag(free_block);
 	global_log("Удалил Список Сообщений!");
 	return SUCCESS;
 }
+
 /*Добавить список сообшений клиента*/
 int add_list_message(user_s * psu)
 {
 	uint32_t check;
-	node_message_s * t_node = NULL;
-	unsigned char * t = NULL;
-	unsigned char *f_n = NULL;
+	block_message_s * t_block = NULL;
+	uint8_t * t = NULL;
+	uint8_t *f_n = NULL;
 iteration_add:	
-	check = free_bit_flag(free_node,1);
+	check = free_bit_flag(free_block,1);
 	if(check == UINT32_MAX){
 		reinit_lists_message();
-		check = free_bit_flag(free_node,1);
+		check = free_bit_flag(free_block,1);
+		if(check == UINT32_MAX){
+			return FAILURE;
+		}
 	}
-	t_node = list_node + check;
-	t = t_node->current;
-	memset(t,0,SIZE_BUFF_MESSAGE);
-	psu->list_message =(all_message_u*)t;
-	psu->first_message = (all_message_u*)t;
-	psu->last_message = (all_message_u*)t;
-	t_node++;
-	t = t_node->current;
-	psu->end_message = (all_message_u*)t;
+	t_block = list_block + check;
+	t = t_block->current;
+	memset(t,0,SIZE_BLOCK);
+	psu->list_message = t;
+	psu->first_message = t;
+	psu->last_message = t;
+	t_block++;
+	t = t_block->current;
+	psu->end_message = t;
 	global_log("Добавил Список Сообщений Пользователю %d!",psu->fd);
 	return SUCCESS;
 }
@@ -207,35 +234,32 @@ iteration_add:
 /*Удалить список сообщений клиента*/
 int del_list_message(user_s * psu)
 {
-	uint32_t i,s;
-	unsigned char * f_n;
-	unsigned char * t_check = NULL;
-	unsigned char * t_old = (unsigned char *)psu->list_message;
-	unsigned char * 
-	node_message_s * t_node = list_node;
+	uint32_t i;
+	uint8_t * t_check = NULL;
+	uint8_t * t_old = (uint8_t *)psu->list_message;
+	block_message_s * t_block = list_block;
 
-	for(i = 0;i < amount_node;i++){
-		t_check = t_node->current;
+	for(i = 0;i < amount_block;i++){
+		t_check = t_block->current;
 		if(t_old == t_check){
-			
-			get_bit_flag(free_node,i);
+			get_bit_flag(free_block,i);
 			break;
 		}
-		t_node ++;
+		t_block ++;
 	}
 	global_log("Удалил Список Сообщений Пользователя %d!",psu->fd);
 	return SUCCESS;
 }	
 
-int write_message_list(user_s * psu,unsigned char * buf,int len)
+int write_message_list(user_s * psu,uint8_t * buf,int len)
 {
 
-	unsigned char * t_new;
-	unsigned char * t_old;
-	unsigned char * begin = (unsigned char *)psu->list_message;
-	unsigned char * first = (unsigned char *)psu->first_message;
-	unsigned char * last = (unsigned char *)psu->last_message;
-	unsigned char * end = (unsigned char *)psu->end_message;
+	uint8_t * t_new;
+	uint8_t * t_old;
+	uint8_t * begin = (uint8_t *)psu->list_message;
+	uint8_t * first = (uint8_t *)psu->first_message;
+	uint8_t * last = (uint8_t *)psu->last_message;
+	uint8_t * end = (uint8_t *)psu->end_message;
 	all_message_u * msg = (all_message_u *)buf;
 	int len_buff = len;
 	int len_msg;
@@ -247,7 +271,7 @@ int write_message_list(user_s * psu,unsigned char * buf,int len)
 		if( size_temp_buff < (t_len + len_buff)){
 			free(temp_buff);
 			size_temp_buff = (t_len + len_buff );
-			temp_buff = (unsigned char *)malloc(size_temp_buff);
+			temp_buff = (uint8_t *)malloc(size_temp_buff);
 				assert(temp_buff);
 		}
 		t_new = temp_buff;
@@ -274,7 +298,7 @@ int write_message_list(user_s * psu,unsigned char * buf,int len)
 			partial_exit;
 		}
 
-		t_new = (unsigned char *)msg;
+		t_new = (uint8_t *)msg;
 		if((last == begin) || ((last + len_msg) < end)){
 			memcpy(last,t_new,len_msg);
 			last += len_msg;
@@ -309,7 +333,7 @@ exit_write_ok:
 	return SUCCESS;
 }	
 
-int read_message_list(user_s * psu,all_message_u * msg)
+int read_message_list(user_s * psu,uint8_t * msg)
 {
 	all_message_u * begin = psu->list_message;
 	all_message_u * first = psu->first_message;
@@ -317,5 +341,9 @@ int read_message_list(user_s * psu,all_message_u * msg)
 
 	return SUCCESS;
 }	
+
+int del_message_list(user_s * psu,int len)
+{
+}
 
 /*****************************************************************************/
