@@ -43,7 +43,7 @@
 #define SIZE_BLOCK           4096    /*размер одного блока */
 
 typedef struct _block_message_s block_message_s;
-struct block_message_s
+struct _block_message_s
 {
 	uint8_t * begin;
 	uint8_t * current;
@@ -78,15 +78,14 @@ static int reinit_lists_message(void)
 
 	size = old_ab * sizeof(block_message_s);
 	memcpy(t_block_new,t_block_old,size);
-	free(t_block_old);
+	free(list_block);
+	list_block = t_block_new;
 
 	size = (new_an - old_an) * SIZE_BLOCK;
 	tpucb = (uint8_t *)malloc(size);
 		assert(tpucb);
 	memset(tpucb,0,size);
 	tpuc = tpucb;
-
-	list_block = t_block_new;
 
 	t_block_new += old_an; 
 	for(i = old_an;i < new_an;i++){
@@ -110,12 +109,37 @@ static int increase_list_message(user_s * psu)
 	uint8_t * end = psu->end_message;
 	uint8_t * t_old = begin;
 	uint8_t * t_new = NULL;
-	int abu; /*количество блоков и пользователя*/
+	int abu; /*количество блоков пользователя*/
 	int i,j;
+	int check;
 	block_message_s * t_block;
 	
 	abu = (end - begin)/SIZE_BLOCK;
-	t_block = list_block;
+	abu ++;
+	for(i = 0;i < amount_block;i++){
+		check = check_bit_flag(free_block,i,abu);
+		if(check == FAILURE){
+			return FAILURE;
+		}
+		if(check == YES){
+			t_block = list_block + i;
+			t_old = t_block->begin;
+			for(j = 0;j < abu;j++){
+				t_block++;
+				t_new = t_block->begin;
+				if(t_old != t_new){
+					check = NO;
+					break;
+				}
+			}
+			if(check == YES){
+				t_block = list_block + i;
+					
+				break;
+			}
+		}
+
+	}/*for(i = 0;i < amount_block;i++)*/
 
 
 	return SUCCESS;
@@ -215,6 +239,7 @@ iteration_add:
 		reinit_lists_message();
 		check = free_bit_flag(free_block,1);
 		if(check == UINT32_MAX){
+			global_warning("Несмог увеличеть размер буфера сообщений у пользователя %d!",psu->fd); 
 			return FAILURE;
 		}
 	}
@@ -224,8 +249,7 @@ iteration_add:
 	psu->list_message = t;
 	psu->first_message = t;
 	psu->last_message = t;
-	t_block++;
-	t = t_block->current;
+	t = t + SIZE_BLOCK;
 	psu->end_message = t;
 	global_log("Добавил Список Сообщений Пользователю %d!",psu->fd);
 	return SUCCESS;
@@ -236,13 +260,16 @@ int del_list_message(user_s * psu)
 {
 	uint32_t i;
 	uint8_t * t_check = NULL;
-	uint8_t * t_old = (uint8_t *)psu->list_message;
+	uint8_t * t_begin = psu->list_message;
+	uint8_t * t_end = psu->end_message;
+	size_t size;
 	block_message_s * t_block = list_block;
 
 	for(i = 0;i < amount_block;i++){
 		t_check = t_block->current;
 		if(t_old == t_check){
-			get_bit_flag(free_block,i);
+			size = (t_end - t_begin)/SIZE_BLOCK;
+			get_bit_flag(free_block,size);
 			break;
 		}
 		t_block ++;
@@ -251,6 +278,8 @@ int del_list_message(user_s * psu)
 	return SUCCESS;
 }	
 
+/*TODO возможна повышение производительности работы буфера если реализовать "круговой буфер"*/
+/* Записывает прищедшие сообщения в буфер*/
 int write_message_list(user_s * psu,uint8_t * buf,int len)
 {
 
@@ -332,7 +361,7 @@ partial_exit:
 exit_write_ok:
 	return SUCCESS;
 }	
-
+/* Читает сообщения из буфера без удаления*/
 int read_message_list(user_s * psu,uint8_t * msg)
 {
 	all_message_u * begin = psu->list_message;
@@ -341,7 +370,7 @@ int read_message_list(user_s * psu,uint8_t * msg)
 
 	return SUCCESS;
 }	
-
+/* Удаляет сообщения из буфера */
 int del_message_list(user_s * psu,int len)
 {
 }

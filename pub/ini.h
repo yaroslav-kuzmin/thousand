@@ -27,11 +27,10 @@
 #ifndef INI_H
 #define INI_H
 
+GKeyFile * get_ini_file(void);
+int change_ini_file(void);
+
 int read_config(void);
 int close_config(void);
 
-int search_parameter(char * parameter);
-int full_value_parameter(char * parameter,char ** value_parameter,int count);
-int add_new_parameter(char * parameter,char * value_parameter);
-int rewrite_parameter(char * parameter,char * value_parameter);
 #endif

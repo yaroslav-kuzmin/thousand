@@ -22,76 +22,55 @@
 
 /*****************************************************************************/
 /*  Модуль: Работы с файлом параметров                                       */
+/*            инициализируем глобальную переменую                            */
 /*****************************************************************************/
 
 /*****************************************************************************/
 /* Дополнительные файлы                                                      */
 /*****************************************************************************/
-#include <stdlib.h>
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <string.h>
-#include <assert.h>
-#include <errno.h>
+
+#include <glib.h>
 
 #include "pub.h"
 #include "total.h"
-#include "alloc.h"
 #include "log.h"
 #include "warning.h"
 
 /*****************************************************************************/
 /* глобальные переменые                                                      */
 /*****************************************************************************/
-#define MIN_SIZE_CONFIG_FILE   30 
-
-static char * file_ini = NULL;
-
-static char * buffer_config = NULL;
-static int size_buffer_config = 0;
+static GKeyFile * ini_file = NULL;
 static int change_config = NO;
+/*****************************************************************************/
+/* Щсновные  функции                                                         */
+/*****************************************************************************/
+GKeyFile * get_ini_file(void)
+{
+	return ini_file;
+}
 
-/*****************************************************************************/
-/* Вспомогательные функция                                                   */
-/*****************************************************************************/
+int change_ini_file(void)
+{
+	change_config = YES;
+	return change_config;
+}
 
 int read_config(void)
 {
-	int rc = 0;	
-	FILE * stream = NULL;
-	struct stat buffer_stat_file;
-	off_t size_file = 0;
+	GError * check = NULL;
+	gchar file_ini = NULL;
 
-	file_ini = get_ini_file();	
+	file_ini = get_ini_file();
 
-	rc = stat(file_ini,&buffer_stat_file);
-	if(rc != 0){
-		global_warning("Нет файла конфигурации %s : %s",file_ini,strerror(errno));
+	ini_file = g_key_file_new();
+
+	g_key_file_load_from_file (ini_file,file_ini,G_KEY_FILE_KEEP_COMMENTS,&check);
+	if(check != NULL)
+		global_warning("Ощибка при обработки файла конфигурации %s : %s",file_ini,check->message);
  		return FAILURE;
 	}
-	size_file = buffer_stat_file.st_size;
-	if(size_file <= MIN_SIZE_CONFIG_FILE){
-		global_warning("Нет данных в конфигурационом файле %d",MIN_SIZE_CONFIG_FILE);
-		return FAILURE;
-	}
-	
-	buffer_config = malloc(size_file + 1);
-		assert(buffer_config);
-	stream = fopen(file_ini,"r");
-	if(stream == NULL){
-		 global_warning("Немогу открыть файл конфигурации %s : %s",file_ini,strerror(errno));
-		return FAILURE; 
-	}
 	global_log("Открыл файл конфигурации %s",file_ini);
-	rc = fread(buffer_config,size_file,1,stream);
-	global_log("Считал файл конфигурации : %d",rc);
-	buffer_config[size_file] = 0;
-	size_buffer_config = size_file;
-
-	/*DEBUG_PRINTF_S(buffer_config);*/
-	fclose(stream);	 
 	
  	return SUCCESS;	
 }
@@ -99,174 +78,29 @@ int read_config(void)
 int close_config(void)
 {
 	FILE * stream = NULL;
+	gchar * buffer_config = NULL;
+	GError * check = NULL;
+	gchar file_ini = NULL;
+
+	file_ini = get_ini_file();
 
 	if(change_config == YES){
 		stream = fopen(file_ini,"w");
 		if(stream == NULL){
 			global_warning("Немогу открыть файл конфигурации для записи !");
- 			goto exit_close_config;
+ 			return FAILURE;
 		}
- 		fputs(buffer_config,stream);
-		global_log("Записал файл конфигурации %s",file_ini);
+		buffer_config = g_key_file_to_data(ini_file,0,&check);
+		if(check != NULL){
+			global_warning("Несмог записать файл конфигурации %s : %s",file_ini,check->message);
+		}
+		else{
+ 			fputs(buffer_config,stream);
+			global_log("Записал файл конфигурации %s",file_ini);
+			g_free(buffer_config);
+		}
 		fclose(stream);
  	}
-
-exit_close_config:
-	free(buffer_config);
-	return SUCCESS;
-}
-
-/*****************************************************************************/
-int search_parameter(char * parameter)
-{
-	int i;
-	char * buffer = strstr(buffer_config,parameter);
-	if(buffer == NULL){
-		global_warning("Нет параметра в конфигурационом файле : %s",parameter);
-		return 0;
-	}
-	for(i = 0; i < size_buffer_config;i++,buffer++){
-		if(*buffer == '='){
-	 		buffer++;
-			if(*buffer == ' ')
-				buffer++;
-		 	break;
-		} 
-	}
-
-	for(i = 0;i < size_buffer_config;i++,buffer++){
-		if((*buffer == ' ') || (*buffer == '\n') || (*buffer == 0)){
-			break;
-		}	
-	}
-	global_log("Найден парметр : %s . %d",parameter,i);
-	return i;
-}
-
-int full_value_parameter(char * parameter,char ** value_parameter,int count)
-{
-	int i = 0;
-	char * buffer = NULL;
-	char * buffer_temp = *value_parameter;
-	buffer = strstr(buffer_config,parameter);
-	if(buffer == NULL){
-		global_warning("Нет параметра в конфигурационом файле : %s",parameter);
-		return NOT_PARAMETER;
-	}
-	for(i = 0;i<size_buffer_config;i++,buffer++){
-		if(*buffer == '='){
-	 		buffer++;
-			if(*buffer == ' ')
-				buffer++;
-		 	break;
-		} 
-	}
-	for(i = 0;i < count;i++,buffer_temp++,buffer++){
-		if((*buffer == ' ') || (*buffer == '\n')){
-			*buffer_temp = 0;
-			break;
-		}	
-		*buffer_temp = *buffer;
-	}
-	if(i == count){
-		buffer_temp--;
-		*buffer_temp = 0;
-		global_warning("Слишком длиное значение параметра : %s",*value_parameter);
-		return LONG_SIZE_VALUE_PARAMETER;
-	}
-	global_log("Найден параметр : %s",parameter);
-	global_log("                :> %s",*value_parameter);
-	return SUCCESS; 
-}
-
-#define SIZE_SPACE       3
-#define STR_SPACE       " = "
-int add_new_parameter(char * parameter,char * value_parameter)
-{
-	size_t len_p = 0;
-	size_t len_v = 0;
-
-	int size_buffer = 0;
-	char * buffer = NULL;
-
-	buffer = strstr(buffer_config,parameter);
-	if(buffer != NULL){
-		global_warning("Этот параметр есть в конфигурацоином файле : %s",parameter);
-		return FAILURE;
-	}
-
-	len_p = strlen(parameter);
-	len_v = strlen(value_parameter);
-	
-	size_buffer = size_buffer_config + len_p + len_v + SIZE_SPACE + 1 + 1;//+1 символ конец строки \n, +1 на strcat  
-	
-	buffer = (char *)malloc(size_buffer * sizeof(char));
-		assert(buffer);
-	memset(buffer,0,size_buffer);
-	strcat(buffer,buffer_config);
-	strcat(buffer,parameter);
-	strcat(buffer,STR_SPACE);
-	strcat(buffer,value_parameter);
-	strcat(buffer,"\n"); // конец строки 	
-
-	free(buffer_config);
-	buffer_config = buffer;
-	size_buffer_config = size_buffer;
-	change_config = YES;
-	return SUCCESS;
-}
-
-int rewrite_parameter(char * parameter,char * value_parameter)
-{
-	char * buffer_begin = NULL;
-	char * buffer_end = NULL;
-	char * buffer_temp = NULL;
-	size_t len_p = 0;
-	size_t len_v = 0;
-	size_t len_str = 0;
-	size_t size_buffer = 0;
-
-	buffer_begin = strstr(buffer_config,parameter);
-	if(buffer_begin == NULL){
-		return add_new_parameter(parameter,value_parameter);
-	}
-
-	len_p = strlen(parameter);
-	len_v = strlen(value_parameter);
-
-	buffer_end = buffer_begin;
-	for(len_str = 0;len_str < size_buffer_config;len_str++,buffer_end++){
-		if(*buffer_end == '\n'){
-			*buffer_begin = 0; // начало строки изменения
-			break;
-		}	
-	}
-	
-	size_buffer = size_buffer_config - len_str + len_p + len_v + SIZE_SPACE + 1;//+1 на strcat 
-
-#ifdef _DEBUG
-	DEBUG;
-	printf(" size buffer :> %d | len_str :> %d | len_p :> %d | len_v :> %d\n",size_buffer,len_str,len_p,len_v);
-#endif
-
-	buffer_temp = (char *)malloc(size_buffer * sizeof(char));
-		assert(buffer_temp);
-	
-	memset(buffer_temp,0,size_buffer);
-	strcat(buffer_temp,buffer_config);
-	strcat(buffer_temp,parameter);
-	strcat(buffer_temp,STR_SPACE);
-	strcat(buffer_temp,value_parameter);
-	strcat(buffer_temp,buffer_end);	
-
-	free(buffer_config);
-	buffer_config = buffer_temp;
-	size_buffer_config = size_buffer;
-
-#ifdef _DEBUG 
-	printf(" config :> %d\n%s\n",size_buffer_config,buffer_config);
-#endif	
-	change_config = YES;
 	return SUCCESS;
 }
 

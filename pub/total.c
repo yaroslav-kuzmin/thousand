@@ -31,6 +31,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <glib.h>
+
 #include "pub.h"
 #include "alloc.h"
 #include "log.h"
