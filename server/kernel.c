@@ -26,7 +26,14 @@
 #include <stdio.h>
 #include <signal.h>
 #include <time.h>
+#include <stdint.h>
 #include <openssl/md5.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <errno.h>
+#include <unistd.h>
+
+#include <glib.h>
 
 #include "pub.h"
 #include "protocol.h"
@@ -68,64 +75,16 @@ int main_loop(void)
 	int rc;
 	user_s * ptu;
 	unsigned long int nu,i;
-	unsigned char buf;
-
-	user_s  ptu0;
-	user_s  ptu1;
-	user_s  ptu2;
-	user_s  ptu3;
-	user_s  ptu4;
-	user_s  ptu5;
-	user_s  ptu6;
-	user_s  ptu7;
-	user_s  ptu8;
-	user_s  ptu9;
-
-	ptu0.fd = 0;
-	ptu1.fd = 1;
-	ptu2.fd = 2;
-	ptu3.fd = 3;
-	ptu4.fd = 4;
-	ptu5.fd = 5;
-	ptu6.fd = 6;
-	ptu7.fd = 7;
-	ptu8.fd = 8;
-	ptu9.fd = 9;
+	int fd;
 
 	DEBUG_PRINTF_S("main_loop");
 	
-	add_list_message(&ptu0);
-	add_list_message(&ptu1);
-
-	add_list_message(&ptu4);
-	del_list_message(&ptu4);
-
-	add_list_message(&ptu2);
-	add_list_message(&ptu3);
-	add_list_message(&ptu5);
-	add_list_message(&ptu6);
-
-	del_list_message(&ptu6);
-	del_list_message(&ptu3);
-	del_list_message(&ptu5);
-
-	add_list_message(&ptu7);
-	add_list_message(&ptu8);
-	add_list_message(&ptu9);
-	del_list_message(&ptu9);
-
-	del_list_message(&ptu0);
-	del_list_message(&ptu1);
-	del_list_message(&ptu2);
-	del_list_message(&ptu7);
-	del_list_message(&ptu8);
-#if 0
 	for(;;){
 /*Проверка нового подсоединения*/
 		check_new_connect(); 
 /*Чтение информации от клиентов*/
 		ptu = get_begin_user_list();
-		nu = get_number_user()
+		nu = get_number_user();
 		for(i = 0;i < nu;i++){
 			fd = ptu->fd;
 			rc = recv(fd,t_buff,SIZE_TEMP_BUFF,0);
@@ -139,9 +98,10 @@ int main_loop(void)
 				}
 				if(ptu->timeout <= time(NULL)){
 					message_cmd_u temp;					
-					temp.msg.type = CMD_CHECK_CONNECT;
-					temp.msg.len = 0;
-					rc = send(fd,temp.buf,(sizeof(message_cmd_s)),0);
+					temp.field.type = CMD_CHECK_CONNECT;
+					temp.field.len = 0;
+					temp.field.number = ptu->package + 1;
+					rc = send(fd,temp.array,(sizeof(message_cmd_s)),0);
 					if(rc == -1){
 					/*TODO корректное сохранение игры */
 					/*TODO проверка ошибки отправки сообщения*/	
@@ -155,7 +115,7 @@ int main_loop(void)
 				continue;
 			}
 			/*TODO проверка на переполнение буфера при приеме сообщения и неполном приходе данных */
-			(ptu,t_buff,rc);
+			write_message_list(ptu,t_buff,rc);
 			ptu++;
 		}
 /* Ожидание сигналов на дискрипторах*/
@@ -167,7 +127,6 @@ int main_loop(void)
 			amount_sig_io--;
 		}
 	}
-#endif
 	return SUCCESS;
 }
 /*****************************************************************************/

@@ -29,7 +29,10 @@
 #include <string.h>
 #include <errno.h>
 #include <signal.h>
+#include <stdint.h>
 #include <openssl/md5.h>
+
+#include <glib.h>
 
 #include "pub.h"
 #include "alloc.h"
@@ -43,7 +46,6 @@
 #include "protocol.h"
 #include "list_user_pub.h"
 #include "list_user.h"
-#include "list_message.h"
 
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -85,7 +87,6 @@ void print_version(FILE * stream)
 void close_server(int signal_num)
 {
 	close_soket();
-	deinit_lists_message();
 	deinit_list_user();
 	deinit_bit_fields();
 	close_config();
@@ -247,11 +248,6 @@ int main(int argc,char * argv[])
 	rc = init_list_user();
 	if(rc == FAILURE){
 		global_warning("Несмог инициализировать Пользователей!");
-		goto exit_server;	
-	}
-	rc = init_lists_message();
-	if(rc == FAILURE){
-		global_warning("Несмог инициализировать Список Сообщений!");
 		goto exit_server;	
 	}
 	rc = init_socket();

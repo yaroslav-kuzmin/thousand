@@ -38,10 +38,7 @@ struct _user_s
 	uint8_t passwd[MD5_DIGEST_LENGTH];
 	time_t timeout;
 	uint16_t package;
-	uint8_t * list_message;
-	uint8_t * first_message;
-	uint8_t * last_message;
-	uint8_t * end_message;
+	GByteArray * buffer;
 };
 
 #endif

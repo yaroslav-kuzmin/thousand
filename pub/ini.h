@@ -27,7 +27,7 @@
 #ifndef INI_H
 #define INI_H
 
-GKeyFile * get_ini_file(void);
+GKeyFile * get_key_file(void);
 int change_ini_file(void);
 
 int read_config(void);

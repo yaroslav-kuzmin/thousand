@@ -31,8 +31,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <glib.h>
-
 #include "pub.h"
 #include "alloc.h"
 #include "log.h"
@@ -65,25 +63,25 @@ void set_registration_operation(int rg)
 	}
 }
 /*****************************************************************************/
-char * user_name = NULL;
-char * home_user = NULL; 
+static char * user_name = NULL;
+static char * home_user = NULL; 
 
-char * home_catalog = NULL;
+static char * home_catalog = NULL;
 static const char * HOME_CATALOG = "/.thousand/";
 #define SIZE_STR_HOME_CATAOLG    12
 
 static const char * USER_NAME ="USER";
 static const char * HOME_USER ="HOME";
 
-char * ini_file = NULL;
+static char * ini_file = NULL;
 static const char * INI = "ini";
 #define SIZ_STR_INI   4
 
-char * log_catalog = NULL;
+static char * log_catalog = NULL;
 static const char * LOG_CATALOG = "log/";
 #define SIZE_STR_LOG_CATALOG 5
 
-char * local_socket = NULL;
+static char * local_socket = NULL;
 static const char * LOCAL_SOCKET = "socket";
 #define SIZE_STR_LOCAL_SOCKET  7
 

@@ -27,7 +27,7 @@ PUB_CATALOG=../pub/
 CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` -DDEBUG -D_GNU_SOURCE
 LDFLAGS=-g2 -L$(PUB_CATALOG)
 LIB_PUB=$(PUB_CATALOG)libthp.a
-LIB=-lthp `pkg-config --libs glib-2.0`
+LIB=-lglib-2.0  -lthp 
 
 $(EXEC):$(OBJS) $(LIB_PUB)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIB)

@@ -37,11 +37,6 @@
 #define LONG_SIZE_VALUE_PARAMETER     -2
 
 
-#undef FALSE
-#define FALSE          (0)
-#undef TRUE
-#define TRUE           (!FALSE)
-
 #define BEGIN_TIME     1900
 
 #ifdef DEBUG

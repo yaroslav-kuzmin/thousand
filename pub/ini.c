@@ -43,9 +43,9 @@
 static GKeyFile * ini_file = NULL;
 static int change_config = NO;
 /*****************************************************************************/
-/* Щсновные  функции                                                         */
+/* Основные  функции                                                         */
 /*****************************************************************************/
-GKeyFile * get_ini_file(void)
+GKeyFile * get_key_file(void)
 {
 	return ini_file;
 }
@@ -59,14 +59,14 @@ int change_ini_file(void)
 int read_config(void)
 {
 	GError * check = NULL;
-	gchar file_ini = NULL;
+	gchar * file_ini = NULL;
 
 	file_ini = get_ini_file();
 
 	ini_file = g_key_file_new();
 
 	g_key_file_load_from_file (ini_file,file_ini,G_KEY_FILE_KEEP_COMMENTS,&check);
-	if(check != NULL)
+	if(check != NULL){
 		global_warning("Ощибка при обработки файла конфигурации %s : %s",file_ini,check->message);
  		return FAILURE;
 	}
@@ -80,7 +80,7 @@ int close_config(void)
 	FILE * stream = NULL;
 	gchar * buffer_config = NULL;
 	GError * check = NULL;
-	gchar file_ini = NULL;
+	gchar * file_ini = NULL;
 
 	file_ini = get_ini_file();
 

@@ -28,7 +28,9 @@
 #include <assert.h>
 #include <openssl/md5.h>
 #include <time.h>
+#include <stdint.h>
 
+#include <glib.h>
 
 #include "pub.h"
 #include "log.h"
@@ -36,7 +38,6 @@
 
 #include "kernel_pub.h"
 #include "list_user_pub.h"
-#include "list_message.h"
 
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -157,11 +158,8 @@ int add_user_list(int fd)
 	memset(temp,0,MD5_DIGEST_LENGTH);
 	current_user->timeout = time(NULL) + WAITING_USER;
 	current_user->package = 0;
-	add_list_message(current_user);
-	current_user->partial = NO;
-	current_user->len_partial = 0;
-	temp = (char*)current_user->partial_buff;
-	memset(temp,0,SIZE_BUFF_PARTIAL);
+	current_user->buffer = g_byte_array_new ();
+
 /*TODO преобразовать время*/	
 	global_log("Соединения с сервером под номером %d время %ld!",current_user->fd,current_user->timeout);
 
@@ -198,7 +196,7 @@ int del_user_list(int fd)
 		ptu_old += number;
 		ptu_new += (number + 1);
 			
-		del_list_message(ptu_old);
+		g_byte_array_free (ptu_old->buffer,TRUE);
 
 		size = number_user - (number + 1);
 		size *= sizeof(user_s);

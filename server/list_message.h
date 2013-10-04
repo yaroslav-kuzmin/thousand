@@ -27,14 +27,10 @@
 #ifndef LIST_MESSAGE_H
 #define LIST_MESSAGE_H
 
-int init_lists_message(void);
-int deinit_lists_message(void);
+int write_message_list(user_s * psu,uint8_t * buf,int len);
+int read_message_list(user_s * psu,uint8_t ** msg);
+int del_message_list(user_s * psu,int len);
 
-int add_list_message(user_s * psu);
-int del_list_message(user_s * psu);
-
-int write_message_list(user_s * psu,unsigned char * buf,int len);
-int read_message_list(user_s * psu,all_message_u * msg);
 #endif
 
 /*****************************************************************************/

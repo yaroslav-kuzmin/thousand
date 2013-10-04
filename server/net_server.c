@@ -32,6 +32,9 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <openssl/md5.h>
+#include <stdint.h>
+
+#include <glib.h>
 
 #include "pub.h"
 #include "total.h"
