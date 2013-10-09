@@ -76,12 +76,17 @@ int main_loop(void)
 	user_s * ptu;
 	unsigned long int nu,i;
 	int fd;
+	int new_connect = FAILURE;
 
 	DEBUG_PRINTF_S("main_loop");
-	
+
+#if 0	
 	for(;;){
 /*Проверка нового подсоединения*/
-		check_new_connect(); 
+		rc = check_new_connect();
+		if(new_connect == FAILURE){
+			new_connect = rc;
+		}	
 /*Чтение информации от клиентов*/
 		ptu = get_begin_user_list();
 		nu = get_number_user();
@@ -118,6 +123,13 @@ int main_loop(void)
 			write_message_list(ptu,t_buff,rc);
 			ptu++;
 		}
+		if(new_connect == SUCCESS){
+			/*TODO проверка регистрации клиента*/
+			new_connect = authorization_client();
+		}
+
+		check_games();
+
 /* Ожидание сигналов на дискрипторах*/
 		if(amount_sig_io <= 1){	
 			amount_sig_io = 0;
@@ -127,6 +139,8 @@ int main_loop(void)
 			amount_sig_io--;
 		}
 	}
+#endif 	
+	
 	return SUCCESS;
 }
 /*****************************************************************************/

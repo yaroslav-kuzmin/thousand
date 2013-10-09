@@ -33,10 +33,6 @@
 #define YES            1
 #define NO             0 
 
-#define NOT_PARAMETER                 -1
-#define LONG_SIZE_VALUE_PARAMETER     -2
-
-
 #define BEGIN_TIME     1900
 
 #ifdef DEBUG

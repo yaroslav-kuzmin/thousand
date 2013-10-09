@@ -50,7 +50,7 @@ GKeyFile * get_key_file(void)
 	return ini_file;
 }
 
-int change_ini_file(void)
+int change_key_file(void)
 {
 	change_config = YES;
 	return change_config;

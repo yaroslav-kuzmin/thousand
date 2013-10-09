@@ -43,168 +43,132 @@
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
 #define ADD_USER    100
-static unsigned long int amount_user = 0;
-static unsigned long int number_user = 0;
-static user_s * begin_list_user = NULL;
-static user_s * current_user = NULL;
-
+static uint32_t amount_user = 0;
+static GSList * begin_user = NULL;
+static GSList * current_user = NULL;
 /*****************************************************************************/
 /* Основные функции                                                          */
 /*****************************************************************************/
-user_s * get_begin_user_list(void)
+user_s * get_user_list(uint32_t number)
 {
-	return begin_list_user;
+	return (user_s *)g_slist_nth_data(begin_user,number);
 }
 
-unsigned long int get_number_user(void)
+user_s * get_first_user_list(void)
 {
-	return number_user;
+	current_user = begin_user;
+	return (user_s*)current_user->data;
 }
 
-static int resize_list_user(void)
+user_s * get_next_user_list(void)
 {
-	unsigned long int size_new;
-	unsigned long int size_old;
-	user_s * ptu_new;
-	user_s * ptu_old = begin_list_user;
-	
-	size_old = amount_user;
-	/*TODO переделать добавление увеличивать в 2*/
-	size_new = size_old + ADD_USER;
-	size_old *= sizeof(user_s);
-	size_new *= sizeof(user_s);
-	
-	ptu_new = (user_s*)malloc(size_new);	
-		assert(ptu_new);
-		
-	memset(ptu_new,0,size_new);
+	current_user = g_slist_next(current_user);
+	if(current_user == NULL){
+		return NULL;
+	}	
+	return (user_s*)current_user->data;
+}
 
-	memcpy(ptu_new,ptu_old,size_old);
-
-	free(ptu_old);
-
-	begin_list_user = ptu_new;
-	current_user = ptu_new + number_user;
-	amount_user += ADD_USER;
-
-	global_log("Увеличил список активных игроков на %d подсоединений!",amount_user);
-
-	return SUCCESS;
+uint32_t get_amount_user(void)
+{
+	return amount_user;
 }
 
 int init_list_user(void)
 {
-	user_s * ptu;
-	unsigned long int size;
-
-	size = ADD_USER * sizeof(user_s);
-	
-	ptu = (user_s*)malloc(size);
-		assert(ptu);
-	
-	amount_user = ADD_USER;	
-	number_user = 0;
-	memset(ptu,0,size);
-
-	begin_list_user = ptu;
-	current_user = ptu;
-
+	begin_user = NULL;
+	current_user = NULL;
+	amount_user = 0;	
 	global_log("Создал список активных игроков на %d подсоединений!",amount_user);
 	return SUCCESS;	
 }
 
 int deinit_list_user(void)
 {
-	user_s * ptu = begin_list_user;
+	user_s * ptu;
+	current_user = begin_user;
+	for(;current_user != NULL;){
+		ptu = (user_s *)current_user->data;
+		g_slice_free1(sizeof(user_s),ptu);
+		current_user = g_slist_next(current_user);
+	}
+	g_slist_free(begin_user);
+	begin_user = NULL;
+	current_user = NULL;
 
-	ptu = begin_list_user;
-	if(ptu != NULL)
-		free(ptu);
 	amount_user = 0;
-	number_user = 0;
-
 	global_log("Удалил список активных игроков!");
 	return SUCCESS;
 }
 
 int add_user_list(int fd)
 {
-	char * temp;
 	user_s * ptu;
-	unsigned long int i;
 
-	if(number_user == amount_user){
-		resize_list_user();
-	}
-/*TODO проверить номера fd 0-stdin 1-stdout 2-stderr*/
+	/*TODO проверить номера fd 0-stdin 1-stdout 2-stderr*/
 	if(fd < 0){
 		global_log("Некорректный идентификатор : %d!",fd);
 		return FAILURE;
 	}
 
-	ptu = begin_list_user;
-	for(i = 0;i < number_user;i++){
+	current_user = begin_user;
+	for(;current_user != NULL;){
+		ptu = (user_s*)current_user->data;
 		if(fd == ptu->fd){
 			global_log("Номера идентификаторов совпадают : %d!",fd);
 			return FAILURE;
 		}
-		ptu++;
+		current_user = g_slist_next(current_user);
 	}
 
-	current_user->fd = fd;
-	temp = current_user->name;
-	memset(temp,0,LEN_USER_NAME);
-	temp = (char*)current_user->passwd;
-	memset(temp,0,MD5_DIGEST_LENGTH);
-	current_user->timeout = time(NULL) + WAITING_USER;
-	current_user->package = 0;
-	current_user->buffer = g_byte_array_new ();
+	ptu = (user_s *)g_slice_alloc0(sizeof(user_s));
 
+	ptu->fd = fd;
+	/*ptu->name = {0};*/
+	/*ptu->passwd = {0};*/
+	ptu->timeout = time(NULL) + WAITING_USER;
+	/*ptu->package = 0;*/
+	ptu->buffer = g_byte_array_new ();
+
+	begin_user = g_slist_prepend (begin_user,ptu);
+	amount_user ++;
+	current_user = begin_user;
 /*TODO преобразовать время*/	
-	global_log("Соединения с сервером под номером %d время %ld!",current_user->fd,current_user->timeout);
-
-	current_user++;
-	number_user++;
+	global_log("Соединения с сервером под номером %d время %ld!",ptu->fd,ptu->timeout);
 
 	return SUCCESS;
 }
 
 int del_user_list(int fd)
 {
-	unsigned long int number;
-	int size;
-	user_s * ptu = begin_list_user;
-	user_s * ptu_new = begin_list_user;
-	user_s * ptu_old = begin_list_user;
-
-	if(number_user == 0){
+	int check;
+	user_s * ptu;
+	
+	if(amount_user == 0){
 		global_log("В списке нет игроков!");
 		return FAILURE;
 	}
-	for(number = 0;number < number_user;number++){
+
+	current_user = begin_user;
+	for(check = NO;current_user != NULL;){
+		ptu = (user_s *)current_user->data;
 		if(fd == ptu->fd){
 			global_log("Удаление из списка игрока %s под номером %d!",ptu->name,ptu->fd);
+			check = YES;
 			break;
 		}
-		ptu++;
+		current_user = g_slist_next(current_user);
 	}
-	if(number == number_user){
+
+	if( check == NO){
 		global_log("Нет такого индентификатора в списке : %d",fd);
 		return FAILURE;
 	}
-	if((number + 1) != number_user){
-		ptu_old += number;
-		ptu_new += (number + 1);
-			
-		g_byte_array_free (ptu_old->buffer,TRUE);
-
-		size = number_user - (number + 1);
-		size *= sizeof(user_s);
-		memmove(ptu_old,ptu_new,size);
-	}
 	
-	current_user --;
-	number_user --;
+	begin_user = g_slist_remove(begin_user,ptu);
+	g_slice_free1(sizeof(user_s),ptu);
+	amount_user --;
+	current_user = begin_user;
 	return SUCCESS;
 }
 /*****************************************************************************/

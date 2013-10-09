@@ -170,6 +170,14 @@ int total_check(void)
 	strcat(local_socket,home_catalog);
 	strcat(local_socket,LOCAL_SOCKET);
 	/*DEBUG_PRINTF_S(local_socket);*/
+#if 0
+	if(g_mem_is_system_malloc()){
+		DEBUG_PRINTF_S("malloc!");
+	}
+	else{
+		DEBUG_PRINTF_S("Not malloc!");
+	}
+#endif	
 	return SUCCESS;
 }
 

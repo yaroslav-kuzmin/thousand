@@ -27,12 +27,16 @@
 #ifndef LIST_USER_H
 #define LIST_USER_H
 
-user_s * get_begin_user_list(void);
-unsigned long int get_number_user(void);
 int init_list_user(void);
 int deinit_list_user(void);
+
 int add_user_list(int fd);
 int del_user_list(int fd);
+
+user_s * get_user_list(uint32_t number);
+user_s * get_first_user_list(void);
+user_s * get_next_user_list(void);
+uint32_t get_amount_user(void);
 
 #endif
 

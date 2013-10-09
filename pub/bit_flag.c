@@ -31,6 +31,8 @@
 #include <assert.h>
 #include <stdint.h>
 
+#include <glib.h>
+
 #include "pub.h"
 
 /*****************************************************************************/
@@ -58,8 +60,7 @@ int current_bit_field = 0;
 int init_bit_fields(void)
 {
 	size_t s = sizeof(bit_field_t) * AMOUNT_BIT_FIELDS;
-	bit_fields = (bit_field_t *)malloc(s);
-		assert(bit_fields);
+	bit_fields = (bit_field_t *)g_malloc(s);
 	memset(bit_fields,0,s);	
 	amount_bit_fields = AMOUNT_BIT_FIELDS;
 	current_bit_field = 0;
@@ -67,7 +68,7 @@ int init_bit_fields(void)
 }
 int deinit_bit_fields(void)
 {
-	free(bit_fields);
+	g_free(bit_fields);
 	amount_bit_fields = 0;
 	current_bit_field = 0;
 	return SUCCESS;	
@@ -79,11 +80,10 @@ int reinit_bit_fields(void)
 	int ns = sizeof(bit_field_t) * (amount_bit_fields + AMOUNT_BIT_FIELDS);
 	int os = sizeof(bit_field_t) * amount_bit_fields;
 
-	bft = (bit_field_t *)malloc(ns);
-		assert(bft);
+	bft = (bit_field_t *)g_malloc(ns);
 	memset(bft,0,ns);
 	memcpy(bft,bfst,os);
-	free(bit_fields);
+	g_free(bit_fields);
 	bit_fields = bft;
 	amount_bit_fields = amount_bit_fields + AMOUNT_BIT_FIELDS;
 
@@ -115,8 +115,7 @@ int init_bit_flags(uint32_t size)
 		}
 		current_bit_field++;
 	}
-	t = (uint8_t *)malloc(s);
-		assert(t);
+	t = (uint8_t *)g_malloc(s);
 	memset(t,0,s);
 	bfst->bits = t;
 	bfst->byte = s;
@@ -134,7 +133,7 @@ int deinit_bit_flag(int number)
 	}	
 	bft = bft + number;
 	t = bft->bits;
-	free(t);
+	g_free(t);
 	bft->bits = NULL;
 	bft->byte = 0;
 	return SUCCESS;
@@ -164,11 +163,10 @@ int reinit_bit_flags(int number,uint32_t size)
 		return SUCCESS;
 	}
 
-	new_tb = (uint8_t *)malloc(new_s);
-		assert(new_tb);
+	new_tb = (uint8_t *)g_malloc(new_s);
 	memset(new_tb,0,new_s);
 	memcpy(new_tb,old_tb,old_s);	
-	free(old_tb);
+	g_free(old_tb);
 
 	bft->bits = new_tb;
 	bft->byte = new_s;

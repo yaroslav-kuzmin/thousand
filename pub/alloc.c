@@ -27,9 +27,10 @@
 /*****************************************************************************/
 /* Дополнительные файлы                                                      */
 /*****************************************************************************/
-#include <stdlib.h>
 #include <string.h>
-#include <assert.h>
+#include <stdint.h>
+
+#include <glib.h>
 
 #include "pub.h"
 
@@ -40,12 +41,12 @@ typedef struct line_s
 {
 	char * begin;
 	char * position;
-	unsigned long int size;  
-	unsigned long int item;
+	uint32_t size;  
+	uint32_t item;
 }line_t;
 
 line_t * begin_line = NULL;
-unsigned long int amount_line = 0;
+uint32_t amount_line = 0;
 
 #define ADD_LINE    3
 #define ADD_SIZE    4096 
@@ -56,12 +57,11 @@ unsigned long int amount_line = 0;
 
 int init_str_alloc(void)
 {
-	unsigned long int size = sizeof(line_t);
+	uint32_t size = sizeof(line_t);
 	amount_line = ADD_LINE;
 	size = amount_line * size;
 
-	begin_line = (line_t *)malloc(size);
-		assert(begin_line);
+	begin_line = (line_t *)g_malloc(size);
 
 	memset(begin_line,0,size);
 
@@ -74,21 +74,20 @@ int deinit_str_alloc(void)
 	line_t * line;
 	for(i = 0,line = begin_line;i < amount_line;i++,line++){
 		char * t = line->begin;
-		free(t);
+		g_free(t);
 	}
-	free(begin_line);
+	g_free(begin_line);
 	return SUCCESS;
 }
 
 int resize_line(void)
 {
 	line_t * line;
-	unsigned long int size = sizeof(line_t); 
-	unsigned long int amount_temp = amount_line + ADD_LINE;
+	uint32_t size = sizeof(line_t); 
+	uint32_t amount_temp = amount_line + ADD_LINE;
 	size = amount_temp * size;
 
-	line = (line_t *)malloc(size);
-		assert(line);
+	line = (line_t *)g_malloc(size);
 	
 	memset(line,0,size);
 
@@ -96,16 +95,16 @@ int resize_line(void)
 	size = amount_line * size;
 	memcpy(line,begin_line,size);
 
-	free(begin_line);
+	g_free(begin_line);
 	begin_line = line;
 	amount_line = amount_temp;
 
 	return SUCCESS;
 }
 
-int new_line(line_t ** l,unsigned long int s)
+int new_line(line_t ** l,uint32_t s)
 {
-	unsigned long int size;
+	uint32_t size;
 	char * str;
 	line_t * line = *l;
 
@@ -113,8 +112,7 @@ int new_line(line_t ** l,unsigned long int s)
 	if( size < s){
 		size = s + ADD_SIZE;
 	}
-	str = (char *) malloc(size);
-		assert(str);
+	str = (char *) g_malloc(size);
 	memset(str,0,size);
 
 	line->begin = str;
@@ -130,8 +128,8 @@ char * str_alloc(int add)
 	int i;
 	char * t;
 	line_t * line;
-	unsigned long int size;
-	unsigned long int item;
+	uint32_t size;
+	uint32_t item;
 
 
 	for(i = 0,line = begin_line;i < amount_line;i++,line++){

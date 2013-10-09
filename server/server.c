@@ -229,7 +229,7 @@ int main(int argc,char * argv[])
 	rc = set_signals();
 	if(rc == FAILURE)
 		exit(0);
-	init_str_alloc(); 
+	init_str_alloc();/**/ 
 	total_check();
 	rc = init_warning_system(SERVER_FLAG);
 	if(rc == FAILURE){
