@@ -40,10 +40,10 @@
 
 #include "kernel_pub.h"
 #include "net_server.h"
-#include "protocol.h"
-#include "list_user_pub.h"
 #include "list_user.h"
 #include "list_message.h"
+#include "command.h"
+#include "access.h"
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
@@ -74,61 +74,49 @@ int main_loop(void)
 {
 	int rc;
 	user_s * ptu;
-	unsigned long int nu,i;
 	int fd;
 	int new_connect = FAILURE;
 
-	DEBUG_PRINTF_S("main_loop");
 
-#if 0	
+	g_message("main_loop");
+
 	for(;;){
 /*Проверка нового подсоединения*/
-		rc = check_new_connect();
-		if(new_connect == FAILURE){
-			new_connect = rc;
-		}	
+		new_connect = check_new_connect();
 /*Чтение информации от клиентов*/
-		ptu = get_begin_user_list();
-		nu = get_number_user();
-		for(i = 0;i < nu;i++){
+		ptu = get_first_user_list();
+		for(;ptu != NULL;){
 			fd = ptu->fd;
 			rc = recv(fd,t_buff,SIZE_TEMP_BUFF,0);
 			if(rc == -1){
 			/*данных от клиента не поступало*/	
 				if(errno != EAGAIN){
-				/* TODO проверка ошибки*/
-					del_user_list(fd);
-					nu = get_number_user();
+					/* TODO проверка ошибки*/
+					/*TODO удаляется игрок из списка и указатель списка переходит в начало (( */
+					del_user_list(fd); 
 					continue;
 				}
 				if(ptu->timeout <= time(NULL)){
-					message_cmd_u temp;					
-					temp.field.type = CMD_CHECK_CONNECT;
-					temp.field.len = 0;
-					temp.field.number = ptu->package + 1;
-					rc = send(fd,temp.array,(sizeof(message_cmd_s)),0);
+					rc = cmd_check_connect(ptu);
 					if(rc == -1){
 					/*TODO корректное сохранение игры */
 					/*TODO проверка ошибки отправки сообщения*/	
+					/*TODO удаляется игрок из списка и указатель списка переходит в начало (( */
 						del_user_list(fd);
-						nu = get_number_user();
 						continue;
 					}
 					ptu->timeout = time(NULL) + WAITING_USER;
 				}
-				ptu++;
+				ptu = get_next_user_list();
 				continue;
 			}
-			/*TODO проверка на переполнение буфера при приеме сообщения и неполном приходе данных */
 			write_message_list(ptu,t_buff,rc);
-			ptu++;
-		}
-		if(new_connect == SUCCESS){
-			/*TODO проверка регистрации клиента*/
-			new_connect = authorization_client();
+			ptu = get_next_user_list();
 		}
 
-		check_games();
+		if(new_connect == SUCCESS){
+			new_connect = access_user();
+		}
 
 /* Ожидание сигналов на дискрипторах*/
 		if(amount_sig_io <= 1){	
@@ -139,7 +127,6 @@ int main_loop(void)
 			amount_sig_io--;
 		}
 	}
-#endif 	
 	
 	return SUCCESS;
 }
