@@ -57,6 +57,9 @@ user_s * get_user_list(uint32_t number)
 user_s * get_first_user_list(void)
 {
 	current_user = begin_user;
+	if(current_user == NULL){
+		return NULL;
+	}
 	return (user_s*)current_user->data;
 }
 

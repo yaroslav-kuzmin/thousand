@@ -27,6 +27,8 @@
 #ifndef LIST_USER_H
 #define LIST_USER_H
 
+#include "list_user_pub.h"
+
 int init_list_user(void);
 int deinit_list_user(void);
 

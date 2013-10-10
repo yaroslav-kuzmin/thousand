@@ -33,7 +33,7 @@
 #include "protocol.h"
 
 #include "kernel_pub.h"
-#include "list_user_pub.h"
+#include "list_user.h"
 
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -49,8 +49,14 @@
 /* Записывает прищедшие сообщения в буфер*/
 int write_message_list(user_s * psu,uint8_t * buf,int len)
 {
+	uint8_t flag = psu->flag;
 	GByteArray * array = psu->buffer;
+
 	g_byte_array_append(array,buf,len);
+	psu->flag = SET_MESSAGE_USER(flag); 
+
+	g_message("%s",buf);	
+
 	return SUCCESS;
 }	
 /* Читает сообщения из буфера без удаления*/
@@ -64,8 +70,13 @@ int read_message_list(user_s * psu,uint8_t ** msg)
 /* Удаляет сообщения из буфера */
 int del_message_list(user_s * psu,int len)
 {
+	uint8_t flag = psu->flag;
 	GByteArray * array = psu->buffer;
+	
 	g_byte_array_remove_range(array,0,len);
+	if(array->len == 0){
+		psu->flag = UNSET_MESSAGE_USER(flag);
+	}
 	return SUCCESS;
 }
 

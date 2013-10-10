@@ -27,12 +27,20 @@
 #ifndef LIST_USER_PUB_H
 #define LIST_USER_PUB_H
 
+#define ACCESS_USER(x)        (x & 0x01) 
+#define SET_ACCESS_USER(x)    (x | 0x01)
+#define UNSET_ACCESS_USER(x)  (x & 0xFE)
+
+#define MESSAGE_USER(x)       (x & 0x02)
+#define SET_MESSAGE_USER(x)   (x | 0x02)
+#define UNSET_MESSAGE_USER(x) (x & 0xFD)
 
 typedef struct _user_s user_s;
 
 struct _user_s
 {
 	int fd;
+	uint8_t flag;
 	char name[LEN_USER_NAME];
 	uint8_t passwd[MD5_DIGEST_LENGTH];
 	time_t timeout;
