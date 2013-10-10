@@ -21,10 +21,11 @@
 ###############################################################################
 
 EXEC=ths
-OBJS=server.o kernel.o net_server.o list_user.o list_message.o parser_message.o
+OBJS=server.o kernel.o net_server.o list_user.o list_message.o access.o command.o
 CXX=gcc
 PUB_CATALOG=../pub/
-CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` -DDEBUG -D_GNU_SOURCE
+CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` -DDEBUG -D_GNU_SOURCE \
+		  -DG_LOG_DOMAIN=\"ths\"
 LDFLAGS=-g2 -L$(PUB_CATALOG)
 LIB_PUB=$(PUB_CATALOG)libthp.a
 LIB=-lglib-2.0  -lthp 
