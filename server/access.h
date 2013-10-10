@@ -24,8 +24,8 @@
 /* Объявление глобальных макросов                                            */
 /*****************************************************************************/
 
-#ifndef PARSER_MESSAGE_H
-#define PARSER_MESSAGE_H
+#ifndef ACCESS_H
+#define ACCESS_H
 
 
 #endif
