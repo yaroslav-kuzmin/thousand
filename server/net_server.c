@@ -42,7 +42,6 @@
 #include "log.h"
 #include "protocol.h"
 
-#include "list_user_pub.h"
 #include "list_user.h"
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -142,45 +141,50 @@ int check_new_connect(void)
 	socklen_t client_name_len;
 	int c_fd;
 	int rc;
+	int exit = FAILURE;
 
-	c_fd = accept(fd_local_socket,&client_name,&client_name_len);
-	if(c_fd == -1){
-		if(errno != EAGAIN){
-			global_warning("Клиент не смог соединится : %s",strerror(errno));
+	for(;;){
+		c_fd = accept(fd_local_socket,&client_name,&client_name_len);
+		if(c_fd == -1){
+			if(errno != EAGAIN){
+				global_warning("Клиент не смог соединится : %s",strerror(errno));
+			}
+			break;
 		}
-		return FAILURE;
-	}
-/*Установить флаги работа в неблокируюшем и асинхроным режиме*/
-	rc = fcntl(c_fd,F_SETFL,O_NONBLOCK|O_ASYNC); 
-	if( rc == -1){
-		global_warning("Несмог установить режим доступа к клиенту %#x : %s",c_fd,strerror(errno));
-		close(c_fd);
-		return FAILURE;
-	}
-/*Установить сигнал, который будет послан, когда станет возможен ввод или вывод*/
-	rc = fcntl(c_fd , F_SETSIG , SIGIO);
-	if(rc == -1){
-		global_warning("Несмог привизать сигнал к сокету %#x : %s",c_fd,strerror(errno));
-		close(c_fd);
-		return FAILURE;
-	}
-/*Установить идентификатор процесса или группу процесса, 
-	которые будут принимать сигналы SIGIO и SIGURG для 
-	событий на файловом дескрипторе */
-	rc = fcntl(c_fd , F_SETOWN , getpid()); 
-	if(rc == -1){
-		global_warning("Несмог установить привязку сигналов к процессу %#x : %#x : %s",getpid(),c_fd,strerror(errno));
-		close(c_fd);
-		return FAILURE;
+		/*Установить флаги работа в неблокируюшем и асинхроным режиме*/
+		rc = fcntl(c_fd,F_SETFL,O_NONBLOCK|O_ASYNC); 
+		if( rc == -1){
+			global_warning("Несмог установить режим доступа к клиенту %#x : %s",c_fd,strerror(errno));
+			close(c_fd);
+			continue;
+		}
+		/*Установить сигнал, который будет послан, когда станет возможен ввод или вывод*/
+		rc = fcntl(c_fd , F_SETSIG , SIGIO);
+		if(rc == -1){
+			global_warning("Несмог привизать сигнал к сокету %#x : %s",c_fd,strerror(errno));
+			close(c_fd);
+			continue;
+		}
+		/*Установить идентификатор процесса или группу процесса, 
+		которые будут принимать сигналы SIGIO и SIGURG для 
+		событий на файловом дескрипторе */
+		rc = fcntl(c_fd , F_SETOWN , getpid()); 
+		if(rc == -1){
+			global_warning("Несмог установить привязку сигналов к процессу %#x : %#x : %s",getpid(),c_fd,strerror(errno));
+			close(c_fd);
+			continue;
+		}
+
+		rc = add_user_list(c_fd);
+		if(rc == FAILURE){
+			close(c_fd);
+		}
+		else{
+			exit = SUCCESS;
+		}		
 	}
 
-	rc = add_user_list(c_fd);
-	if(rc == FAILURE){
-		close(c_fd);
-		return FAILURE;
-	}
-
-	return SUCCESS;
+	return exit;
 }
 
 /*****************************************************************************/
