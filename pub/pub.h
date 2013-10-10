@@ -35,19 +35,6 @@
 
 #define BEGIN_TIME     1900
 
-#ifdef DEBUG
-#define DEBUG_PRINTF_S(n)  printf(" debug :> %s\n",n);
-#define DEBUG_PRINTF_D(n)  printf(" debug :> %d\n",n);
-#define DEBUG_PRINTF_X(n)  printf(" debug :> %#x\n",n);
-#define DEBUG_PRINTF_LD(n) printf(" debug :> %lld\n",n);
-#define DEBUG_PRINTF_P(n)  printf(" debug :> %p\n",n); 
-#else 
-#define DEBIG_PRINTF_S(n)   ;
-#define DEBIG_PRINTF_D(n)   ;
-#define DEBIG_PRINTF_X(n)   ;
-#define DEBIG_PRINTF_LD(n)   ;
-#endif 
-
 #define SERVER_FLAG       0x01
 #define CLIENT_FLAG       0x02
 #define ROBOT_FLAG        0x03
