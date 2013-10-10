@@ -105,13 +105,22 @@ int access_user(void)
 	user_s * ptu;
 	int exit = FAILURE;
 	uint8_t flag;
+	int rc;
+	uint32_t len;
+	all_message_u msg; 
 
 	ptu = get_first_user_list();
 	for(;ptu != NULL;){
 		flag = ptu->flag;
 		if( !ACCESS_USER(flag)){
 			if(MESSAGE_USER(flag)){
-				
+				len = sizeof(message_cmd_s);
+				rc = read_message_list(ptu,&msg.cmd.array,len);
+				if(rc == FAILURE){
+					ptu = get_next_user_list();
+					break;
+				}
+
 			}
 		}
 		ptu = get_next_user_list();

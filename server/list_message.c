@@ -60,11 +60,17 @@ int write_message_list(user_s * psu,uint8_t * buf,int len)
 	return SUCCESS;
 }	
 /* Читает сообщения из буфера без удаления*/
-int read_message_list(user_s * psu,uint8_t ** msg)
+int read_message_list(user_s * psu,uint8_t ** msg,int len)
 {
-	/*GByteArray * array = psu->buffer;*/
-	/*guint8 * data = array->data;*/
-	/*guint len = array->len;*/
+	GByteArray * array = psu->buffer;
+	guint8 * data = array->data;
+	guint total_len = array->len;
+	uint8_t * buf = *msg;
+
+	if(len > total_len){
+		return FAILURE;
+	}
+	
 	return SUCCESS;
 }	
 /* Удаляет сообщения из буфера */

@@ -28,7 +28,7 @@
 #define LIST_MESSAGE_H
 
 int write_message_list(user_s * psu,uint8_t * buf,int len);
-int read_message_list(user_s * psu,uint8_t ** msg);
+int read_message_list(user_s * psu,uint8_t ** msg,int len);
 int del_message_list(user_s * psu,int len);
 
 #endif

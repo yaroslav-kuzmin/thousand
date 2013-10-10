@@ -87,7 +87,6 @@ void print_version(FILE * stream)
 
 void close_server(int signal_num)
 {
-
 	deinit_access_user();
 	close_soket();
 	deinit_list_user();
