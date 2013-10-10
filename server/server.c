@@ -41,11 +41,12 @@
 #include "log.h"
 #include "ini.h"
 #include "bit_flag.h"
+
 #include "kernel.h"
 #include "net_server.h"
 #include "protocol.h"
-#include "list_user_pub.h"
 #include "list_user.h"
+#include "access.h"
 
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -86,6 +87,8 @@ void print_version(FILE * stream)
 
 void close_server(int signal_num)
 {
+
+	deinit_access_user();
 	close_soket();
 	deinit_list_user();
 	deinit_bit_fields();
@@ -256,7 +259,12 @@ int main(int argc,char * argv[])
 		goto exit_server;
 	}
 	global_log("Инициализировали локальный сокет!");
-
+	rc = init_access_user();
+	if(rc == FAILURE){
+		global_warning("Несмог инициализировать сисетму доступа на сервер!");
+		goto exit_server;
+	}
+	global_log("Инициализировал систеиу доступа на сервер!");
 /*************************************/
 /* основной цикл                     */	
 /*************************************/
