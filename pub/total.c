@@ -75,7 +75,7 @@ static const char * HOME_USER ="HOME";
 
 static char * ini_file = NULL;
 static const char * INI = "ini";
-#define SIZ_STR_INI   4
+#define SIZE_STR_INI   4
 
 static char * log_catalog = NULL;
 static const char * LOG_CATALOG = "log/";
@@ -84,6 +84,10 @@ static const char * LOG_CATALOG = "log/";
 static char * local_socket = NULL;
 static const char * LOCAL_SOCKET = "socket";
 #define SIZE_STR_LOCAL_SOCKET  7
+
+static char * access_file = NULL;
+static const char * ACCESS = "database/access";
+#define SIZE_STR_ACCESS 16
 
 char * get_user_name(void)
 {
@@ -106,6 +110,11 @@ char * get_local_socket(void)
 	return local_socket;
 }
 
+char * get_access_file(void)
+{
+	return access_file;
+}
+
 int total_check(void)
 {
 	int rc = 0;
@@ -117,20 +126,17 @@ int total_check(void)
 		fprintf(stderr,"Нет переменой \"USER\" в системе !!");
 		exit(1);
 	}
-	/*DEBUG_PRINTF_S(user_name);*/
 	home_user = getenv(HOME_USER);
 	if(home_user == NULL){
 		fprintf(stderr,"Нет переменой \"HOME\" в системе !!");
 		exit(1);
 	}
-	/*DEBUG_PRINTF_S(home_user);*/
 	
 	size = strlen(home_user);
 	size += SIZE_STR_HOME_CATAOLG;
 	home_catalog = str_alloc(size);
 	strcat(home_catalog,home_user);
 	strcat(home_catalog,HOME_CATALOG);
-	/*DEBUG_PRINTF_S(home_catalog);*/
 	rc = stat(home_catalog,&buf);
 	if(rc != 0){
 		rc = mkdir(home_catalog,S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH);
@@ -141,11 +147,10 @@ int total_check(void)
 	}
 
 	size = strlen(home_catalog);
-	size += SIZ_STR_INI;
+	size += SIZE_STR_INI;
 	ini_file = str_alloc(size);
 	strcat(ini_file,home_catalog);
 	strcat(ini_file,INI);
-	/*DEBUG_PRINTF_S(ini_file);*/
 	rc = stat(ini_file,&buf);
 	if(rc != 0){
 		perror(ini_file);
@@ -157,7 +162,6 @@ int total_check(void)
 	log_catalog = str_alloc(size);
 	strcat(log_catalog,home_catalog);
 	strcat(log_catalog,LOG_CATALOG);
-	/*DEBUG_PRINTF_S(log_catalog);*/
 	rc = stat(log_catalog,&buf);
 	if(rc != 0){
 		perror(log_catalog);
@@ -169,7 +173,17 @@ int total_check(void)
 	local_socket = str_alloc(size);
 	strcat(local_socket,home_catalog);
 	strcat(local_socket,LOCAL_SOCKET);
-	/*DEBUG_PRINTF_S(local_socket);*/
+
+	size = strlen(home_catalog);
+	size += SIZE_STR_ACCESS;
+	access_file = str_alloc(size);
+	strcat(access_file,home_catalog);
+	strcat(access_file,ACCESS);
+	rc = stat(access_file,&buf);
+	if(rc != 0){
+		perror(ini_file);
+		exit(1);
+	}
 #if 0
 	if(g_mem_is_system_malloc()){
 		DEBUG_PRINTF_S("malloc!");
