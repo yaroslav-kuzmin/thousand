@@ -21,13 +21,29 @@
 /*****************************************************************************/
 
 /*****************************************************************************/
+/* Модуль проверяет доступ игроков к серверу                                 */
+/*****************************************************************************/
+/*****************************************************************************/
 /* Дополнительные файлы                                                      */
 /*****************************************************************************/
+#include <stdio.h>
+#include <stdint.h>
+#include <openssl/md5.h>
 
+#include <glib.h>
+
+#include "pub.h"
+#include "total.h"
+#include "log.h"
+#include "warning.h"
+#include "protocol.h"
+
+#include "list_user.h"
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
-
+static int change_key_file = NO;
+static GKeyFile * access_file = NULL;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
@@ -35,9 +51,72 @@
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
+int init_access_user(void)
+{
+	GError * check = NULL;
+	gchar * file = NULL;
 
-/*************************************/
-/* основной цикл                     */	
-/*************************************/
+	file = get_access_file();
 
+	access_file = g_key_file_new();
+
+	g_key_file_load_from_file (access_file,file,G_KEY_FILE_KEEP_COMMENTS,&check);
+	if(check != NULL){
+		global_warning("Ощибка при обработки файла доступа %s : %s",file,check->message);
+ 		return FAILURE;
+	}
+	change_key_file = NO;
+	global_log("Открыл файл доступа %s",file);
+	return SUCCESS;
+}
+
+int deinit_access_user(void)
+{
+	FILE * stream = NULL;
+	gchar * buffer_config = NULL;
+	GError * check = NULL;
+	gchar * file = NULL;
+
+	file = get_access_file();
+
+	if(change_key_file == YES){
+		stream = fopen(file,"w");
+		if(stream == NULL){
+			global_warning("Немогу открыть файл доступа %s для записи !",file);
+ 			return FAILURE;
+		}
+		buffer_config = g_key_file_to_data(access_file,0,&check);
+		if(check != NULL){
+			global_warning("Несмог записать файл доступа %s : %s",file,check->message);
+		}
+		else{
+ 			fputs(buffer_config,stream);
+			global_log("Записал файл доступа %s",file);
+			g_free(buffer_config);
+		}
+		fclose(stream);
+ 	}
+	global_log("Закрыл систему доступа на сервер!");
+	return SUCCESS;
+}
+
+int access_user(void)
+{
+	user_s * ptu;
+	int exit = FAILURE;
+	uint8_t flag;
+
+	ptu = get_first_user_list();
+	for(;ptu != NULL;){
+		flag = ptu->flag;
+		if( !ACCESS_USER(flag)){
+			if(MESSAGE_USER(flag)){
+				
+			}
+		}
+		ptu = get_next_user_list();
+	}
+
+	return exit;
+}
 /*****************************************************************************/
