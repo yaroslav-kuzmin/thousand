@@ -30,21 +30,14 @@
 #define LEN_USER_NAME      64
 
 typedef struct _message_cmd_s message_cmd_s;
-typedef union _message_cmd_u message_cmd_u;
 struct _message_cmd_s
 {
 	uint16_t number;
 	uint16_t type;
 	uint16_t len;
 }__attribute__((packed));
-union _message_cmd_u
-{
-	message_cmd_s field;
-	uint8_t array[sizeof(message_cmd_s)];
-};
 
 typedef struct _message_login_s message_login_s;
-typedef union _message_login_u message_login_u;
 struct _message_login_s
 {
 	uint16_t number;
@@ -53,14 +46,7 @@ struct _message_login_s
 	uint8_t login[LEN_USER_NAME];
 }__attribute__((packed));
 
-union _message_login_u
-{
-	message_login_s field;
-	uint8_t array[sizeof(message_login_s)];
-};
-
 typedef struct _message_passwd_s message_passwd_s;
-typedef union _message_passwd_u message_passwd_u;
 struct _message_passwd_s
 {
 	uint16_t number;
@@ -68,18 +54,13 @@ struct _message_passwd_s
 	uint16_t len;
 	uint8_t passwd[MD5_DIGEST_LENGTH];
 }__attribute__((packed));
-union _message_passwd_u
-{
-	message_passwd_s field;
-	uint8_t array[sizeof(message_passwd_s)];
-};
 
 typedef union _all_message_u all_message_u;
 union _all_message_u
 {
-	message_cmd_u    cmd;
-	message_login_u  login;
-	message_passwd_u passwd;
+	message_cmd_s    cmd;
+	message_login_s  login;
+	message_passwd_s passwd;
 };
 
 #define CMD_CHECK_CONNECT    0x0001

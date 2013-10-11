@@ -52,10 +52,10 @@ int write_message_list(user_s * psu,uint8_t * buf,int len)
 	uint8_t flag = psu->flag;
 	GByteArray * array = psu->buffer;
 
-	g_byte_array_append(array,buf,len);
+	array = g_byte_array_append(array,buf,len);
 	psu->flag = SET_MESSAGE_USER(flag); 
 
-	g_message("%s",buf);	
+	psu->buffer = array;
 
 	return SUCCESS;
 }	
@@ -63,14 +63,12 @@ int write_message_list(user_s * psu,uint8_t * buf,int len)
 int read_message_list(user_s * psu,uint8_t ** msg,int len)
 {
 	GByteArray * array = psu->buffer;
-	guint8 * data = array->data;
 	guint total_len = array->len;
-	uint8_t * buf = *msg;
 
 	if(len > total_len){
 		return FAILURE;
 	}
-	
+	*msg = array->data;
 	return SUCCESS;
 }	
 /* Удаляет сообщения из буфера */
@@ -79,10 +77,11 @@ int del_message_list(user_s * psu,int len)
 	uint8_t flag = psu->flag;
 	GByteArray * array = psu->buffer;
 	
-	g_byte_array_remove_range(array,0,len);
+	array = g_byte_array_remove_range(array,0,len);
 	if(array->len == 0){
 		psu->flag = UNSET_MESSAGE_USER(flag);
 	}
+	psu->buffer = array;
 	return SUCCESS;
 }
 

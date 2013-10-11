@@ -53,13 +53,13 @@ int cmd_check_connect(user_s * us)
 {
 	int rc;
 	int fd = us->fd;
-	message_cmd_u temp;
+	message_cmd_s cmd;
 
-	temp.field.type = CMD_CHECK_CONNECT;
-	temp.field.len = 0;
+	cmd.type = CMD_CHECK_CONNECT;
+	cmd.len = 0;
 	us->package++;
-	temp.field.number = us->package;
-	rc = send(fd,temp.array,(sizeof(message_cmd_s)),0);
+	cmd.number = us->package;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
 
 	return rc;
 }

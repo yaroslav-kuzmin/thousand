@@ -39,6 +39,7 @@
 #include "protocol.h"
 
 #include "list_user.h"
+#include "list_message.h"
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
@@ -107,7 +108,7 @@ int access_user(void)
 	uint8_t flag;
 	int rc;
 	uint32_t len;
-	all_message_u msg; 
+	all_message_u * msg;
 
 	ptu = get_first_user_list();
 	for(;ptu != NULL;){
@@ -115,12 +116,15 @@ int access_user(void)
 		if( !ACCESS_USER(flag)){
 			if(MESSAGE_USER(flag)){
 				len = sizeof(message_cmd_s);
-				rc = read_message_list(ptu,&msg.cmd.array,len);
+				rc = read_message_list(ptu,(uint8_t**)&msg,len);
 				if(rc == FAILURE){
 					ptu = get_next_user_list();
 					break;
 				}
-
+				/*DEBUG*/
+				printf("number :> %d\n",msg->cmd.number);
+				printf("type   :> %d\n",msg->cmd.type);
+				printf("len    :> %d\n",msg->cmd.len); 			  	
 			}
 		}
 		ptu = get_next_user_list();

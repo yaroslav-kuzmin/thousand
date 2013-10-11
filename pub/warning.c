@@ -135,7 +135,8 @@ int init_warning_system(int flag)
 	}
 	else{
 		current_time();
-		fprintf(warning_stream," %02d.%02d.%02d %02d:%02d:%02d :> Запуск игрового сервера !\n",mday,mon,year,hour,min,sec);
+		fprintf(warning_stream,"****************************************\n");
+		fprintf(warning_stream," %02d.%02d.%02d %02d:%02d:%02d :> Запуск !\n",mday,mon,year,hour,min,sec);
 		open_warnig = OPEN;
 	}
 	return SUCCESS;
@@ -145,7 +146,7 @@ int close_warning_system(void)
 {
 	if(open_warnig == OPEN){
 		current_time();
-		fprintf(warning_stream," %02d.%02d.%02d %02d:%02d:%02d :> Останов игрового сервера !\n",mday,mon,year,hour,min,sec);
+		fprintf(warning_stream," %02d.%02d.%02d %02d:%02d:%02d :> Останов !\n",mday,mon,year,hour,min,sec);
 		fclose(warning_stream);	
 		open_warnig = NOT_OPEN;
 	}

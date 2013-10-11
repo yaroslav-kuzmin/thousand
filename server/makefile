@@ -28,7 +28,7 @@ CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` -DDEBUG -D_
 		  -DG_LOG_DOMAIN=\"ths\"
 LDFLAGS=-g2 -L$(PUB_CATALOG)
 LIB_PUB=$(PUB_CATALOG)libthp.a
-LIB=-lglib-2.0  -lthp 
+LIB=-lthp -lglib-2.0
 
 $(EXEC):$(OBJS) $(LIB_PUB)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIB)
