@@ -21,7 +21,7 @@
 ###############################################################################
 
 LIB=libthp.a
-OBJS=warning.o alloc.o log.o ini.o total.o bit_flag.o net_client.o
+OBJS=warning.o alloc.o log.o ini.o total.o bit_flag.o net_client.o command.o
 AR=ar
 CXX=gcc
 CFLAGS=-g2 -Wall -I. -DDEBUG -D_GNU_SOURCE `pkg-config --cflags glib-2.0`
