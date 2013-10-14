@@ -97,7 +97,7 @@ int main_loop(void)
 					continue;
 				}
 				if(ptu->timeout <= time(NULL)){
-					rc = cmd_check_connect(ptu);
+					rc = total_cmd(ptu->fd,CMD_CHECK_CONNECT,ptu->package);
 					if(rc == -1){
 					/*TODO корректное сохранение игры */
 					/*TODO проверка ошибки отправки сообщения*/	
@@ -105,6 +105,7 @@ int main_loop(void)
 						del_user_list(fd);
 						continue;
 					}
+					ptu->package ++;
 					ptu->timeout = time(NULL) + WAITING_USER;
 				}
 				ptu = get_next_user_list();

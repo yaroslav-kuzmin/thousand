@@ -30,6 +30,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
+#include <openssl/md5.h>
 
 #include <glib.h>
 
@@ -41,13 +42,15 @@
 #include "ini.h"
 #include "net_client.h"
 
+#include "interface.h"
+
 /*****************************************************************************/
 /* глобальные переменые                                                      */
 /*****************************************************************************/
 
 const char * programm_name;
 const char * user;
-const char * passwd;
+const uint8_t * passwd;
 uint8_t passwd_md5[MD5_DIGEST_LENGTH] = {0};
  
 const char * const short_options = "u:p:hVl";
@@ -87,6 +90,7 @@ void print_version(FILE * stream)
 
 int close_client(void)
 {
+	close_interface();	
 	close_socket();
 	close_config();
 	close_log_system();
@@ -98,6 +102,7 @@ int close_client(void)
 /*****************************************************************************/
 int main(int argc,char * argv[])
 {
+	int i;
   	int rc = 0;
 	int next_option = 0;
 	programm_name = argv[0];
@@ -108,7 +113,7 @@ int main(int argc,char * argv[])
 				user = optarg;
 				break;
 			case 'p':
-				passwd = optarg;
+				passwd = (uint8_t*)optarg;
 				break;	
 			case 'h': 
 				print_help(stdout);
@@ -148,7 +153,6 @@ int main(int argc,char * argv[])
 		global_warning("Несмог инициализировать конфигурацию!");
 		goto exit_client;
 	}
-/*************************************/
 	rc = init_socket();
 	if(rc == FAILURE){
 		global_warning("Несмог инициализировать соединение с сервером!");
@@ -156,15 +160,31 @@ int main(int argc,char * argv[])
 	}
 	global_log("Инициализирован связь с сервером!");
 
+	rc = init_interface();
+	if(rc == FAILURE){
+		global_warning("Несмог иництализтровать интерфейс!");
+		goto exit_client;
+	}
+	global_log("Инициализировал интерфейс !");
 
+
+/*************************************/
+#if 0
 	printf("user   :> %s \n",user);
 	printf("passwd :> %s \n",passwd);
-	rc = strlen(passwd);
-	MD5(passwd,rc,passwd_md5);
-	
-	rc = write_socket((uint8_t*)user,strlen(user));
 
+	rc = strlen((char *)passwd);
+	MD5(passwd,rc,passwd_md5);
+
+	printf("MD5 :> ");
+	for(i = 0;i < MD5_DIGEST_LENGTH;i++){
+		printf(" %#x",passwd_md5[i]);
+	}	
+	printf("\n"); 	
+
+	rc = write_socket((uint8_t*)user,strlen(user)+1);
 	printf ("write :> %d \n",rc);
+#endif	
 /*************************************/
 exit_client:
 	close_client();

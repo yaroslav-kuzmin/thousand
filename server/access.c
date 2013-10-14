@@ -122,9 +122,7 @@ int access_user(void)
 					break;
 				}
 				/*DEBUG*/
-				printf("number :> %d\n",msg->cmd.number);
-				printf("type   :> %d\n",msg->cmd.type);
-				printf("len    :> %d\n",msg->cmd.len); 			  	
+				printf("user :> %s\n",(uint8_t *)msg);
 			}
 		}
 		ptu = get_next_user_list();

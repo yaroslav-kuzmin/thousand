@@ -21,14 +21,14 @@
 ###############################################################################
 
 EXEC=thc
-OBJS=client.o
+OBJS=client.o interface.o
 CXX=gcc
 PUB_CATALOG=../pub/
-CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` -DDEBUG -D_GNU_SOURCE \
-		  -DG_LOG_DOMAIN=\"thc\"
+CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` `pkg-config --cflags ncursesw`\
+		 -DDEBUG -D_GNU_SOURCE -DG_LOG_DOMAIN=\"thc\"
 LDFLAGS=-g2 -L$(PUB_CATALOG)
 LIB_PUB=$(PUB_CATALOG)libthp.a
-LIB=-lthp -lglib-2.0
+LIB=-lthp -lglib-2.0 -lcrypto -lncursesw -ltinfo
 
 $(EXEC):$(OBJS) $(LIB_PUB)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIB)
