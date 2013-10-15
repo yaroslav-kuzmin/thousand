@@ -33,6 +33,7 @@
 #include <openssl/md5.h>
 
 #include <glib.h>
+#include <ncurses.h>
 
 #include "pub.h"
 #include "alloc.h"
@@ -68,7 +69,7 @@ const struct option long_options[] =
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
 
-void print_help(FILE * stream)
+static void print_help(FILE * stream)
 {
 	fprintf(stream,"использоание программы : %s [ОПЦИИ] \n",programm_name);
 	fprintf(stream,"    -u  --user      имя игрока \n"
@@ -83,11 +84,13 @@ void print_help(FILE * stream)
 #define AUTOR             "Yaroslav Kuzmin"
 #define EMAIL             "esdt@mail.ru" 
 
-void print_version(FILE * stream)
+static void print_version(FILE * stream)
 {
 	fprintf(stream,"\n  Version  %s : Data \'%s\' : Autor \'%s\' : Email \'%s\'\n\n",VERSION,DATA_COM,AUTOR,EMAIL);
 }
-
+/*****************************************************************************/
+/* Основная функция                                                          */
+/*****************************************************************************/
 int close_client(void)
 {
 	close_interface();	
@@ -95,11 +98,46 @@ int close_client(void)
 	close_config();
 	close_log_system();
 	close_warning_system();
+	exit(0);
 	return SUCCESS;
 }
-/*****************************************************************************/
-/* Основная функция                                                          */
-/*****************************************************************************/
+
+
+int main_loop(void)
+{
+	int maxx;
+	int maxy;
+	int ch;
+
+	/*mvprintw(2,2,"игрок :>  Ярослав");*/
+	/*refresh();*/
+	for(;;){
+		ch = getch();
+		if(ch == KEY_F(4)){
+			break;
+		}
+		
+	}
+#if 0
+	printf("user   :> %s \n",user);
+	printf("passwd :> %s \n",passwd);
+
+	rc = strlen((char *)passwd);
+	MD5(passwd,rc,passwd_md5);
+
+	printf("MD5 :> ");
+	for(i = 0;i < MD5_DIGEST_LENGTH;i++){
+		printf(" %#x",passwd_md5[i]);
+	}	
+	printf("\n"); 	
+
+	rc = write_socket((uint8_t*)user,strlen(user)+1);
+	printf ("write :> %d \n",rc);
+#endif	
+
+	return SUCCESS;
+}
+
 int main(int argc,char * argv[])
 {
 	int i;
@@ -167,24 +205,8 @@ int main(int argc,char * argv[])
 	}
 	global_log("Инициализировал интерфейс !");
 
-
 /*************************************/
-#if 0
-	printf("user   :> %s \n",user);
-	printf("passwd :> %s \n",passwd);
-
-	rc = strlen((char *)passwd);
-	MD5(passwd,rc,passwd_md5);
-
-	printf("MD5 :> ");
-	for(i = 0;i < MD5_DIGEST_LENGTH;i++){
-		printf(" %#x",passwd_md5[i]);
-	}	
-	printf("\n"); 	
-
-	rc = write_socket((uint8_t*)user,strlen(user)+1);
-	printf ("write :> %d \n",rc);
-#endif	
+	main_loop();
 /*************************************/
 exit_client:
 	close_client();

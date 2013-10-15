@@ -43,6 +43,8 @@ char CLIENT[] = "client";
 char ROBOT[] = "robot";
 char DEFAULT[] = "_";
 
+char LOCALE[] = "ru_RU.UTF-8";
+
 static int registration_operation = YES;
 
 /*****************************************************************************/

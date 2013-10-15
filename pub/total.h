@@ -32,6 +32,8 @@ extern char CLIENT[];
 extern char ROBOT[];
 extern char DEFAULT[];
 
+extern char LOCALE[];
+
 int get_registration_operation(void);
 void set_registration_operation(int rg);
 
