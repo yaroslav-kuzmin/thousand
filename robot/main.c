@@ -16,7 +16,7 @@
 /*  You should have received a copy of the GNU General Public License        */
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*                                                                           */
-/*   Email contact: esdt@mail.ru                                             */
+/*   Email contact: kuzmin.yaroslav@gmail.com                                */
 /*                                                                           */
 /*****************************************************************************/
 
@@ -63,8 +63,8 @@ void print_help(FILE * stream)
 
 #define VERSION           "0.1"
 #define DATA_COM          __DATE__" : "__TIME__
-#define AUTOR             "Yaroslav Kuzmin"
-#define EMAIL             "esdt@mail.ru" 
+#define AUTOR             "Kuzmin Yaroslav"
+#define EMAIL             "kuzmin.yaroslav@gmail.com" 
 
 void print_version(FILE * stream)
 {
