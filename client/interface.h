@@ -27,6 +27,8 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
+int if_get_name_user(char ** user,int len);
+
 int init_interface(void);
 int close_interface(void);
 

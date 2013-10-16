@@ -28,6 +28,8 @@
 /* Дополнительные файлы                                                      */
 /*****************************************************************************/
 #include <locale.h>
+#include <ctype.h>
+
 #include <ncurses.h>
 
 #include "pub.h"
@@ -53,6 +55,7 @@ static char * str_locale = NULL;
 static int create_main_win(void)
 {
 	main_win = newwin(MAX_HEIGHT,MAX_WIDTH,start_y,start_x);
+	keypad(main_win,TRUE);
 	wattron(main_win,COLOR_PAIR(MAIN_PAIR));
 	box(main_win,0,0);
 	wrefresh(main_win);
@@ -62,6 +65,35 @@ static int create_main_win(void)
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
+
+static char * PLAYER = "Игрок : ";
+int if_get_name_user(char ** user,int len)
+{
+	int i;
+	char *str = *user;
+	chtype ch;
+
+	wmove(main_win,1,1);
+	wprintw(main_win,PLAYER);
+	wrefresh(main_win);
+	for(i = 0;i < (len - 1);){
+
+		ch = wgetch(main_win);
+		if(ch == KEY_ENTER){
+			break;
+		}
+		/*TODO добавить поддержку UTF-8*/
+		if(isalnum(ch)){
+			*(str+i) = (char)ch;
+			i++;
+			waddch(main_win,ch);
+			wrefresh(main_win);
+		}
+	}
+
+	str[i] = 0;	
+	return SUCCESS;
+}
 
 int init_interface(void)
 {
@@ -78,7 +110,7 @@ int init_interface(void)
    	global_warning("ncurses failed\n\n");
 		return FAILURE;
 	}
-	keypad(stdscr, TRUE);  /* разрешить преобразование кодов клавиатуры */
+	keypad(stdscr,TRUE);  /* разрешить преобразование кодов клавиатуры */
 	nonl();         /* не делать NL->CR/NL при выводе */
 	cbreak();       /* читать один символ за раз, не ждать \n */
 	noecho();       /* не показывать ввод */
@@ -103,7 +135,7 @@ int init_interface(void)
 
 	start_y = (LINES - MAX_HEIGHT)/2;
 	start_x = (COLS - MAX_WIDTH)/2;
-	/**/
+	/*Отрисовываем основное окно */
 	box(stdscr,0,0);
 	refresh();
 

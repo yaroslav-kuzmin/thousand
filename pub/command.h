@@ -27,7 +27,7 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-int total_cmd(int fd, uint16_t type,uint16_t number );
+int cmd_check_connect(int fd,uint16_t number)
 
 #endif
 

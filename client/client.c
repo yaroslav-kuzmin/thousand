@@ -42,6 +42,7 @@
 #include "log.h"
 #include "ini.h"
 #include "net_client.h"
+#include "protocol.h"
 
 #include "interface.h"
 
@@ -49,9 +50,12 @@
 /* глобальные переменые                                                      */
 /*****************************************************************************/
 
-const char * programm_name;
-const char * user;
-const uint8_t * passwd;
+const char * programm_name = NULL;
+const char * user = NULL;
+char str_user[LEN_USER_NAME] = {0};
+const uint8_t * passwd = NULL;
+char str_passwd[LEN_USER_NAME] = {0};
+
 uint8_t passwd_md5[MD5_DIGEST_LENGTH] = {0};
  
 const char * const short_options = "u:p:hVl";
@@ -102,12 +106,24 @@ int close_client(void)
 	return SUCCESS;
 }
 
+int access_server()
+{
+	int rc;
+
+	if(user == NULL){
+		user = str_user;
+		rc = if_get_name_user((char **)&user,LEN_USER_NAME);
+		global_log("Игрок : %s",user);
+	}
+
+	/*if_set_name_user(user);*/
+
+	return rc;
+}
 
 int main_loop(void)
 {
-	int maxx;
-	int maxy;
-	int ch;
+	chtype ch;
 
 	/*mvprintw(2,2,"игрок :>  Ярослав");*/
 	/*refresh();*/
@@ -116,7 +132,8 @@ int main_loop(void)
 		if(ch == KEY_F(4)){
 			break;
 		}
-		
+		addch(ch);
+		refresh();
 	}
 #if 0
 	printf("user   :> %s \n",user);
@@ -140,7 +157,6 @@ int main_loop(void)
 
 int main(int argc,char * argv[])
 {
-	int i;
   	int rc = 0;
 	int next_option = 0;
 	programm_name = argv[0];
@@ -206,6 +222,7 @@ int main(int argc,char * argv[])
 	global_log("Инициализировал интерфейс !");
 
 /*************************************/
+	access_server();
 	main_loop();
 /*************************************/
 exit_client:
