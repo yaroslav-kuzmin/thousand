@@ -132,6 +132,9 @@ int main_loop(void)
 		if(ch == KEY_F(4)){
 			break;
 		}
+		if(ch == KEY_ENTER){
+			break;
+		}
 		addch(ch);
 		refresh();
 	}

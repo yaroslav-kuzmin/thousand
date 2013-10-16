@@ -97,7 +97,7 @@ int main_loop(void)
 					continue;
 				}
 				if(ptu->timeout <= time(NULL)){
-					rc = total_cmd(ptu->fd,CMD_CHECK_CONNECT,ptu->package);
+					rc = cmd_check_connect(ptu->fd,ptu->package);
 					if(rc == -1){
 					/*TODO корректное сохранение игры */
 					/*TODO проверка ошибки отправки сообщения*/	
