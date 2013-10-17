@@ -132,15 +132,12 @@ int access_server()
 	rc = strlen((char *)passwd);
 	MD5((uint8_t*)passwd,rc,passwd_md5);
 
-#if 0
-	rc = write_socket((uint8_t*)user,strlen(user)+1);
-	printf ("write :> %d \n",rc);
-#endif
-	rc = SUCCESS;
+	rc = cmd_login(user);
 
 	if(rc == SUCCESS){
 		if_set_connect();
 	}
+
 	return rc;
 }
 
