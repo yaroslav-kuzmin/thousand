@@ -29,6 +29,7 @@
 /*****************************************************************************/
 #include <locale.h>
 #include <ctype.h>
+#include <string.h>
 
 #include <ncurses.h>
 
@@ -40,7 +41,9 @@
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
 #define MAIN_PAIR     1
-typedef _object_s object_s;
+#define NL            '\n'
+#define CR            '\r'
+typedef struct _object_s object_s;
 struct _object_s
 {
 	int y;
@@ -61,10 +64,16 @@ static char * str_locale = NULL;
 /*****************************************************************************/
 static object_s o_main_win;
 
+static int draw_main_win(void)
+{
+	if(main_win != NULL){
+		wrefresh(main_win);
+	}	
+	return SUCCESS;
+}
 static int create_main_win(void)
 {
 	int y,x,w,h;
-	memset(&o_main_win,0,sizeof(object_s));
 
 	y = (LINES - MAX_HEIGHT)/2;
 	x = (COLS - MAX_WIDTH)/2;
@@ -74,12 +83,12 @@ static int create_main_win(void)
 	keypad(main_win,TRUE);
 	wattron(main_win,COLOR_PAIR(MAIN_PAIR));
 	box(main_win,0,0);
-	wrefresh(main_win);
 	o_main_win.y = y;
 	o_main_win.x = x;
 	o_main_win.h = h;
 	o_main_win.w = w;
-	o_main_win.data = NULL:	
+	o_main_win.data = NULL;	
+	draw_main_win();
 	return SUCCESS;
 }
 /*****************************************************************************/
@@ -87,46 +96,108 @@ static int create_main_win(void)
 /*****************************************************************************/
 
 
-static char * PLAYER = "Игрок : ";
-object_s o_user;
+static char * PLAYER = "player : ";
+static char * PLAYER_FIELD = "__________";
+object_s o_label_user;
+object_s o_field_user;
+
 int init_o_user(void)
 {
-	
-}
+	o_label_user.y = 1;
+	o_label_user.x = 1;
+	o_label_user.h = 1;
+	o_label_user.w = strlen(PLAYER);
+	o_label_user.data = PLAYER;
 
+	o_field_user.y = 1;
+	o_field_user.x = o_label_user.w + 1;
+	o_field_user.h = 1;
+	o_field_user.w = strlen(PLAYER_FIELD);
+	o_field_user.data = PLAYER_FIELD;
+
+	wmove(main_win,o_label_user.y,o_label_user.x);
+	wprintw(main_win,o_label_user.data);
+	wprintw(main_win,o_field_user.data);
+	draw_main_win();
+
+	return SUCCESS;		
+}
 int if_get_name_user(char ** user,int len)
 {
 	int i;
 	char *str = *user;
 	chtype ch;
-	int y,x;
 
-	wmove(main_win,1,1);
-	wprintw(main_win,PLAYER);
-	wrefresh(main_win);
+	wmove(main_win,o_field_user.y,o_field_user.x);
 	for(i = 0;i < (len - 1);){
 		ch = wgetch(main_win);
-		if((ch == KEY_ENTER) || (ch == '\r') || (ch == '\n')){
-			getyx(main_win,y,x);
-			wmove(main_win,y,x+2);
-			wrefresh(main_win);
+		if((ch == KEY_ENTER) || (ch == CR) || (ch == NL)){
 			break;
 		}
 		/*TODO добавить поддержку UTF-8*/
 		if(isalnum(ch)){
 			*(str+i) = (char)ch;
 			i++;
-			if(i < SIZE_STR_USER){
+			if(i < o_field_user.w){
 				waddch(main_win,ch);
-				wrefresh(main_win);
+				draw_main_win();
 			}	
 		}
 	}
 
 	str[i] = 0;	
+	
+	return SUCCESS;
+}
+int if_set_name_user(char *user)
+{
+	int i;
+	int len = strlen(user);
+	wmove(main_win,o_field_user.y,o_field_user.x);
+	for(i = 0;i< len;i++){
+		waddch(main_win,user[i]);
+	}
+	draw_main_win();
 	return SUCCESS;
 }
 
+/*************************************/
+static char * PASSWD = "passwd : ";
+static char * PASSWD_FIELD = "__________";
+object_s o_label_passwd;
+object_s o_field_passwd;
+
+int init_o_passwd(void)
+{
+	o_label_passwd.y = 1;
+	o_label_passwd.x = o_field_user.x + o_field_user.w + 2;
+	o_label_passwd.h = 1;
+	o_label_passwd.w = strlen(PASSWD);
+	o_label_passwd.data = PASSWD;
+
+	o_field_passwd.y = 1;
+	o_field_passwd.x = o_label_passwd.w + 1;
+	o_field_passwd.h = 1;
+	o_field_passwd.w = strlen(PASSWD_FIELD);
+	o_field_passwd.data = PASSWD_FIELD;
+
+	wmove(main_win,o_label_passwd.y,o_label_passwd.x);
+	wprintw(main_win,o_label_passwd.data);
+	wprintw(main_win,o_field_passwd.data);
+	draw_main_win();
+
+	return SUCCESS;		
+
+}
+int if_get_passwd(char ** passwd,int len)
+{
+	return SUCCESS;
+}
+int if_set_passwd(char * passwd)
+{
+	return SUCCESS;
+}
+/*************************************/
 int init_interface(void)
 {
 
@@ -174,6 +245,8 @@ int init_interface(void)
 
 	create_main_win();
 	
+	init_o_user();
+	init_o_passwd();
 
 	return SUCCESS;
 }

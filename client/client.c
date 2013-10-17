@@ -113,11 +113,28 @@ int access_server()
 	if(user == NULL){
 		user = str_user;
 		rc = if_get_name_user((char **)&user,LEN_USER_NAME);
-		global_log("Игрок : %s",user);
 	}
+	else{
+		rc = if_set_name_user(user);
+	}
+	global_log("Игрок : %s",user);
+	
 
-	/*if_set_name_user(user);*/
+	if(passwd == NULL){
+		passwd = str_passwd;
+		rc = if_get_passwd((char **)&passwd,LEN_USER_NAME);
+	}
+	else{
+		rc = if_set_passwd(passwd);
+	}
+	global_log("Пароль : %s",passwd);
 
+	rc = strlen((char *)passwd);
+	MD5(passwd,rc,passwd_md5);
+#if 0
+	rc = write_socket((uint8_t*)user,strlen(user)+1);
+	printf ("write :> %d \n",rc);
+#endif
 	return rc;
 }
 
@@ -125,35 +142,12 @@ int main_loop(void)
 {
 	chtype ch;
 
-	/*mvprintw(2,2,"игрок :>  Ярослав");*/
-	/*refresh();*/
 	for(;;){
 		ch = getch();
 		if(ch == KEY_F(4)){
 			break;
 		}
-		if(ch == KEY_ENTER){
-			break;
-		}
-		addch(ch);
-		refresh();
 	}
-#if 0
-	printf("user   :> %s \n",user);
-	printf("passwd :> %s \n",passwd);
-
-	rc = strlen((char *)passwd);
-	MD5(passwd,rc,passwd_md5);
-
-	printf("MD5 :> ");
-	for(i = 0;i < MD5_DIGEST_LENGTH;i++){
-		printf(" %#x",passwd_md5[i]);
-	}	
-	printf("\n"); 	
-
-	rc = write_socket((uint8_t*)user,strlen(user)+1);
-	printf ("write :> %d \n",rc);
-#endif	
 
 	return SUCCESS;
 }
@@ -225,7 +219,11 @@ int main(int argc,char * argv[])
 	global_log("Инициализировал интерфейс !");
 
 /*************************************/
-	access_server();
+	rc = access_server();
+	if(rc == FAILURE){
+		global_log("Не коректный логин : %s и пароль : %s",user,passwd);
+		goto exit_client;
+	}
 	main_loop();
 /*************************************/
 exit_client:
