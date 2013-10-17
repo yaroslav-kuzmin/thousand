@@ -31,6 +31,10 @@
 #define SET_ACCESS_USER(x)    (x | 0x01)
 #define UNSET_ACCESS_USER(x)  (x & 0xFE)
 
+#define LOGIN_USER(x)
+#define SET_LOGIN_USER(x)
+#define UNSET_LOGIN_USER(x)
+
 #define MESSAGE_USER(x)       (x & 0x02)
 #define SET_MESSAGE_USER(x)   (x | 0x02)
 #define UNSET_MESSAGE_USER(x) (x & 0xFD)

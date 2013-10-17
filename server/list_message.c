@@ -56,6 +56,8 @@ int write_message_list(user_s * psu,uint8_t * buf,int len)
 	psu->flag = SET_MESSAGE_USER(flag); 
 
 	psu->buffer = array;
+	/*DEBUG*/
+	g_message("wm : %d : %d",psu->fd,len);
 
 	return SUCCESS;
 }	

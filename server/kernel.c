@@ -74,14 +74,17 @@ int main_loop(void)
 	int rc;
 	user_s * ptu;
 	int fd;
-	int new_connect = FAILURE;
+	int new_connect = NO;
 
 
 	g_message("main_loop");
 
 	for(;;){
 /*Проверка нового подсоединения*/
-		new_connect = check_new_connect();
+		rc = check_new_connect();
+		if(new_connect == NO){
+			new_connect = rc;
+		}	
 /*Чтение информации от клиентов*/
 		ptu = get_first_user_list();
 		for(;ptu != NULL;){
@@ -114,11 +117,15 @@ int main_loop(void)
 			ptu = get_next_user_list();
 		}
 
-		if(new_connect == SUCCESS){
-			new_connect = access_user();
+		if(new_connect == YES){
+			rc = access_user();
+			if(rc == SUCCESS){
+				new_connect = NO;
+			}
 		}
 
 /* Ожидание сигналов на дискрипторах*/
+
 		if(amount_sig_io <= 1){	
 			amount_sig_io = 0;
 			rc = pause();

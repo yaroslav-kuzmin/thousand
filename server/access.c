@@ -28,6 +28,7 @@
 /*****************************************************************************/
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include <openssl/md5.h>
 
 #include <glib.h>
@@ -104,17 +105,23 @@ int deinit_access_user(void)
 int access_user(void)
 {
 	user_s * ptu;
-	int exit = FAILURE;
+	int exit = 0;
 	uint8_t flag;
 	int rc;
 	uint32_t len;
 	all_message_u * msg;
 
 	ptu = get_first_user_list();
+
 	for(;ptu != NULL;){
 		flag = ptu->flag;
 		if( !ACCESS_USER(flag)){
-			if(MESSAGE_USER(flag)){
+			if( !MESSAGE_USER(flag) ){
+				exit++;
+			}
+			else{	
+				char * n = ptu->name;
+				uint8_t * p = ptu->passwd;
 				len = sizeof(message_cmd_s);
 				rc = read_message_list(ptu,(uint8_t**)&msg,len);
 				if(rc == FAILURE){
@@ -122,10 +129,32 @@ int access_user(void)
 					break;
 				}
 				/*DEBUG*/
-				printf("user :> %s\n",(uint8_t *)msg);
+				g_message("number :> %d",msg->cmd.number);
+				g_message("type   :> %d",msg->cmd.type);
+				g_message("len    :> %d",msg->cmd.len);
+
+				if(n[0] == 0 ){
+					message_login_s * m;
+					len = sizeof(message_cmd_s) + msg->cmd.len;
+					rc = read_message_list(ptu,(uint8_t**)&m,len);
+					if(rc == FAILURE){
+						ptu = get_next_user_list();
+						break;
+					}
+					memcpy(n,m->login,msg->cmd.len);
+					g_message("name :> %s",ptu->name);
+					del_message_list(ptu,len);
+				}
 			}
 		}
 		ptu = get_next_user_list();
+	}
+
+	if(exit){
+		exit = FAILURE;
+	}
+	else{
+		exit = SUCCESS;
 	}
 
 	return exit;

@@ -156,7 +156,7 @@ int check_new_connect(void)
 	socklen_t client_name_len;
 	int c_fd;
 	int rc;
-	int exit = FAILURE;
+	int exit = NO;
 
 	for(;;){
 		c_fd = accept(fd_local_socket,&client_name,&client_name_len);
@@ -195,10 +195,9 @@ int check_new_connect(void)
 			close(c_fd);
 		}
 		else{
-			exit = SUCCESS;
-		}		
+			exit = YES;
+		}
 	}
-
 	return exit;
 }
 
