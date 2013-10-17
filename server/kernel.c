@@ -42,7 +42,6 @@
 #include "net_server.h"
 #include "list_user.h"
 #include "list_message.h"
-#include "command.h"
 #include "access.h"
 /*****************************************************************************/
 /* Глобальные переменые                                                      */

@@ -27,6 +27,8 @@
 #ifndef NET_SERVER_H
 #define NET_SERVER_H
 
+int cmd_check_connect(int fd,uint16_t number);
+
 int init_socket(void);
 int close_soket(void);
 int check_new_connect(void);
