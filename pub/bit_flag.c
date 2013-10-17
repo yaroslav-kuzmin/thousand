@@ -48,8 +48,8 @@ typedef struct bit_field_s
 }bit_field_t;
 
 bit_field_t * bit_fields = NULL;
-int amount_bit_fields = 0;
-int current_bit_field = 0;
+uint32_t amount_bit_fields = 0;
+uint32_t current_bit_field = 0;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
@@ -73,7 +73,7 @@ int deinit_bit_fields(void)
 	current_bit_field = 0;
 	return SUCCESS;	
 }
-int reinit_bit_fields(void)
+static int reinit_bit_fields(void)
 {
 	bit_field_t * bft = NULL;
 	bit_field_t * bfst = bit_fields;
@@ -91,12 +91,12 @@ int reinit_bit_fields(void)
 }
 
 /*---------------------------------------------------------------------------*/
-int init_bit_flags(uint32_t size)
+uint32_t init_bit_flags(uint32_t size)
 {
 	bit_field_t * bfst = bit_fields;	
 	uint32_t s = size >> AMOUNT_BIT_IN_UINT8;
 	uint8_t * t;
-	int c = 0;
+	uint32_t c = 0;
 
 	if( (size == 0) || (size - (s<<AMOUNT_BIT_IN_UINT8)) )
 		s++;
@@ -123,7 +123,7 @@ int init_bit_flags(uint32_t size)
 	return c;
 }	
 
-int deinit_bit_flag(int number)
+int deinit_bit_flag(uint32_t number)
 {
 	bit_field_t * bft = bit_fields;	
 	uint8_t * t;
@@ -139,7 +139,7 @@ int deinit_bit_flag(int number)
 	return SUCCESS;
 }
 
-int reinit_bit_flags(int number,uint32_t size)
+int reinit_bit_flags(uint32_t number,uint32_t size)
 {
 	bit_field_t * bft = bit_fields;
 	uint8_t *new_tb;
@@ -173,7 +173,7 @@ int reinit_bit_flags(int number,uint32_t size)
 	return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-int set_bit_flag(int number,uint32_t number_bit,uint32_t size)
+int set_bit_flag(uint32_t number,uint32_t number_bit,uint32_t size)
 {
 	bit_field_t * bft = bit_fields;	
 	uint8_t * bits;
@@ -212,7 +212,7 @@ int set_bit_flag(int number,uint32_t number_bit,uint32_t size)
 	return SUCCESS;
 }
 
-int get_bit_flag(int number, uint32_t number_bit,uint32_t size)
+int get_bit_flag(uint32_t number, uint32_t number_bit,uint32_t size)
 {
 	bit_field_t * bft = bit_fields;	
 	uint8_t * bits;
@@ -251,7 +251,7 @@ int get_bit_flag(int number, uint32_t number_bit,uint32_t size)
 	return SUCCESS;
 }
 
-int check_bit_flag(int number,uint32_t number_bit,uint32_t size)
+int check_bit_flag(uint32_t number,uint32_t number_bit,uint32_t size)
 {
 	bit_field_t * bft = bit_fields;	
 	uint8_t * bits;
@@ -288,7 +288,7 @@ int check_bit_flag(int number,uint32_t number_bit,uint32_t size)
 }
 
 /*выдает первый свободный порядковый номер*/
-uint32_t free_bit_flag(int number,uint32_t size)
+uint32_t free_bit_flag(uint32_t number,uint32_t size)
 {
 	bit_field_t * bft = bit_fields;	
 	uint8_t * bits;

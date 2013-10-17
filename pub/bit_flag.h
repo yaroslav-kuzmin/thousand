@@ -29,20 +29,19 @@
 /* Работа с полями битов*/
 int init_bit_fields(void);
 int deinit_bit_fields(void);
-int reinit_bit_fields(void);
 /*Выделение одного битового поля для работы и получение его номера*/
-int init_bit_flags(uint32_t size);
+uint32_t init_bit_flags(uint32_t size);
 /*Высвобождене битового поля*/
-int deinit_bit_flag(int number);
+int deinit_bit_flag(uint32_t number);
 /*Запрос на увеличение количества бит в поле*/
-int reinit_bit_flags(int number,uint32_t size);
+int reinit_bit_flags(uint32_t number,uint32_t size);
 /*Установить флаги с определеного номера number_bit на определеный размер size*/
-int set_bit_flag(int number,uint32_t number_bit,uint32_t size);
+int set_bit_flag(uint32_t number,uint32_t number_bit,uint32_t size);
 /*Снять флаг с определеного номера number_bit на определеный размер size*/
-int get_bit_flag(int number, uint32_t number_bit,uint32_t size);
+int get_bit_flag(uint32_t number, uint32_t number_bit,uint32_t size);
 /*Проверяет установлен флаг или нет */
-int check_bit_flag(int number,uint32_t number_bit,uint32_t size);
+int check_bit_flag(uint32_t number,uint32_t number_bit,uint32_t size);
 /*Находит поле свободных флагов размером size и устанавливает их*/
-uint32_t free_bit_flag(int number,uint32_t size);
+uint32_t free_bit_flag(uint32_t number,uint32_t size);
 
 #endif
