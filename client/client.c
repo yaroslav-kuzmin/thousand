@@ -33,7 +33,6 @@
 #include <openssl/md5.h>
 
 #include <glib.h>
-#include <ncurses.h>
 
 #include "pub.h"
 #include "alloc.h"
@@ -44,6 +43,7 @@
 #include "net_client.h"
 #include "protocol.h"
 
+#include "interface_cmd.h"
 #include "interface.h"
 
 /*****************************************************************************/
@@ -51,9 +51,9 @@
 /*****************************************************************************/
 
 const char * programm_name = NULL;
-const char * user = NULL;
+char * user = NULL;
 char str_user[LEN_USER_NAME] = {0};
-const uint8_t * passwd = NULL;
+char * passwd = NULL;
 char str_passwd[LEN_USER_NAME] = {0};
 
 uint8_t passwd_md5[MD5_DIGEST_LENGTH] = {0};
@@ -130,21 +130,27 @@ int access_server()
 	global_log("Пароль : %s",passwd);
 
 	rc = strlen((char *)passwd);
-	MD5(passwd,rc,passwd_md5);
+	MD5((uint8_t*)passwd,rc,passwd_md5);
+
 #if 0
 	rc = write_socket((uint8_t*)user,strlen(user)+1);
 	printf ("write :> %d \n",rc);
 #endif
+	rc = SUCCESS;
+
+	if(rc == SUCCESS){
+		if_set_connect();
+	}
 	return rc;
 }
 
 int main_loop(void)
 {
-	chtype ch;
+	interface_cmd_e  cmd;
 
 	for(;;){
-		ch = getch();
-		if(ch == KEY_F(4)){
+		cmd = if_cmd();
+		if (cmd == exit_client){
 			break;
 		}
 	}
@@ -164,7 +170,7 @@ int main(int argc,char * argv[])
 				user = optarg;
 				break;
 			case 'p':
-				passwd = (uint8_t*)optarg;
+				passwd = optarg;
 				break;	
 			case 'h': 
 				print_help(stdout);
@@ -221,9 +227,10 @@ int main(int argc,char * argv[])
 /*************************************/
 	rc = access_server();
 	if(rc == FAILURE){
-		global_log("Не коректный логин : %s и пароль : %s",user,passwd);
+		global_log("Не корректный логин : %s и пароль : %s",user,passwd);
 		goto exit_client;
 	}
+
 	main_loop();
 /*************************************/
 exit_client:

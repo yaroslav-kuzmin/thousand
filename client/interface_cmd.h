@@ -27,8 +27,14 @@
 #ifndef INTERFACE_CMD_H
 #define INTERFACE_CMD_H
 
+typedef enum _if_cmd_e  interface_cmd_e;
 
+enum _if_cmd_e
+{
+	null_client = 0,
+	exit_client
 
+};
 #endif 
 
 /*****************************************************************************/

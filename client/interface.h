@@ -31,6 +31,9 @@ int if_get_name_user(char ** user,int len);
 int if_set_name_user(char *user);
 int if_get_passwd(char ** passwd,int len);
 int if_set_passwd(char * passwd);
+int if_set_connect(void);
+
+interface_cmd_e if_cmd(void);
 
 int init_interface(void);
 int close_interface(void);

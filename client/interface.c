@@ -37,10 +37,16 @@
 #include "total.h"
 #include "warning.h"
 #include "log.h"
+
+#include "interface_cmd.h"
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
-#define MAIN_PAIR     1
+#define MAIN_PAIR      1
+#define IN_MAIN_PAIR   2
+#define ERROR_PAIR     3
+#define IN_ERROR_PAIR  4
+
 #define NL            '\n'
 #define CR            '\r'
 typedef struct _object_s object_s;
@@ -53,8 +59,8 @@ struct _object_s
 	char * data;
 };
 
-#define MAX_WIDTH              50
-#define MAX_HEIGHT             3
+#define MAX_WIDTH              70
+#define MAX_HEIGHT             4
 
 static WINDOW * main_win = NULL;
 static char * str_locale = NULL;
@@ -81,7 +87,7 @@ static int create_main_win(void)
 	h = MAX_HEIGHT;
 	main_win = newwin(h,w,y,x);
 	keypad(main_win,TRUE);
-	wattron(main_win,COLOR_PAIR(MAIN_PAIR));
+	wattrset(main_win,COLOR_PAIR(MAIN_PAIR));
 	box(main_win,0,0);
 	o_main_win.y = y;
 	o_main_win.x = x;
@@ -94,7 +100,6 @@ static int create_main_win(void)
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
-
 
 static char * PLAYER = "player : ";
 static char * PLAYER_FIELD = "__________";
@@ -124,7 +129,7 @@ int init_o_user(void)
 }
 int if_get_name_user(char ** user,int len)
 {
-	int i;
+	int i,x,y;
 	char *str = *user;
 	chtype ch;
 
@@ -134,15 +139,26 @@ int if_get_name_user(char ** user,int len)
 		if((ch == KEY_ENTER) || (ch == CR) || (ch == NL)){
 			break;
 		}
+		if(ch == KEY_BACKSPACE){
+			i--;
+			*(str+i) = 0;
+			ch = '_';
+			if(i < o_field_user.w){
+				getyx(main_win,y,x);
+				wmove(main_win,y,x-1);
+				waddch(main_win,ch);
+				wmove(main_win,y,x-1);
+			}	
+		}
 		/*TODO добавить поддержку UTF-8*/
 		if(isalnum(ch)){
 			*(str+i) = (char)ch;
 			i++;
 			if(i < o_field_user.w){
 				waddch(main_win,ch);
-				draw_main_win();
 			}	
 		}
+		draw_main_win();
 	}
 
 	str[i] = 0;	
@@ -176,7 +192,7 @@ int init_o_passwd(void)
 	o_label_passwd.data = PASSWD;
 
 	o_field_passwd.y = 1;
-	o_field_passwd.x = o_label_passwd.w + 1;
+	o_field_passwd.x = o_label_passwd.x + o_label_passwd.w;
 	o_field_passwd.h = 1;
 	o_field_passwd.w = strlen(PASSWD_FIELD);
 	o_field_passwd.data = PASSWD_FIELD;
@@ -187,20 +203,109 @@ int init_o_passwd(void)
 	draw_main_win();
 
 	return SUCCESS;		
-
 }
 int if_get_passwd(char ** passwd,int len)
 {
+	int i,y,x;
+	char *str = *passwd;
+	chtype ch;
+
+	wmove(main_win,o_field_passwd.y,o_field_passwd.x);
+	for(i = 0;i < (len - 1);){
+		ch = wgetch(main_win);
+		if((ch == KEY_ENTER) || (ch == CR) || (ch == NL)){
+			break;
+		}
+		if(ch == KEY_BACKSPACE){
+			i--;
+			*(str+i) = 0;
+			ch = '_';
+			if(i < o_field_passwd.w){
+				getyx(main_win,y,x);
+				wmove(main_win,y,x-1);
+				waddch(main_win,ch );
+				wmove(main_win,y,x-1);
+			}	
+		}
+		/*TODO добавить поддержку UTF-8*/
+		if(isalnum(ch)){
+			*(str+i) = (char)ch; 
+			i++;
+			if(i < o_field_passwd.w){
+				waddch(main_win,ch );
+			}	
+		}
+		draw_main_win();
+	}
+
+	str[i] = 0;	
+	
 	return SUCCESS;
 }
 int if_set_passwd(char * passwd)
 {
+	int i;
+	int len = strlen(passwd);
+	wmove(main_win,o_field_passwd.y,o_field_passwd.x);
+	for(i = 0;i< len;i++){
+		waddch(main_win,passwd[i]);
+	}
+	draw_main_win();
+	return SUCCESS;
+}
+
+/*************************************/
+static char * CONNECT = "connect ";
+object_s o_label_connect;
+int init_o_connect(void)
+{
+	o_label_connect.y = 1;
+	o_label_connect.x = o_field_passwd.x + o_field_passwd.w + 10;
+	o_label_connect.h = 1;
+	o_label_connect.w = strlen(PASSWD);
+	o_label_connect.data = CONNECT;
+
+	wmove(main_win,o_label_connect.y,o_label_connect.x);
+	wprintw(main_win,o_label_connect.data);
+	draw_main_win();
+	return SUCCESS;		
+}
+int if_set_connect(void)
+{
+	int i;
+	char * str = CONNECT;
+	int len = strlen(str);
+	chtype ch;
+
+	wmove(main_win,o_label_connect.y,o_label_connect.x);
+	for(i = 0;i < len-1;i++){
+		ch = *(str + i) | COLOR_PAIR(IN_MAIN_PAIR);
+		waddch(main_win,ch);
+	}
+
+	draw_main_win();
 	return SUCCESS;
 }
 /*************************************/
+interface_cmd_e if_cmd(void)
+{
+	interface_cmd_e cmd;  
+	chtype ch;
+
+	ch = wgetch(main_win);
+	switch(ch){
+		case KEY_F(4):
+			cmd = exit_client;
+			break;
+		default:
+			cmd = null_client;		  
+			break;
+	}
+	return cmd;
+}
+
 int init_interface(void)
 {
-
 	str_locale = setlocale(LC_CTYPE,LOCALE);
 	if(str_locale == NULL){
 		global_warning("Несмог поставить локаль %s!",LOCALE);
@@ -227,6 +332,10 @@ int init_interface(void)
 	}
 	start_color();
 	init_pair(MAIN_PAIR, COLOR_GREEN, COLOR_BLACK);
+	init_pair(IN_MAIN_PAIR, COLOR_BLACK, COLOR_GREEN);
+	init_pair(ERROR_PAIR,COLOR_RED,COLOR_BLACK);
+	init_pair(IN_ERROR_PAIR,COLOR_BLACK,COLOR_RED);
+	bkgdset(COLOR_PAIR(MAIN_PAIR));
 	attron(COLOR_PAIR(MAIN_PAIR));
 	
 	if( (LINES < MAX_HEIGHT) || (COLS < MAX_WIDTH)){
@@ -247,6 +356,7 @@ int init_interface(void)
 	
 	init_o_user();
 	init_o_passwd();
+	init_o_connect();
 
 	return SUCCESS;
 }
