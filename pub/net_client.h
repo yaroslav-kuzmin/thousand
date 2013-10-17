@@ -32,6 +32,8 @@ int close_socket(void);
 int read_socket(uint8_t ** buff,int len);
 int write_socket(uint8_t * buff,int len);
 
+int cmd_login(char * user);
+int cmd_passwd(uint8_t * passwd);
 #endif
 
 /*****************************************************************************/

@@ -32,11 +32,13 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <openssl/md5.h>
 
 #include "pub.h"
 #include "total.h"
 #include "warning.h"
 #include "log.h"
+#include "protocol.h"
 
 /*****************************************************************************/
 /* глобальные переменые                                                      */
@@ -47,7 +49,7 @@
 /*****************************************************************************/
 
 static int fd_local_socket;
-
+static uint16_t number_packed = 0;
 int init_socket(void)
 {
 	struct sockaddr_un ssa;
@@ -65,22 +67,26 @@ int init_socket(void)
 	strcpy(ssa.sun_path,local_socket);
 	rc = connect(fd_local_socket,&ssa,SUN_LEN(&ssa));
 	if(rc == -1){
-		global_warning("Несмог соединится с локальным сокетом : %s",ssa.sun_path);
+		global_warning ("Несмог соединится с локальным сокетом : %s",ssa.sun_path);
 		close(fd_local_socket);
 		return FAILURE;
 	}
 	global_log("Соединились с сервером!");
 
-	return SUCCESS;
+	return SUCCESS; 
 }
 
 int write_socket(uint8_t * buff,int len)
 {
 	int rc;
 	rc = send(fd_local_socket, buff , len , 0);
-	/*DEBUG*/
-	global_log("Отправил на сервер %s",buff);
-
+	if(rc == -1){
+		global_warning("Несмог отправить сообшение : %s",strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		rc = SUCCESS;
+	}
 	return rc;
 }
 
@@ -88,6 +94,13 @@ int read_socket(uint8_t ** buff,int len)
 {
 	uint8_t * tbuff = *buff;
 	int rc = recv(fd_local_socket,tbuff,len,0);
+	if(rc == -1){
+		global_warning("Несмог прочитать сообшение : %s",strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		rc = SUCCESS;
+	}
 	return rc;
 }
 
@@ -96,4 +109,46 @@ int close_socket(void)
 	close(fd_local_socket);
 	return SUCCESS;
 }
+
+/*************************************/
+int cmd_login(char * user)
+{
+	int rc;
+	message_login_s msg;
+	char * str = user;
+	int len = strlen(str);
+	uint8_t * str_msg = msg.login;
+
+	msg.number = number_packed;
+	msg.type = MESSAGE_LOGIN;
+	memset(str_msg,0,LEN_USER_NAME);
+	if(len > LEN_USER_NAME ){
+		len = LEN_USER_NAME;
+	}
+	msg.len = len;
+	memcpy(str_msg,str,len);
+	len = sizeof(message_cmd_s) + len;
+	rc = write_socket((uint8_t*)&msg,len);
+	global_log("Отправил login %d : %d : %d : %s",msg.number,msg.type,msg.len,msg.login);
+	return rc; 
+}
+
+int cmd_passwd(uint8_t * passwd)
+{
+	int rc; 
+	message_passwd_s msg;
+	uint8_t * str = passwd;
+	uint8_t * str_msg = msg.passwd;
+
+	msg.number = number_packed;
+	msg.type = MESSAGE_PASSWD;
+	msg.len = MD5_DIGEST_LENGTH;
+	memset(str_msg,0,MD5_DIGEST_LENGTH);
+	memcpy(str_msg,str,MD5_DIGEST_LENGTH);
+	rc = write_socket((uint8_t*)&msg,sizeof(message_passwd_s));
+	global_log("Отправил passwd %d : %d : %d ",msg.number,msg.type,msg.len);
+
+	return rc; 
+}
+
 /*****************************************************************************/
