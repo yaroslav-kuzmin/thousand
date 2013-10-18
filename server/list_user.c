@@ -35,6 +35,7 @@
 #include "pub.h"
 #include "log.h"
 #include "protocol.h"
+#include "bit_flag.h"
 
 #include "kernel_pub.h"
 #include "list_user_pub.h"
@@ -127,6 +128,7 @@ int add_user_list(int fd)
 	ptu = (user_s *)g_slice_alloc0(sizeof(user_s));
 
 	ptu->fd = fd;
+	ptu->flag = init_bit_flags(last_flag_user);
 	/*ptu->name = {0};*/
 	/*ptu->passwd = {0};*/
 	ptu->timeout = time(NULL) + WAITING_USER;
@@ -146,6 +148,8 @@ int del_user_list(int fd)
 {
 	int check;
 	user_s * ptu;
+	GByteArray * tb;
+	uint32_t tf;
 	
 	if(amount_user == 0){
 		global_log("В списке нет игроков!");
@@ -163,11 +167,15 @@ int del_user_list(int fd)
 		current_user = g_slist_next(current_user);
 	}
 
-	if( check == NO){
+	if( check == NO ){
 		global_log("Нет такого индентификатора в списке : %d",fd);
 		return FAILURE;
 	}
-	
+		
+	tf = ptu->flag;
+	deinit_bit_flag(tf);
+	tb = ptu->buffer;
+	g_byte_array_free(tb,TRUE);
 	begin_user = g_slist_remove(begin_user,ptu);
 	g_slice_free1(sizeof(user_s),ptu);
 	amount_user --;

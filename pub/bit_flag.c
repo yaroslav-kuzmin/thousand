@@ -212,7 +212,7 @@ int set_bit_flag(uint32_t number,uint32_t number_bit,uint32_t size)
 	return SUCCESS;
 }
 
-int get_bit_flag(uint32_t number, uint32_t number_bit,uint32_t size)
+int unset_bit_flag(uint32_t number, uint32_t number_bit,uint32_t size)
 {
 	bit_field_t * bft = bit_fields;	
 	uint8_t * bits;
@@ -268,7 +268,7 @@ int check_bit_flag(uint32_t number,uint32_t number_bit,uint32_t size)
 	bft = bft + number;
 	bits = bft->bits;
 	as = bft->byte;
-
+	
 	if( (number_bit + size) > (as << AMOUNT_BIT_IN_UINT8) ){
 		return FAILURE;
 	}

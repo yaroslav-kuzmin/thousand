@@ -129,7 +129,10 @@ int cmd_login(char * user)
 	memcpy(str_msg,str,len);
 	len = sizeof(message_cmd_s) + len;
 	rc = write_socket((uint8_t*)&msg,len);
-	global_log("Отправил login %d : %d : %d : %s",msg.number,msg.type,msg.len,msg.login);
+	if(rc == SUCCESS){
+		number_packed ++;
+		global_log("Отправил login %d : %d : %d : %s",msg.number,msg.type,msg.len,msg.login);
+	}
 	return rc; 
 }
 
@@ -143,10 +146,12 @@ int cmd_passwd(uint8_t * passwd)
 	msg.number = number_packed;
 	msg.type = MESSAGE_PASSWD;
 	msg.len = MD5_DIGEST_LENGTH;
-	memset(str_msg,0,MD5_DIGEST_LENGTH);
 	memcpy(str_msg,str,MD5_DIGEST_LENGTH);
 	rc = write_socket((uint8_t*)&msg,sizeof(message_passwd_s));
-	global_log("Отправил passwd %d : %d : %d ",msg.number,msg.type,msg.len);
+	if(rc == SUCCESS){
+		number_packed ++;
+		global_log("Отправил passwd %d : %d : %d ",msg.number,msg.type,msg.len);
+	}	
 
 	return rc; 
 }

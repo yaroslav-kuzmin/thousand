@@ -27,24 +27,23 @@
 #ifndef LIST_USER_PUB_H
 #define LIST_USER_PUB_H
 
-#define ACCESS_USER(x)        (x & 0x01) 
-#define SET_ACCESS_USER(x)    (x | 0x01)
-#define UNSET_ACCESS_USER(x)  (x & 0xFE)
 
-#define LOGIN_USER(x)
-#define SET_LOGIN_USER(x)
-#define UNSET_LOGIN_USER(x)
+typedef enum _user_flag_e user_flag_e;
 
-#define MESSAGE_USER(x)       (x & 0x02)
-#define SET_MESSAGE_USER(x)   (x | 0x02)
-#define UNSET_MESSAGE_USER(x) (x & 0xFD)
+enum _user_flag_e{
+	access_server_user = 0,
+	login_user,
+	passwd_user,
+	message_user,
+	last_flag_user
+};
 
 typedef struct _user_s user_s;
 
 struct _user_s
 {
 	int fd;
-	uint8_t flag;
+	uint32_t flag;
 	char name[LEN_USER_NAME];
 	uint8_t passwd[MD5_DIGEST_LENGTH];
 	time_t timeout;

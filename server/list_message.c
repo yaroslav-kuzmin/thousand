@@ -31,6 +31,7 @@
 #include "pub.h"
 #include "log.h"
 #include "protocol.h"
+#include "bit_flag.h"
 
 #include "kernel_pub.h"
 #include "list_user.h"
@@ -46,14 +47,22 @@
 /*****************************************************************************/
 /* Основные функции                                                          */
 /*****************************************************************************/
+/*размер буфера */
+uint32_t len_message_list(user_s * psu)
+{
+	GByteArray * array = psu->buffer;
+	guint total_len = array->len;
+	return total_len;
+}
+
 /* Записывает прищедшие сообщения в буфер*/
 int write_message_list(user_s * psu,uint8_t * buf,int len)
 {
-	uint8_t flag = psu->flag;
+	uint32_t flag = psu->flag;
 	GByteArray * array = psu->buffer;
 
 	array = g_byte_array_append(array,buf,len);
-	psu->flag = SET_MESSAGE_USER(flag); 
+	set_bit_flag(flag,message_user,1); 
 
 	psu->buffer = array;
 	/*DEBUG*/
@@ -62,27 +71,29 @@ int write_message_list(user_s * psu,uint8_t * buf,int len)
 	return SUCCESS;
 }	
 /* Читает сообщения из буфера без удаления*/
-int read_message_list(user_s * psu,uint8_t ** msg,int len)
+int read_message_list(user_s * psu,uint8_t ** msg)
 {
 	GByteArray * array = psu->buffer;
 	guint total_len = array->len;
 
-	if(len > total_len){
-		return FAILURE;
-	}
 	*msg = array->data;
-	return SUCCESS;
+	return total_len;
 }	
 /* Удаляет сообщения из буфера */
 int del_message_list(user_s * psu,int len)
 {
-	uint8_t flag = psu->flag;
+	uint32_t flag = psu->flag;
 	GByteArray * array = psu->buffer;
 	
+	/*DEBUG*/
+	g_message("dm : %d : %d",psu->fd,len);
+
 	array = g_byte_array_remove_range(array,0,len);
 	if(array->len == 0){
-		psu->flag = UNSET_MESSAGE_USER(flag);
+
+		unset_bit_flag(flag,message_user,1);
 	}
+
 	psu->buffer = array;
 	return SUCCESS;
 }

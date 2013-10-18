@@ -49,6 +49,7 @@
 
 #define NL            '\n'
 #define CR            '\r'
+#define TAB            0x09
 typedef struct _object_s object_s;
 struct _object_s
 {
@@ -136,7 +137,10 @@ int if_get_name_user(char ** user,int len)
 	wmove(main_win,o_field_user.y,o_field_user.x);
 	for(i = 0;i < (len - 1);){
 		ch = wgetch(main_win);
-		if((ch == KEY_ENTER) || (ch == CR) || (ch == NL)){
+		if(  (ch == KEY_ENTER) 
+		  || (ch == CR) 
+		  || (ch == NL) 
+		  || (ch == TAB)){
 			break;
 		}
 		if(ch == KEY_BACKSPACE){
@@ -213,7 +217,11 @@ int if_get_passwd(char ** passwd,int len)
 	wmove(main_win,o_field_passwd.y,o_field_passwd.x);
 	for(i = 0;i < (len - 1);){
 		ch = wgetch(main_win);
-		if((ch == KEY_ENTER) || (ch == CR) || (ch == NL)){
+		if(  (ch == KEY_ENTER) 
+		  || (ch == CR) 
+		  || (ch == NL)
+		  || (ch == TAB)){
+
 			break;
 		}
 		if(ch == KEY_BACKSPACE){
@@ -235,12 +243,12 @@ int if_get_passwd(char ** passwd,int len)
 				waddch(main_win,ch );
 			}	
 		}
-		draw_main_win();
+		draw_main_win ();
 	}
 
 	str[i] = 0;	
 	
-	return SUCCESS;
+	return SUCCESS; 
 }
 int if_set_passwd(char * passwd)
 {

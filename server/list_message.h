@@ -27,8 +27,10 @@
 #ifndef LIST_MESSAGE_H
 #define LIST_MESSAGE_H
 
+uint32_t len_message_list(user_s * psu);
 int write_message_list(user_s * psu,uint8_t * buf,int len);
-int read_message_list(user_s * psu,uint8_t ** msg,int len);
+/*вoщврашает обшие количество байт в буффере*/
+int read_message_list(user_s * psu,uint8_t ** msg);
 int del_message_list(user_s * psu,int len);
 
 #endif

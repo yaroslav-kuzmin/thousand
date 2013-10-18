@@ -127,17 +127,26 @@ int access_server()
 	else{
 		rc = if_set_passwd(passwd);
 	}
-	global_log("Пароль : %s",passwd);
 
 	rc = strlen((char *)passwd);
+	if(rc == 0){
+		global_log("Нет пароля!");
+		rc = FAILURE;
+		return rc;
+	}
+	global_log("Пароль : %s",passwd);
 	MD5((uint8_t*)passwd,rc,passwd_md5);
 
 	rc = cmd_login(user);
-
-	if(rc == SUCCESS){
-		if_set_connect();
+	if(rc == FAILURE){
+		return rc;
 	}
-
+	rc = cmd_passwd(passwd_md5);
+	if(rc == FAILURE){
+		return rc;
+	}
+	
+	if_set_connect();
 	return rc;
 }
 
