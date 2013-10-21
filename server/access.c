@@ -45,11 +45,13 @@
 
 #include "list_user.h"
 #include "list_message.h"
+#include "net_server.h"
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
 static int change_key_file = NO;
 static GKeyFile * access_file = NULL;
+static GHashTable * who_plays = NULL;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
@@ -131,21 +133,40 @@ static int check_access(user_s * psu)
 	uint32_t flag = psu->flag;
 	int rc;
 
-	g_message("check access :> MD5");
 	convert_passwd(p);
-
 	check_passwd = g_key_file_get_string(access_file,USER_GROUP,n,&error);
 	if(error == NULL){
-		g_message("name         :> %s",n);
-		g_message("str_passwd   :> %s",str_passwd);
-		g_message("check_passwd :> %s",check_passwd);
 		rc = strncmp(str_passwd,check_passwd,(MD5_DIGEST_LENGTH *2));
+		/*пароль совпадает*/
 		if( rc == 0){
-			/*пароль совпадает*/
+			gpointer key;
+			key = g_hash_table_lookup(who_plays,n);
+			if(key != NULL){
+				/*Такой пользователь есть доступ закрыт*/
+				global_log("Такой пользователь %s уже играет на сервере",psu->name);
+				rc = cmd_access_denied_login(psu->fd,psu->package);
+				if(rc == SUCCESS){
+					psu->package ++;
+					return SUCCESS;
+				}
+			}
+			g_hash_table_insert(who_plays,n,p);
 			set_bit_flag(flag,access_server_user,1);
-			global_log("Доступ разрешен на сервер игроку %s",psu->name);
+			rc = cmd_access_allowed(psu->fd,psu->package);
+			if(rc == SUCCESS){
+				psu->package ++;
+				global_log("Доступ разрешен на сервер игроку %s : %d",psu->name,psu->fd);
+				return SUCCESS;
+			}
 		}
-		
+		else{
+			global_log("Некоректный пароль %s : %d",psu->name,psu->fd);
+			rc = cmd_access_denied_passwd(psu->fd,psu->package);
+			if(rc == SUCCESS){
+				psu->package ++;
+				return SUCCESS;
+			}
+		}
 	}
 
 	return SUCCESS;
@@ -168,6 +189,7 @@ int init_access_user(void)
  		return FAILURE;
 	}
 	change_key_file = NO;
+	who_plays = g_hash_table_new(g_str_hash,g_str_equal);
 	global_log("Открыл файл доступа %s",file);
 	return SUCCESS;
 }
@@ -198,11 +220,12 @@ int deinit_access_user(void)
 		}
 		fclose(stream);
  	}
+	g_hash_table_destroy(who_plays);
 	global_log("Закрыл систему доступа на сервер!");
-	return SUCCESS;
-}
+ 	return SUCCESS;
+} 
 
-int access_user(void)
+int access_users(void)
 {
 	 user_s * ptu;
 	int exit = 0;
@@ -225,7 +248,7 @@ int access_user(void)
 					rc = full_login(ptu);
 					if(rc == FAILURE){
 						ptu = get_next_user_list();
-	 		 			break;
+	 		 			continue;
 	 		 		}
 			 	}
 				rc = check_bit_flag(flag,passwd_user,1);
@@ -233,7 +256,7 @@ int access_user(void)
 					rc = full_passwd(ptu);
 					if(rc == FAILURE){
 						ptu = get_next_user_list();
-						break;
+						continue;
 	 				}
 				}
 				check_access(ptu);
@@ -250,5 +273,20 @@ int access_user(void)
 	}
 
 	return exit; 
+}
+
+int close_access_user(char * u)
+{
+	int rc;
+	if(u != NULL){
+		rc = g_hash_table_remove(who_plays,u);
+	}	
+	if(rc == TRUE){
+		rc = SUCCESS;
+	}	
+	else{
+		rc = FAILURE;
+	}
+	return rc;
 }
 /*****************************************************************************/

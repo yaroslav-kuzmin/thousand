@@ -40,7 +40,7 @@
 /*****************************************************************************/
 #define AMOUNT_BIT_IN_UINT8     3
 
-#define AMOUNT_BIT_FIELDS    3
+#define AMOUNT_BIT_FIELDS    10
 typedef struct bit_field_s
 {
 	uint32_t byte;

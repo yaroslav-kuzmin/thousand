@@ -207,7 +207,53 @@ int cmd_check_connect(int fd,uint16_t number)
 {
 	int rc;
 	rc = total_cmd(fd,number,CMD_CHECK_CONNECT);
+	if(rc == -1){
+		global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		rc = SUCCESS;
+	}
+	return rc; 
+}
 
+int cmd_access_denied_login(int fd,uint16_t number)
+{
+	int rc;
+	rc = total_cmd(fd,number,CMD_ACCESS_DENIED_LOGIN);
+	if(rc == -1){
+		global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		rc = SUCCESS;
+	}
+	return rc; 
+}
+int cmd_access_denied_passwd(int fd,uint16_t number)
+{
+	int rc;
+	rc = total_cmd(fd,number,CMD_ACCESS_DENIED_PASSWD);
+	if(rc == -1){
+		global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		rc = SUCCESS;
+	}
+	return rc; 
+}
+int cmd_access_allowed(int fd,uint16_t number)
+{
+	int rc;
+	rc = total_cmd(fd,number,CMD_ACCESS_ALLOWED);
+	if(rc == -1){
+		global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		rc = SUCCESS;
+	}
 	return rc; 
 }
 

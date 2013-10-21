@@ -90,7 +90,10 @@ int main_loop(void)
 		for(;ptu != NULL;){
 			fd = ptu->fd;
 			rc = recv(fd,t_buff,SIZE_TEMP_BUFF,0);
-			if(rc == -1){
+			if(rc != -1){
+				write_message_list(ptu,t_buff,rc);
+			}
+			else{
 			/*данных от клиента не поступало*/	
 				if(errno != EAGAIN){
 					/* TODO проверка ошибки*/
@@ -100,7 +103,7 @@ int main_loop(void)
 				}
 				if(ptu->timeout <= time(NULL)){
 					rc = cmd_check_connect(ptu->fd,ptu->package);
-					if(rc == -1){
+					if(rc == FAILURE){
 					/*TODO корректное сохранение игры */
 					/*TODO проверка ошибки отправки сообщения*/	
 					/*TODO удаляется игрок из списка и указатель списка переходит в начало (( */
@@ -110,15 +113,12 @@ int main_loop(void)
 					ptu->package ++;
 					ptu->timeout = time(NULL) + WAITING_USER;
 				}
-				ptu = get_next_user_list();
-				continue;
 			}
-			write_message_list(ptu,t_buff,rc);
 			ptu = get_next_user_list();
 		}
 
 		if(new_connect == YES){
-			rc = access_user();
+			rc = access_users();
 			if(rc == SUCCESS){
 				new_connect = NO;
 			}

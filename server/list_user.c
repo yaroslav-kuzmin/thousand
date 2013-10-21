@@ -29,6 +29,7 @@
 #include <openssl/md5.h>
 #include <time.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #include <glib.h>
 
@@ -39,6 +40,7 @@
 
 #include "kernel_pub.h"
 #include "list_user_pub.h"
+#include "access.h"
 
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -171,7 +173,10 @@ int del_user_list(int fd)
 		global_log("Нет такого индентификатора в списке : %d",fd);
 		return FAILURE;
 	}
-		
+	
+	global_log("Игрок %s : %d отключен от сервера!",ptu->name,fd);
+	close(fd);
+	close_access_user(ptu->name);
 	tf = ptu->flag;
 	deinit_bit_flag(tf);
 	tb = ptu->buffer;

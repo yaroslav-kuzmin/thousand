@@ -63,9 +63,12 @@ union _all_message_u
 	message_passwd_s passwd;
 };
 
-#define CMD_CHECK_CONNECT    0x0001
-#define MESSAGE_LOGIN        0x0002
-#define MESSAGE_PASSWD       0x0003
+#define CMD_CHECK_CONNECT           0x0001
+#define MESSAGE_LOGIN               0x0002
+#define MESSAGE_PASSWD              0x0003
+#define CMD_ACCESS_DENIED_PASSWD    0x0004
+#define CMD_ACCESS_DENIED_LOGIN     0x0005
+#define CMD_ACCESS_ALLOWED          0x0006
 
 #endif
 

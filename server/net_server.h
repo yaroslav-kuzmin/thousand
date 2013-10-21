@@ -27,11 +27,14 @@
 #ifndef NET_SERVER_H
 #define NET_SERVER_H
 
-int cmd_check_connect(int fd,uint16_t number);
-
 int init_socket(void);
 int close_soket(void);
 int check_new_connect(void);
+
+int cmd_check_connect(int fd,uint16_t number);
+int cmd_access_denied_login(int fd,uint16_t number);
+int cmd_access_denied_passwd(int fd,uint16_t number);
+int cmd_access_allowed(int fd,uint16_t number);
 
 #endif
 

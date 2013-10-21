@@ -106,9 +106,10 @@ int close_client(void)
 	return SUCCESS;
 }
 
-int access_server()
+int access_server(void)
 {
 	int rc;
+	int type;
 
 	if(user == NULL){
 		user = str_user;
@@ -146,7 +147,16 @@ int access_server()
 		return rc;
 	}
 	
-	if_set_connect();
+	rc = answer_access_server(&type);
+	if(rc == SUCCESS){
+		if_set_connect();
+		rc = SUCCESS;
+	}
+	else{
+		/*if_not_set_connetc(type);*/
+		rc = FAILURE;
+	}
+
 	return rc;
 }
 

@@ -34,6 +34,7 @@ int write_socket(uint8_t * buff,int len);
 
 int cmd_login(char * user);
 int cmd_passwd(uint8_t * passwd);
+int answer_access_server(int * type);
 #endif
 
 /*****************************************************************************/

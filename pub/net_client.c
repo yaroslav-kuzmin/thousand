@@ -41,15 +41,15 @@
 #include "protocol.h"
 
 /*****************************************************************************/
-/* глобальные переменые                                                      */
+/* Глобальные переменые                                                      */
 /*****************************************************************************/
-
+static all_message_u pub_message;
+static int fd_local_socket;
+static uint16_t number_packed = 0;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
 
-static int fd_local_socket;
-static uint16_t number_packed = 0;
 int init_socket(void)
 {
 	struct sockaddr_un ssa;
@@ -71,6 +71,7 @@ int init_socket(void)
 		close(fd_local_socket);
 		return FAILURE;
 	}
+	memset(&pub_message,0,sizeof(all_message_u));
 	global_log("Соединились с сервером!");
 
 	return SUCCESS; 
@@ -156,4 +157,34 @@ int cmd_passwd(uint8_t * passwd)
 	return rc; 
 }
 
+int answer_access_server(int * type)
+{
+	int rc;
+	message_cmd_s * msg = (message_cmd_s*)&pub_message;
+
+	rc = read_socket((uint8_t**)&msg,sizeof(message_cmd_s));
+	if(rc == FAILURE){
+		global_log("Нет связи с сервером!");
+		return rc;
+	}
+	/*TODO проверка на неполный пакет */
+	rc = FAILURE;
+	switch(msg->type){
+		case CMD_ACCESS_ALLOWED:
+			rc = SUCCESS;
+			*type = CMD_ACCESS_ALLOWED;
+			break;
+		case CMD_ACCESS_DENIED_LOGIN:
+			*type = CMD_ACCESS_DENIED_LOGIN;	
+			break;
+		case CMD_ACCESS_DENIED_PASSWD:
+			*type = CMD_ACCESS_DENIED_PASSWD;
+			break;
+		default:
+			*type = FAILURE;
+			break;	
+	}
+	
+	return rc;
+}	
 /*****************************************************************************/

@@ -60,7 +60,10 @@ int write_message_list(user_s * psu,uint8_t * buf,int len)
 {
 	uint32_t flag = psu->flag;
 	GByteArray * array = psu->buffer;
-
+	
+	if(len == 0){
+		return FAILURE;
+	}
 	array = g_byte_array_append(array,buf,len);
 	set_bit_flag(flag,message_user,1); 
 
@@ -90,7 +93,6 @@ int del_message_list(user_s * psu,int len)
 
 	array = g_byte_array_remove_range(array,0,len);
 	if(array->len == 0){
-
 		unset_bit_flag(flag,message_user,1);
 	}
 
