@@ -58,7 +58,7 @@ static int total_cmd(int fd, uint16_t number,uint16_t type )
 {
 	int rc;
 	message_cmd_s cmd;
-
+	g_message("total_cmd : %d",fd);
 	cmd.type = type;
 	cmd.len = 0;
 	cmd.number = number;
@@ -208,10 +208,11 @@ int cmd_check_connect(int fd,uint16_t number)
 	int rc;
 	rc = total_cmd(fd,number,CMD_CHECK_CONNECT);
 	if(rc == -1){
-		global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		global_log("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
 		rc = FAILURE;
 	}
 	else{
+		g_message("check conect : %d - %d",fd,number);
 		rc = SUCCESS;
 	}
 	return rc; 

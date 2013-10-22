@@ -129,13 +129,13 @@ static int check_access(user_s * psu)
 	GError *error = NULL;
 	uint8_t * p = psu->passwd;
 	char * n = psu->name;
-	gchar * check_passwd;
+	gchar * check_passwd = NULL;
 	uint32_t flag = psu->flag;
 	int rc;
 
 	convert_passwd(p);
 	check_passwd = g_key_file_get_string(access_file,USER_GROUP,n,&error);
-	if(error == NULL){
+	if(check_passwd != NULL){
 		rc = strncmp(str_passwd,check_passwd,(MD5_DIGEST_LENGTH *2));
 		/*пароль совпадает*/
 		if( rc == 0){
@@ -166,6 +166,19 @@ static int check_access(user_s * psu)
 				psu->package ++;
 				return SUCCESS;
 			}
+		}
+	}
+	else{
+		g_key_file_set_string(access_file,USER_GROUP,n,str_passwd);
+		change_key_file = YES;
+		global_log("Новый игрок на сервере : %s",n);
+		g_hash_table_insert(who_plays,n,p);
+		set_bit_flag(flag,access_server_user,1);
+		rc = cmd_access_allowed(psu->fd,psu->package);
+		if(rc == SUCCESS){
+			psu->package ++;
+			global_log("Доступ разрешен на сервер игроку %s : %d",psu->name,psu->fd);
+			return SUCCESS;
 		}
 	}
 
@@ -227,7 +240,7 @@ int deinit_access_user(void)
 
 int access_users(void)
 {
-	 user_s * ptu;
+	user_s * ptu;
 	int exit = 0;
 	uint32_t flag;
 	int rc;

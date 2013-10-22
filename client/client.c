@@ -153,7 +153,7 @@ int access_server(void)
 		rc = SUCCESS;
 	}
 	else{
-		/*if_not_set_connetc(type);*/
+		if_not_set_connetc(type);
 		rc = FAILURE;
 	}
 
@@ -243,7 +243,7 @@ int main(int argc,char * argv[])
 /*************************************/
 	rc = access_server();
 	if(rc == FAILURE){
-		global_log("Не корректный логин : %s и пароль : %s",user,passwd);
+		global_log("Не корректный логин : %s или пароль : %s",user,passwd);
 		goto exit_client;
 	}
 

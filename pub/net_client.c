@@ -34,6 +34,8 @@
 #include <unistd.h>
 #include <openssl/md5.h>
 
+#include <glib.h>
+
 #include "pub.h"
 #include "total.h"
 #include "warning.h"
@@ -184,7 +186,7 @@ int answer_access_server(int * type)
 			*type = FAILURE;
 			break;	
 	}
-	
+		
 	return rc;
 }	
 /*****************************************************************************/

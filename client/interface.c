@@ -30,6 +30,8 @@
 #include <locale.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdint.h>
+#include <openssl/md5.h>
 
 #include <ncurses.h>
 
@@ -37,6 +39,7 @@
 #include "total.h"
 #include "warning.h"
 #include "log.h"
+#include "protocol.h"
 
 #include "interface_cmd.h"
 /*****************************************************************************/
@@ -60,8 +63,8 @@ struct _object_s
 	char * data;
 };
 
-#define MAX_WIDTH              70
-#define MAX_HEIGHT             4
+#define MAX_WIDTH              80
+#define MAX_HEIGHT             5
 
 static WINDOW * main_win = NULL;
 static char * str_locale = NULL;
@@ -276,7 +279,7 @@ int init_o_connect(void)
 	wmove(main_win,o_label_connect.y,o_label_connect.x);
 	wprintw(main_win,o_label_connect.data);
 	draw_main_win();
-	return SUCCESS;		
+	 return SUCCESS;		
 }
 int if_set_connect(void)
 {
@@ -292,6 +295,44 @@ int if_set_connect(void)
 	}
 
 	draw_main_win();
+	return SUCCESS;
+}
+
+static char * NOT_CONNECT = "not connect";
+static char * INCORRECT_PASSWORD = "incorrect password";
+static char * INCORRECT_LOGIN = "login busy";
+
+int if_not_set_connetc(int type)
+{
+	char * str = NOT_CONNECT;
+	int len ;
+	chtype ch;
+	int y = 3;
+	int x ; 
+
+	wattrset(main_win,COLOR_PAIR(ERROR_PAIR));
+	wmove(main_win,o_label_connect.y,o_label_connect.x);
+	wprintw(main_win,"%s",str);
+	switch(type){
+		case CMD_ACCESS_DENIED_LOGIN:
+			str = INCORRECT_LOGIN;
+			break;
+		case CMD_ACCESS_DENIED_PASSWD:
+			str = INCORRECT_PASSWORD;
+			break;
+	}
+
+	len = strlen(str);
+	x = (MAX_WIDTH - len)/2;
+	wmove(main_win,y,x);
+	wprintw(main_win,"%s",str);	
+	draw_main_win();
+	for(;;){
+		ch = wgetch(main_win);
+		if( (ch == KEY_F(4)) || (ch == CR) ){
+			break;
+		}
+	}
 	return SUCCESS;
 }
 /*************************************/

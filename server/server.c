@@ -124,7 +124,7 @@ int set_signals(void)
 		return FAILURE;
 	}
 
-	/*act.sa_handler = handler_timer; TODO*/
+	act.sa_handler = handler_timer;
 	if(sigaction(SIGALRM, &act, NULL) < 0){
 		perror("sigaction failed SIGALRM");
 		return FAILURE;
@@ -264,6 +264,11 @@ int main(int argc,char * argv[])
 		goto exit_server;
 	}
 	global_log("Инициализировал систеиу доступа на сервер!");
+	rc = set_timer();
+	if(rc == FAILURE){
+		goto exit_server;
+	}
+	global_log("Инициализирован таймер!");
 /*************************************/
 /* основной цикл                     */	
 /*************************************/

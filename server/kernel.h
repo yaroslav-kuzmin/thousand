@@ -27,6 +27,8 @@
 #ifndef KERNEL_H
 #define KERNEL_H
 
+int set_timer(void);
+void handler_timer(int signal_num);
 void sigaction_io(int num,siginfo_t * sig,void * test);
 
 int main_loop(void);
