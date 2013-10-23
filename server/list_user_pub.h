@@ -35,6 +35,7 @@ enum _user_flag_e{
 	login_user,
 	passwd_user,
 	message_user,
+	new_game_user,
 	last_flag_user
 };
 

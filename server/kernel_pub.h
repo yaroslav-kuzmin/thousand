@@ -27,7 +27,7 @@
 #ifndef KERNEL_PUB_H
 #define KERNEL_PUB_H
 
-#define WAITING_USER                10   /*Проверка подключения в секундах*/ 
+#define WAITING_USER                100   /*Проверка подключения в секундах*/ 
 
 #endif
 

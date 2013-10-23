@@ -72,6 +72,8 @@ static int full_login(user_s * psu)
 		return FAILURE;
 	}
 	if(msg->type != MESSAGE_LOGIN){
+		del_message_list(psu,rc);
+		global_log("Ожидается имя игрока : %d!",psu->fd);
 		return FAILURE;
 	}
 	memcpy(n,msg->login,msg->len);
@@ -94,6 +96,8 @@ static int full_passwd(user_s * psu)
 		return FAILURE;
 	}
 	if(msg->type != MESSAGE_PASSWD){
+		del_message_list(psu,rc);
+		global_log("Ожидается пароль : %d!",psu->fd);
 		return FAILURE;
 	}
 	len = sizeof(message_passwd_s);
@@ -247,7 +251,7 @@ int access_users(void)
 
 	ptu = get_first_user_list();
 
-	for(;ptu != NULL;){
+	for(;ptu != NULL;ptu = get_next_user_list()){
 	 	flag = ptu->flag;
 		rc = check_bit_flag(flag,access_server_user,1);
 		if( rc == NO){
@@ -260,7 +264,6 @@ int access_users(void)
 				if( rc == NO){
 					rc = full_login(ptu);
 					if(rc == FAILURE){
-						ptu = get_next_user_list();
 	 		 			continue;
 	 		 		}
 			 	}
@@ -268,14 +271,12 @@ int access_users(void)
 				if(rc == NO){
 					rc = full_passwd(ptu);
 					if(rc == FAILURE){
-						ptu = get_next_user_list();
 						continue;
 	 				}
 				}
 				check_access(ptu);
 			} 
 		}
-		ptu = get_next_user_list();
 	}
 
 	if(exit){
