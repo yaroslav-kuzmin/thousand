@@ -24,9 +24,14 @@
 /* Модуль acting                                */
 /*****************************************************************************/
 
-#ifndef ACTING_H
-#define ACTING_H
+#ifndef LIST_ACTING_H
+#define LIST_ACTING_H
 
+int init_list_acting(void);
+int deinit_list_acting(void);
+
+int new_actings(int * success);
+int current_actings(void);
 #endif 
 
 /*****************************************************************************/

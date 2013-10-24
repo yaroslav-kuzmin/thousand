@@ -47,6 +47,7 @@
 #include "list_user.h"
 #include "list_message.h"
 #include "access.h"
+#include "list_acting.h"
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
@@ -100,6 +101,7 @@ int main_loop(void)
 	user_s * ptu;
 	int fd;
 	int new_connect = NO;
+	int new_acting = 0;
 
 	g_message("main_loop");
 
@@ -152,24 +154,29 @@ check_timeout:
 		}
 
 		if(new_connect == YES){
-			rc = access_users();
+			rc = access_users(&new_acting);
 			if(rc == SUCCESS){
 				new_connect = NO;
 			}
 		}
-
+		if(new_actings > 0){
+			new_actings(&new_acting);
+			if(new_acting < 0){
+				new_acting = 0;
+			}
+		}
 
 		
 /* Ожидание сигналов на дискрипторах*/
-
 		if(amount_sig_io <= 1){	
 			amount_sig_io = 0;
 			rc = pause();
 		}
 		else{
 			amount_sig_io--;
+			/*TODO взвести таймер с начала*/
 		}
-	}
+	}/*main loop*/
 	
 	return SUCCESS;
 }

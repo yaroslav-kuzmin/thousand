@@ -47,6 +47,7 @@
 #include "protocol.h"
 #include "list_user.h"
 #include "access.h"
+#include "list_acting.h"
 
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -87,6 +88,7 @@ void print_version(FILE * stream)
 
 void close_server(int signal_num)
 {
+	deinit_list_acting();
 	deinit_access_user();
 	close_soket();
 	deinit_list_user();
@@ -257,13 +259,17 @@ int main(int argc,char * argv[])
 		global_warning("Несмог инициализировать локальный сокет!");
 		goto exit_server;
 	}
-	global_log("Инициализировали локальный сокет!");
 	rc = init_access_user();
 	if(rc == FAILURE){
 		global_warning("Несмог инициализировать сисетму доступа на сервер!");
 		goto exit_server;
 	}
 	global_log("Инициализировал систеиу доступа на сервер!");
+	rc = init_list_acting();
+	if(rc == FAILURE){
+		global_warning("Несмог инициализировать список игр!");
+		goto exit_server;
+	}
 	rc = set_timer();
 	if(rc == FAILURE){
 		goto exit_server;

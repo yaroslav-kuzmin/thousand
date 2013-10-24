@@ -74,8 +74,14 @@ static int full_login(user_s * psu)
 	if(msg->type != MESSAGE_LOGIN){
 		del_message_list(psu,rc);
 		global_log("Ожидается имя игрока : %d!",psu->fd);
+		return FAILURE; 
+	}
+	if(msg->len > LEN_USER_NAME){
+		del_message_list(psu,rc);
+		global_log("Длина Имени игрока превышена %d : (%d < %d)",psu->fd,LEN_USER_NAME,msg->len);
 		return FAILURE;
 	}
+	/*TODO проверить на символы*/
 	memcpy(n,msg->login,msg->len);
 	del_message_list(psu,len);
 	set_bit_flag(flag,login_user,1);
@@ -98,6 +104,11 @@ static int full_passwd(user_s * psu)
 	if(msg->type != MESSAGE_PASSWD){
 		del_message_list(psu,rc);
 		global_log("Ожидается пароль : %d!",psu->fd);
+		return FAILURE;
+	}
+	if(msg->len !=  MD5_DIGEST_LENGTH){
+		del_message_list(psu,rc);
+		global_log("Размер пароль некорректный %d : (%d)!",psu->fd,msg->len);
 		return FAILURE;
 	}
 	len = sizeof(message_passwd_s);
@@ -151,7 +162,7 @@ static int check_access(user_s * psu)
 				rc = cmd_access_denied_login(psu->fd,psu->package);
 				if(rc == SUCCESS){
 					psu->package ++;
-					return SUCCESS;
+					return FAILURE;
 				}
 			}
 			g_hash_table_insert(who_plays,n,p);
@@ -168,7 +179,7 @@ static int check_access(user_s * psu)
 			rc = cmd_access_denied_passwd(psu->fd,psu->package);
 			if(rc == SUCCESS){
 				psu->package ++;
-				return SUCCESS;
+				return FAILURE;
 			}
 		}
 	}
@@ -186,7 +197,7 @@ static int check_access(user_s * psu)
 		}
 	}
 
-	return SUCCESS;
+	return FAILURE;
 }
 /*****************************************************************************/
 /* Основная функция                                                          */
@@ -242,7 +253,7 @@ int deinit_access_user(void)
  	return SUCCESS;
 } 
 
-int access_users(void)
+int access_users(int * success)
 {
 	user_s * ptu;
 	int exit = 0;
@@ -250,7 +261,6 @@ int access_users(void)
 	int rc;
 
 	ptu = get_first_user_list();
-
 	for(;ptu != NULL;ptu = get_next_user_list()){
 	 	flag = ptu->flag;
 		rc = check_bit_flag(flag,access_server_user,1);
@@ -274,7 +284,13 @@ int access_users(void)
 						continue;
 	 				}
 				}
-				check_access(ptu);
+				rc = check_access(ptu);
+				if(rc == FAILURE){
+					exit ++;
+				}
+				else{
+					(*success)++;
+				}
 			} 
 		}
 	}

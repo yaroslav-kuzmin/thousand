@@ -29,7 +29,7 @@
 
 int init_access_user(void);
 int deinit_access_user(void);
-int access_users(void);
+int access_users(int * success);
 int close_access_user(char * u);
 
 #endif

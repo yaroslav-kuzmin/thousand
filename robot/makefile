@@ -21,13 +21,14 @@
 ###############################################################################
 
 EXEC=thr
-OBJS=main.o
+OBJS=robot.o
 CXX=gcc
 PUB_CATALOG=../pub/
-CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. -DDEBUG -D_GNU_SOURCE
+CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` \
+		 -DDEBUG -D_GNU_SOURCE -DG_LOG_DOMAIN=\"thr\"
 LDFLAGS=-g2 -L$(PUB_CATALOG)
 LIB_PUB=$(PUB_CATALOG)libthp.a
-LIB=-lthp
+LIB=-lglib-2.0 -lthp
 
 $(EXEC):$(OBJS) $(LIB_PUB)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIB)

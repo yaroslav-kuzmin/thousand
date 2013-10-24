@@ -76,8 +76,8 @@ const struct option long_options[] =
 static void print_help(FILE * stream)
 {
 	fprintf(stream,"использоание программы : %s [ОПЦИИ] \n",programm_name);
-	fprintf(stream,"    -u  --user      имя игрока \n"
-                  "    -p  --passwd    пароль \n"
+	fprintf(stream,"    -u  --user      Имя игрока \n"
+                  "    -p  --passwd    Пароль \n"
                   "    -h  --help      Выводит помощь \n"
 	               "    -V  --version   Версия программы\n"
 	               "    -l  --log       Включить запись действий в программе\n");

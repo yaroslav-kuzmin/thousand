@@ -34,7 +34,11 @@ struct _message_cmd_s
 {
 	uint16_t number;
 	uint16_t type;
+	union
+	{
 	uint16_t len;
+	uint16_t msg;
+	};
 }__attribute__((packed));
 
 typedef struct _message_login_s message_login_s;
@@ -66,9 +70,12 @@ union _all_message_u
 #define CMD_CHECK_CONNECT           0x0001
 #define MESSAGE_LOGIN               0x0002
 #define MESSAGE_PASSWD              0x0003
-#define CMD_ACCESS_DENIED_PASSWD    0x0004
-#define CMD_ACCESS_DENIED_LOGIN     0x0005
-#define CMD_ACCESS_ALLOWED          0x0006
+#define CMD_ACCESS_DENIED_PASSWD    0x0006
+#define CMD_ACCESS_DENIED_LOGIN     0x0007
+#define CMD_ACCESS_ALLOWED          0x0008
+#define CMD_NEW_ACTING              0x0009
+#define CMD_CREATE_NEW_ACTING       0x000A
+
 
 #endif
 

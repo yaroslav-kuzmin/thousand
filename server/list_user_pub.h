@@ -35,7 +35,7 @@ enum _user_flag_e{
 	login_user,
 	passwd_user,
 	message_user,
-	new_game_user,
+	acting_user,
 	last_flag_user
 };
 
@@ -50,6 +50,7 @@ struct _user_s
 	time_t timeout;
 	uint16_t package;
 	GByteArray * buffer;
+	uint16_t acting;
 };
 
 #endif
