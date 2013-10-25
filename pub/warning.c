@@ -34,6 +34,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "pub.h"
 #include "total.h" 
@@ -70,10 +72,10 @@ inline static void current_time(void)
 
 /*****************************************************************************/
 static char * file_warning; 
-static char FILE_WARNING[] = ".000000.warning";
+static char FILE_WARNING[] = ".0000000.warning";
 
-#define SIZE_STR_FILE_WARNING 24
-#define SIZE_TEMP_STR   9
+#define SIZE_STR_FILE_WARNING 25
+#define SIZE_TEMP_STR   8
 
 inline static int init_file_name(int flag)
 {
@@ -81,17 +83,16 @@ inline static int init_file_name(int flag)
 	char temp[SIZE_TEMP_STR] = {0};
 	char * catalog_log = NULL;
 
-	current_time();
-	sprintf(temp,"%02d%02d%04d",mday,mon,year);
+	rc = getpid();
+	sprintf(temp,"%07d",rc);
 
-	FILE_WARNING[1] = temp[6];
-	FILE_WARNING[2] = temp[7];
-
+	FILE_WARNING[1] = temp[0];
+	FILE_WARNING[2] = temp[1];
 	FILE_WARNING[3] = temp[2];
 	FILE_WARNING[4] = temp[3];
-
-	FILE_WARNING[5] = temp[0];
-	FILE_WARNING[6] = temp[1];
+	FILE_WARNING[5] = temp[4];
+	FILE_WARNING[6] = temp[5];
+	FILE_WARNING[7] = temp[6];
 
 	catalog_log = get_log_catalog();
 	rc = strlen(catalog_log);

@@ -32,6 +32,8 @@
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "pub.h"
 #include "total.h"
@@ -69,27 +71,26 @@ inline static void current_time(void)
 
 /*****************************************************************************/
 static char * file_log;
-static char FILE_LOG[] = ".000000.log";
-#define SIZE_STR_FILE_LOG  20
-#define SIZE_TEMP_STR     9
+static char FILE_LOG[] = ".0000000.log";
+#define SIZE_STR_FILE_LOG  21
+#define SIZE_TEMP_STR     8
 
-inline static int init_file_name(flag)
+inline static int init_file_name(int flag)
 {
 	int rc = 0;
 	char temp[SIZE_TEMP_STR] = {0};
 	char * catalog_log = NULL;
 
-	current_time();
-	sprintf(temp,"%02d%02d%04d",mday,mon,year);
+	rc = getpid();
+	sprintf(temp,"%07d",rc);
 
-	FILE_LOG[1] = temp[6];
-	FILE_LOG[2] = temp[7];
-
+	FILE_LOG[1] = temp[0];
+	FILE_LOG[2] = temp[1];
 	FILE_LOG[3] = temp[2];
 	FILE_LOG[4] = temp[3];
-
-	FILE_LOG[5] = temp[0];
-	FILE_LOG[6] = temp[1];
+	FILE_LOG[5] = temp[4];
+	FILE_LOG[6] = temp[5];
+	FILE_LOG[7] = temp[6];
 	
 
 	catalog_log = get_log_catalog();
@@ -128,7 +129,7 @@ static FILE * stream_log;
 #define OPEN          0
 static int open_log = NOT_OPEN;
 
-int init_log_system(flag)
+int init_log_system(int flag)
 {
 	int rc = 0;
 	char * str = buffer_log;
