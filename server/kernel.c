@@ -42,7 +42,6 @@
 #include "log.h"
 #include "protocol.h"
 
-#include "kernel_pub.h"
 #include "net_server.h"
 #include "list_user.h"
 #include "list_message.h"

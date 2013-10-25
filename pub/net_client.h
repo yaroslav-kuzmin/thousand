@@ -34,7 +34,12 @@ int write_socket(uint8_t * buff,int len);
 
 int cmd_login(char * user);
 int cmd_passwd(uint8_t * passwd);
-int answer_access_server(int * type);
+int cmd_new_acting(void);
+int cmd_join_acting(uint16_t number);
+int answer_access_server(void);
+int answer_new_acting(uint16_t * number);
+int answer_join_acting(uint16_t * number);
+
 #endif
 
 /*****************************************************************************/

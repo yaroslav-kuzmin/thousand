@@ -299,8 +299,8 @@ int if_set_connect(void)
 }
 
 static char * NOT_CONNECT = "not connect";
-static char * INCORRECT_PASSWORD = "incorrect password";
-static char * INCORRECT_LOGIN = "login busy";
+static char * PASSWORD_INCORRECT = "password incorrect !!";
+static char * LOGIN_INCORRECT = "login busy !!";
 
 int if_not_set_connetc(int type)
 {
@@ -314,11 +314,11 @@ int if_not_set_connetc(int type)
 	wmove(main_win,o_label_connect.y,o_label_connect.x);
 	wprintw(main_win,"%s",str);
 	switch(type){
-		case CMD_ACCESS_DENIED_LOGIN:
-			str = INCORRECT_LOGIN;
+		case INCORRECT_LOGIN:
+			str = LOGIN_INCORRECT;
 			break;
-		case CMD_ACCESS_DENIED_PASSWD:
-			str = INCORRECT_PASSWORD;
+		case INCORRECT_PASSWORD:
+			str = PASSWORD_INCORRECT;
 			break;
 	}
 

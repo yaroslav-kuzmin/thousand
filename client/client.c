@@ -92,24 +92,10 @@ static void print_version(FILE * stream)
 {
 	fprintf(stream,"\n  Version  %s : Data \'%s\' : Autor \'%s\' : Email \'%s\'\n\n",VERSION,DATA_COM,AUTOR,EMAIL);
 }
-/*****************************************************************************/
-/* Основная функция                                                          */
-/*****************************************************************************/
-int close_client(void)
-{
-	close_interface();	
-	close_socket();
-	close_config();
-	close_log_system();
-	close_warning_system();
-	exit(0);
-	return SUCCESS;
-}
-
+/*************************************/
 int access_server(void)
 {
 	int rc;
-	int type;
 
 	if(user == NULL){
 		user = str_user;
@@ -147,13 +133,13 @@ int access_server(void)
 		return rc;
 	}
 	
-	rc = answer_access_server(&type);
+	rc = answer_access_server();
 	if(rc == SUCCESS){
 		if_set_connect();
 		rc = SUCCESS;
 	}
 	else{
-		if_not_set_connetc(type);
+		if_not_set_connetc(rc);
 		rc = FAILURE;
 	}
 
@@ -173,6 +159,49 @@ int main_loop(void)
 
 	return SUCCESS;
 }
+
+/*************************************/
+void close_client(int signal_num)
+{
+	close_interface();	
+	close_socket();
+	close_config();
+	close_log_system();
+	close_warning_system();
+	exit(0);
+}
+
+int set_signals(void)
+{
+	struct sigaction act;
+	sigset_t set;
+
+	/*signal action handler setup*/
+	memset(&act, 0x0, sizeof(act));
+	if(sigfillset(&set) < 0){
+		perror("sigfillset failed");
+		return FAILURE;
+	}	
+
+	act.sa_handler = close_client;
+	if(sigaction(SIGQUIT, &act, NULL) < 0){
+		perror("sigaction failed SIGQUIT");
+		return FAILURE;
+	}
+	if(sigaction(SIGINT, &act , NULL) < 0){
+		perror("sigaction failed SIGINT");
+		return FAILURE;
+	}	
+	if(sigaction(SIGTERM, &act, NULL) < 0){
+		perror("sigaction failed SIGTERM");
+		return FAILURE;
+	}
+
+	return SUCCESS;
+}	
+/*****************************************************************************/
+/* Основная функция                                                          */
+/*****************************************************************************/
 
 int main(int argc,char * argv[])
 {
@@ -210,6 +239,10 @@ int main(int argc,char * argv[])
 		}
 	}
 
+	rc = set_signals();
+	if(rc == FAILURE)
+		exit(0);
+
 	init_str_alloc(); 
 	total_check();
 /*************************************/
@@ -246,11 +279,13 @@ int main(int argc,char * argv[])
 		global_log("Не корректный логин : %s или пароль : %s",user,passwd);
 		goto exit_client;
 	}
+	
+	rc = new_acting();
 
 	main_loop();
 /*************************************/
 exit_client:
-	close_client();
+	close_client(SIGQUIT);
 	return 0;	  
 }
 

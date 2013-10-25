@@ -33,7 +33,6 @@
 #include "protocol.h"
 #include "bit_flag.h"
 
-#include "kernel_pub.h"
 #include "list_user.h"
 
 /*****************************************************************************/

@@ -283,7 +283,7 @@ int main(int argc,char * argv[])
 /* Завершение работы                 */	
 /*************************************/
 exit_server:
-	close_server(SUCCESS);
+	close_server(SIGQUIT);
 	return 0;	  
 }
 

@@ -27,7 +27,6 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-#define LEN_USER_NAME      64
 
 typedef struct _message_cmd_s message_cmd_s;
 struct _message_cmd_s
@@ -74,8 +73,7 @@ union _all_message_u
 #define CMD_ACCESS_DENIED_LOGIN     0x0007
 #define CMD_ACCESS_ALLOWED          0x0008
 #define CMD_NEW_ACTING              0x0009
-#define CMD_CREATE_NEW_ACTING       0x000A
-
+#define CMD_JOIN_ACTING             0x000A
 
 #endif
 

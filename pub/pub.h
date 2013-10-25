@@ -38,6 +38,18 @@
 #define SERVER_FLAG       0x01
 #define CLIENT_FLAG       0x02
 #define ROBOT_FLAG        0x03
+/*************************************/
+#define LEN_USER_NAME      64           /*длина строки имени игрока*/
+/*************************************/
+
+#define WAITING_USER           100   /*Проверка подключения в секундах каждого пользователя на сервере*/ 
+
+/*************** ERROR ***************/
+
+#define NOT_CONNECT_SERVER       -10
+#define INCORRECT_CMD            -11
+#define INCORRECT_LOGIN          -12
+#define INCORRECT_PASSWORD        -13 
 #endif
 
 

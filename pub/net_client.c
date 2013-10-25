@@ -159,34 +159,111 @@ int cmd_passwd(uint8_t * passwd)
 	return rc; 
 }
 
-int answer_access_server(int * type)
+int answer_access_server(void)
 {
-	int rc;
+	int rc; 
 	message_cmd_s * msg = (message_cmd_s*)&pub_message;
 
 	rc = read_socket((uint8_t**)&msg,sizeof(message_cmd_s));
 	if(rc == FAILURE){
-		global_log("Нет связи с сервером!");
+	 	global_log("Нет связи с сервером!");
+		rc = NOT_CONNECT_SERVER;
 		return rc;
 	}
 	/*TODO проверка на неполный пакет */
 	rc = FAILURE;
 	switch(msg->type){
-		case CMD_ACCESS_ALLOWED:
-			rc = SUCCESS;
-			*type = CMD_ACCESS_ALLOWED;
+	 	case CMD_ACCESS_ALLOWED:
+			rc =  SUCCESS;
 			break;
 		case CMD_ACCESS_DENIED_LOGIN:
-			*type = CMD_ACCESS_DENIED_LOGIN;	
+			rc = INCORRECT_LOGIN;	
 			break;
 		case CMD_ACCESS_DENIED_PASSWD:
-			*type = CMD_ACCESS_DENIED_PASSWD;
+			rc = INCORRECT_PASSWORD;
 			break;
 		default:
-			*type = FAILURE;
+			rc  = INCORRECT_CMD;
 			break;	
 	}
 		
-	return rc;
+	 return rc;
 }	
+
+int cmd_join_acting(uint16_t number)
+{
+	int rc;
+	message_cmd_s cmd;
+	cmd.number = number_packed;
+	cmd.type = CMD_JOIN_ACTING;
+	cmd.msg = number;
+
+	rc = write_socket((uint8_t *)&cmd,sizeof(message_cmd_s));
+	if(rc == SUCCESS){
+		number_packed++;
+		global_log("Отправил запрос на присоединение к игре %#x",number);
+	}
+
+	return rc;
+}
+
+int cmd_new_acting(void)
+{
+	int rc;
+	message_cmd_s cmd;
+	cmd.number = number_packed;
+	cmd.type = CMD_NEW_ACTING;
+	cmd.len = 0;
+
+	rc = write_socket((uint8_t *)&cmd,sizeof(message_cmd_s));
+	if(rc == SUCCESS){
+		number_packed++;
+		global_log("Отправил запрос на создание игры ");
+	}
+	return rc;
+}
+
+int answer_new_acting(uint16_t * number)
+{
+	int rc;
+	message_cmd_s * cmd = (message_cmd_s*)&pub_message;
+
+	rc = read_socket((uint8_t**)&cmd,sizeof(message_cmd_s));
+	if(rc == FAILURE){
+		global_log("Нет связи с сервером!");
+		rc = NOT_CONNECT_SERVER; 
+		return rc;
+	}
+	
+	if(cmd->type != CMD_NEW_ACTING){
+		rc =  INCORRECT_CMD; 
+		return rc;
+	}
+
+	*number = cmd->msg;
+
+	return rc;
+}
+
+int answer_join_acting(uint16_t * number)
+{
+	int rc;
+	message_cmd_s * cmd = (message_cmd_s*)&pub_message;
+
+	rc = read_socket((uint8_t**)&cmd,sizeof(message_cmd_s));
+	if(rc == FAILURE){
+		global_log("Нет связи с сервером!");
+		rc = NOT_CONNECT_SERVER; 
+		return rc;
+	}
+	
+	if(cmd->type != CMD_JOIN_ACTING){
+		rc =  INCORRECT_CMD; 
+		return rc;
+	}
+	
+	*number = cmd->msg;
+
+	return SUCCESS;
+}
 /*****************************************************************************/

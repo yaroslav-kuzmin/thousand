@@ -36,6 +36,7 @@ enum _user_flag_e{
 	passwd_user,
 	message_user,
 	acting_user,
+	robot_user,
 	last_flag_user
 };
 

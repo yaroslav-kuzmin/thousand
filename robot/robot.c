@@ -39,6 +39,7 @@
 #include "log.h"
 #include "ini.h"
 #include "net_client.h"
+#include "protocol.h"
 
 /*****************************************************************************/
 /* глобальные переменые                                                      */
@@ -84,7 +85,7 @@ static void print_version(FILE * stream)
 {
 	fprintf(stream,"\n  Version  %s : Data \'%s\' : Autor \'%s\' : Email \'%s\'\n\n",VERSION,DATA_COM,AUTOR,EMAIL);
 }
-
+/*************************************/
 #define SIZE_STR_ACTING  4 
 static char symbol_hex [] = "0123456789ABCDEF";
 static int symbol2hex(int c)
@@ -136,8 +137,8 @@ static uint16_t check_acting(void)
 /*************************************/
 int access_server(void)
 {
-	int type = 0;
 	int rc;
+	uint16_t acting_check;
 
 	rc = cmd_login(robot);
 	if(rc == FAILURE){
@@ -148,7 +149,51 @@ int access_server(void)
 		return rc;
 	}
 	
-	rc = answer_access_server(&type);
+	rc = answer_access_server();
+	switch(rc){
+		case INCORRECT_LOGIN:
+			global_log("Не совпадает имя робота : %s",robot);
+			rc = FAILURE;
+			break;
+		case INCORRECT_PASSWORD:
+			global_log("Некорректный пароль");
+			rc = FAILURE;
+			break;
+		case INCORRECT_CMD:
+			global_log("Некорректный ответ сервера");
+			rc = FAILURE;
+			break;
+		case SUCCESS:
+			break;
+		default:
+			rc = FAILURE;
+			break;
+	}
+
+	if(rc == SUCCESS){
+		rc = cmd_join_acting(acting);
+		if(rc == SUCCESS){
+			rc = answer_join_acting(&acting_check);
+			if(rc == SUCCESS){
+				if(acting_check == acting){
+					global_log("Присоединился к игре %#x",acting);
+					rc = SUCCESS;
+				}
+				else{
+					global_log("Сервер не присоединил к игре %#x : ответ %#x",acting,acting_check);
+					rc = FAILURE;
+				}
+			}
+			else{
+				global_log("Сервер не присоединил к игре %#x",acting);
+				rc = FAILURE;
+			}
+		}
+		else{
+			global_log("Несмог отправить команду присоединится к игре %#x",acting);
+			rc = FAILURE;
+		}
+	}
 
 	return rc;
 }
@@ -156,8 +201,48 @@ int access_server(void)
 int main_loop(void)
 {
 	g_message("main loop");
+
 	return SUCCESS;
 }
+
+/*************************************/
+void close_robot(int signal_num)
+{
+	close_socket();
+	close_config();
+	close_log_system();
+	close_warning_system();
+	exit(0);
+}
+
+int set_signals(void)
+{
+	struct sigaction act;
+	sigset_t set;
+
+	/*signal action handler setup*/
+	memset(&act, 0x0, sizeof(act));
+	if(sigfillset(&set) < 0){
+		perror("sigfillset failed");
+		return FAILURE;
+	}	
+
+	act.sa_handler = close_robot;
+	if(sigaction(SIGQUIT, &act, NULL) < 0){
+		perror("sigaction failed SIGQUIT");
+		return FAILURE;
+	}
+	if(sigaction(SIGINT, &act , NULL) < 0){
+		perror("sigaction failed SIGINT");
+		return FAILURE;
+	}	
+	if(sigaction(SIGTERM, &act, NULL) < 0){
+		perror("sigaction failed SIGTERM");
+		return FAILURE;
+	}
+
+	return SUCCESS;
+}	
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
@@ -203,6 +288,10 @@ int main(int argc,char * argv[])
 		return SUCCESS;
 	}
 
+	rc = set_signals();
+	if(rc == FAILURE)
+		exit(0);
+
 	init_str_alloc(); 
 	total_check();
 /*************************************/
@@ -238,15 +327,12 @@ int main(int argc,char * argv[])
 		global_log("Нет доступа на сервер !");
 		goto exit_robot;
 	}
-
+	
 	main_loop();
 
 /*************************************/
 exit_robot:
-	close_socket();
-	close_config();
-	close_log_system();
-	close_warning_system();
+	close_robot(SIGQUIT);
 	return 0;	  
 }
 /*****************************************************************************/

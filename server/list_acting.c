@@ -64,7 +64,7 @@ int init_list_acting(void)
 {
 	begin_acting = NULL;
 	amount_acting = 0;
-	global_log("Создал список игор!");
+	global_log("Создал список игр!");
 	return SUCCESS;
 }
 
@@ -95,11 +95,15 @@ int check_new_acting(user_s * psu)
 	if(rc < sizeof(message_cmd_s)){
 		return FAILURE;
 	}
-	if(msg->type != CMD_NEW_ACTING){
+	/*TODO*/
+	if((msg->type != CMD_NEW_ACTING) && (msg->type != CMD_JOIN_ACTING)){
 		del_message_list(psu,rc);
 		global_log("Ожидается создание новой игры : %d!",psu->fd);
 		return FAILURE;
 	}
+
+	msg->type 
+
 	pta = g_slice_alloc0(sizeof(acting_s));
 	pta->number = amount_acting;	
 	flag = psu->flag;
