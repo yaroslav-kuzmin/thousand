@@ -54,11 +54,28 @@ static int fd_local_socket = 0;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
-static int total_cmd(int fd, uint16_t number,uint16_t type )
+static int full_cmd(int fd,uint16_t number,uint16_t type,uint16_t msg)
 {
-	int rc;
+	int rc; 
 	message_cmd_s cmd;
+
+	g_message("full_cmd : %d",fd);
+
+	cmd.type = type;
+	cmd.msg = msg;
+	cmd.number = number;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
+
+	return rc; 
+}
+
+static int total_cmd(int fd, uint16_t number,uint16_t type)
+{
+	int rc; 
+	message_cmd_s cmd;
+
 	g_message("total_cmd : %d",fd);
+
 	cmd.type = type;
 	cmd.len = 0;
 	cmd.number = number;
@@ -249,7 +266,7 @@ int cmd_access_allowed(int fd,uint16_t number)
 	int rc;
 	rc = total_cmd(fd,number,CMD_ACCESS_ALLOWED);
 	if(rc == -1){
-		global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+	 	global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
 		rc = FAILURE;
 	}
 	else{
@@ -258,4 +275,18 @@ int cmd_access_allowed(int fd,uint16_t number)
 	return rc; 
 }
 
+int cmd_new_acting(int fd,uint16_t number,uint16_t number_acting)
+{
+	int rc;
+	rc = full_cmd(fd,number,CMD_NEW_ACTING,number_acting);
+	if(rc == -1){
+	 	global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		rc = SUCCESS;
+	}
+	return rc; 
+
+}
 /*****************************************************************************/

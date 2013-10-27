@@ -21,7 +21,7 @@
 /*****************************************************************************/
 
 /*****************************************************************************/
-/* Модуль acting                                */
+/* Модуль обработки игр                                                      */
 /*****************************************************************************/
 
 /*****************************************************************************/
@@ -40,6 +40,7 @@
 
 #include "list_user.h"
 #include "list_message.h"
+#include "net_server.h"
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
@@ -56,7 +57,84 @@ uint16_t amount_acting = UINT16_MAX;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
+uint16_t set_number_acting(void)
+{
+	acting_s * pta;
+	uint32_t i;
+	GSList * current = begin_acting;
+	for(i = UINT16_MAX;(i != 0) || (current != NULL);i--){
+		pta = current->data;
+		
+	}
+}
 
+int unset_number_acting(uint16_t number)
+{
+
+}
+
+static int create_acting(user_s * psu)
+{
+	uint32_t flag = psu->flag;
+	int rc;
+	acting_s * pta = NULL;
+
+	rc = check_bit_flag(flag,robot_user);
+	if(rc == YES){
+		global_log("Робот не может создавать игру!");
+		return FAILURE;
+	}
+
+	pta = g_slice_alloc0(sizeof(acting_s));
+	pta->number = amount_acting;	
+	set_bit_flag(flag,acting_user,1);
+	psu->acting = pta->number;
+	pta->player[0] = psu;
+	rc = cmd_new_acting(psu->fd,psu->package,pta->number);
+	if(rc == ){
+		
+	}		
+	global_log("Создал новою игру : %d!",psu->fd);
+	return  SUCCESS;
+}
+
+static int join_acting(user_s * psu)
+{
+	return SUCCESS;
+}
+static int check_new_acting(user_s * psu)
+{
+	message_cmd_s * msg;
+	int rc;
+	uint16_t flag;
+
+	rc = read_message_list(psu,(uint8_t **)&msg);
+	if(rc < sizeof(message_cmd_s)){
+		return FAILURE;
+	}
+	
+	if(msg->type == CMD_NEW_ACTING){
+		rc = create_acting(psu);
+		if(rc == )
+		del_message_list(psu,rc);
+	 	return SUCCESS;
+	}
+
+		  	&& (msg->type != CMD_JOIN_ACTING)){
+	/*msg->type */
+
+	/*TODO запуск роботов*/
+
+	begin_acting = g_slist_prepend (begin_acting,pta);
+	global_log("Создал новую игру : %d",pta->number);	
+	amount_acting --;
+	/*TODO проверка на заполниность играми*/
+	if(amount_acting == 1){
+		global_warning("Нет места для игр");
+		return FAILURE;
+	}
+ 	return SUCCESS;
+}
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
@@ -84,46 +162,7 @@ int deinit_list_acting(void)
 	return SUCCESS;
 }
 
-int check_new_acting(user_s * psu)
-{
-	acting_s * pta = NULL;
-	message_cmd_s * msg;
-	int rc;
-	uint16_t flag;
-
-	rc = read_message_list(psu,(uint8_t **)&msg);
-	if(rc < sizeof(message_cmd_s)){
-		return FAILURE;
-	}
-	/*TODO*/
-	if((msg->type != CMD_NEW_ACTING) && (msg->type != CMD_JOIN_ACTING)){
-		del_message_list(psu,rc);
-		global_log("Ожидается создание новой игры : %d!",psu->fd);
-		return FAILURE;
-	}
-
-	msg->type 
-
-	pta = g_slice_alloc0(sizeof(acting_s));
-	pta->number = amount_acting;	
-	flag = psu->flag;
-	set_bit_flag(flag,acting_user,1);
-	psu->acting = pta->number;
-	pta->player[0] = psu;
-	/*TODO запуск роботов*/
-
-	begin_acting = g_slist_prepend (begin_acting,pta);
-	global_log("Создал новую игру : %d",pta->number);	
-	amount_acting --;
-	/*TODO проверка на заполниность играми*/
-	if(amount_acting == 1){
-		global_warning("Нет места для игр");
-		return FAILURE;
-	}
-	return SUCCESS;
-}
-
-int new_actings(int * success)
+int create_actings(int * success)
 {
 	int rc;
 	user_s * ptu;

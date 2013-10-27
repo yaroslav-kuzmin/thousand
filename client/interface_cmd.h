@@ -32,9 +32,11 @@ typedef enum _if_cmd_e  interface_cmd_e;
 enum _if_cmd_e
 {
 	null_client = 0,
-	exit_client
-
+	exit_client,
+	last_command
 };
+
+
 #endif 
 
 /*****************************************************************************/

@@ -33,6 +33,8 @@ int if_get_passwd(char ** passwd,int len);
 int if_set_passwd(char * passwd);
 int if_set_connect(void);
 int if_not_set_connetc(int type);
+int if_new_game(void);
+int if_create_game(uint16_t number);
 
 interface_cmd_e if_cmd(void);
 

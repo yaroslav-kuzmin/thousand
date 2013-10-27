@@ -279,7 +279,7 @@ int init_o_connect(void)
 	wmove(main_win,o_label_connect.y,o_label_connect.x);
 	wprintw(main_win,o_label_connect.data);
 	draw_main_win();
-	 return SUCCESS;		
+	return SUCCESS;		
 }
 int if_set_connect(void)
 {
@@ -328,11 +328,81 @@ int if_not_set_connetc(int type)
 	wprintw(main_win,"%s",str);	
 	draw_main_win();
 	for(;;){
-		ch = wgetch(main_win);
+	 	ch = wgetch(main_win);
 		if( (ch == KEY_F(4)) || (ch == CR) ){
 			break;
 		}
 	}
+	return SUCCESS; 
+}
+
+/*************************************/
+static char * NEW_GAME = " new game ";
+static char * CREATE = "create ";
+object_s o_label_new_game;
+object_s o_label_create;
+int init_o_new_game(void)
+{
+	int w = strlen(NEW_GAME);
+
+	o_label_new_game.y = 2;
+	o_label_new_game.x = (MAX_WIDTH - w)/2;
+	o_label_new_game.h = 1;
+	o_label_new_game.w = w;
+	o_label_new_game.data = NEW_GAME;
+
+	o_label_create.y = 2;
+	o_label_create.x = o_label_new_game.x + w;
+	o_label_create.h = 2;
+	o_label_create.w = strlen(CREATE);
+	o_label_create.data = CREATE;
+	
+	return SUCCESS;
+}
+int if_new_game(void)
+{
+	int rc;
+	chtype ch;
+
+	wmove(main_win,o_label_new_game.y,o_label_new_game.x);
+	wprintw(main_win,"%s",o_label_new_game.data);
+	draw_main_win();
+	for(;;){
+		ch = wgetch(main_win);
+		if( ch == KEY_F(4)){
+			rc = FAILURE;
+			break;
+		}
+		if( (ch == CR) || (ch == TAB)){
+			rc = SUCCESS;
+			wprintw(main_win,"%s",o_label_create.data);
+			draw_main_win();
+			break;
+		}
+	}
+   
+	return rc;
+}
+/*************************************/
+static char * GAME = "GAME : ";
+object_s o_label_game;
+int init_o_game(void)
+{
+	o_label_game.y = 2;
+	o_label_game.x = 1;
+	o_label_game.h = 1;
+	o_label_game.w = strlen(GAME);
+	o_label_game.data = GAME;
+
+	return SUCCESS;
+}
+int if_create_game(uint16_t number)
+{
+	wmove(main_win,o_label_game.y,o_label_game.x);
+	wprintw(main_win,"%s%#04x",o_label_game.data,number);
+	wprintw(main_win,"         ");	
+	draw_main_win();
+
 	return SUCCESS;
 }
 /*************************************/
@@ -406,6 +476,8 @@ int init_interface(void)
 	init_o_user();
 	init_o_passwd();
 	init_o_connect();
+	init_o_new_game();
+	init_o_game();
 
 	return SUCCESS;
 }

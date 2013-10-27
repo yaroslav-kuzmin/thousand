@@ -182,20 +182,20 @@ int access_server(void)
 				else{
 					global_log("Сервер не присоединил к игре %#x : ответ %#x",acting,acting_check);
 					rc = FAILURE;
-				}
+ 				}
 			}
 			else{
 				global_log("Сервер не присоединил к игре %#x",acting);
 				rc = FAILURE;
-			}
+ 			}
 		}
 		else{
 			global_log("Несмог отправить команду присоединится к игре %#x",acting);
 			rc = FAILURE;
-		}
+ 		}
 	}
 
-	return rc;
+ 	return rc;
 }
 
 int main_loop(void)
@@ -319,6 +319,7 @@ int main(int argc,char * argv[])
 
 	g_message(" robot  :> %s",robot);
 	g_message(" acting :> %s",str_acting);
+
 	global_log(" Имя робота :> %s",robot);
 	global_log(" Номер игры :> %#04x",acting);
 

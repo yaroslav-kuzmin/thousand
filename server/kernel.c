@@ -158,8 +158,8 @@ check_timeout:
 				new_connect = NO;
 			}
 		}
-		if(new_actings > 0){
-			new_actings(&new_acting);
+		if(new_acting > 0){
+			create_actings(&new_acting);
 			if(new_acting < 0){
 				new_acting = 0;
 			}

@@ -55,6 +55,7 @@ char * user = NULL;
 char str_user[LEN_USER_NAME] = {0};
 char * passwd = NULL;
 char str_passwd[LEN_USER_NAME] = {0};
+uint16_t number_acting = 0;
 
 uint8_t passwd_md5[MD5_DIGEST_LENGTH] = {0};
  
@@ -93,6 +94,26 @@ static void print_version(FILE * stream)
 	fprintf(stream,"\n  Version  %s : Data \'%s\' : Autor \'%s\' : Email \'%s\'\n\n",VERSION,DATA_COM,AUTOR,EMAIL);
 }
 /*************************************/
+int new_acting(void)
+{
+	int rc;
+	
+	rc = if_new_game();
+	if(rc == FAILURE){
+		return FAILURE;
+	}
+	
+	rc = cmd_new_acting();
+	if(rc == FAILURE){
+		return rc;
+	}
+	rc = answer_new_acting(&number_acting);
+	if_create_game(number_acting);
+	global_log("Создал игру %#x",number_acting);
+	
+	return SUCCESS;
+}
+
 int access_server(void)
 {
 	int rc;
@@ -148,10 +169,10 @@ int access_server(void)
 
 int main_loop(void)
 {
-	interface_cmd_e  cmd;
+	 interface_cmd_e  cmd;
 
 	for(;;){
-		cmd = if_cmd();
+	 	cmd = if_cmd();
 		if (cmd == exit_client){
 			break;
 		}
@@ -277,10 +298,14 @@ int main(int argc,char * argv[])
 	rc = access_server();
 	if(rc == FAILURE){
 		global_log("Не корректный логин : %s или пароль : %s",user,passwd);
-		goto exit_client;
+	 	goto exit_client;
 	}
 	
 	rc = new_acting();
+	if(rc == FAILURE){
+		global_log("Несмог создать игру");
+		goto exit_client;
+	}
 
 	main_loop();
 /*************************************/

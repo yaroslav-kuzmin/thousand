@@ -30,7 +30,7 @@
 int init_list_acting(void);
 int deinit_list_acting(void);
 
-int new_actings(int * success);
+int create_actings(int * success);
 int current_actings(void);
 #endif 
 
