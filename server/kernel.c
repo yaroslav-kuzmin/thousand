@@ -115,7 +115,7 @@ int main_loop(void)
 		for(;ptu != NULL;ptu = get_next_user_list()){
 			fd = ptu->fd;
 			rc = recv(fd,t_buff,SIZE_TEMP_BUFF,0);
-			g_message(" read fd : %d | rc : %d",fd,rc);
+g_message(" read fd : %d | rc : %d",fd,rc);
 			if(rc > 0){
 				write_message_list(ptu,t_buff,rc);
 			}

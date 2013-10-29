@@ -151,6 +151,7 @@ int del_user_list(int fd)
 	user_s * ptu;
 	GByteArray * tb;
 	uint32_t tf;
+	uint16_t acting;
 	
 	if(amount_user == 0){
 		global_log("В списке нет игроков!");
@@ -174,6 +175,11 @@ int del_user_list(int fd)
 	}
 	
 	global_log("Игрок %s : %d отключен от сервера!",ptu->name,fd);
+	if(ptu->acting != 0){
+		acting = ptu->acting;
+		ptu->acting = 0;
+		delete_acting(acting);
+	}
 	close(fd);
 	close_access_user(ptu->name);
 	tf = ptu->flag;

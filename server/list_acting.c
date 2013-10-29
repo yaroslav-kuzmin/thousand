@@ -44,7 +44,12 @@
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
-#define AMOUNT_PLAYER      4
+#define AMOUNT_PLAYER      3
+#define PLAYER_CREATOR     0
+#define PLAYER_CENTR       0
+#define PLAYER_LEFT        1
+#define PLAYER_RIGHT       2
+
 typedef struct _acting_s acting_s;
 struct _acting_s
 {
@@ -52,87 +57,155 @@ struct _acting_s
 	user_s * player[AMOUNT_PLAYER];
 };
 
-static GSList * begin_acting = NULL;
-uint16_t amount_acting = UINT16_MAX;
+static GHashTable * all_acting = NULL;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
-uint16_t set_number_acting(void)
+uint32_t acting_hash(gconstpointer key)
 {
-	acting_s * pta;
-	uint32_t i;
-	GSList * current = begin_acting;
-	for(i = UINT16_MAX;(i != 0) || (current != NULL);i--){
-		pta = current->data;
-		
+	acting_s * tk = (acting_s *)key;
+
+	return (uint32_t)tk->number;
+}
+int acting_equal(gconstpointer a,gconstpointer b)
+{
+	uint16_t ta = ((acting_s *)a)->number;
+	uint16_t tb = ((acting_s*)b)->number;
+	if(ta == tb){
+		return TRUE;
 	}
+	return FALSE;
+}
+void acting_destroy(gpointer psa)
+{
+	g_slice_free1(sizeof(acting_s),psa);
 }
 
-int unset_number_acting(uint16_t number)
+uint16_t check_number_acting(void)
 {
+	uint32_t i;
+	acting_s ta;
+	int rc;
+	
+	for(i = UINT16_MAX;i != 0;i--){
+		ta.number = i;
+		rc = g_hash_table_contains(all_acting,&ta);
+		if(rc == FALSE){
+			return (uint16_t) i;
+		}
+	}
 
+	return 0;
 }
 
 static int create_acting(user_s * psu)
 {
 	uint32_t flag = psu->flag;
 	int rc;
+	uint16_t number;
 	acting_s * pta = NULL;
-
+	
 	rc = check_bit_flag(flag,robot_user);
 	if(rc == YES){
 		global_log("Робот не может создавать игру!");
-		return FAILURE;
+		return ROBOT_CAN_NOT_CREATE_ACTING;
+	}
+	
+	number = check_number_acting();
+	if(number == 0){
+		psu->acting = 0;
+		global_log("Создано максимально возможное колличество игр!");
+		return LIMIT_ACTING;
 	}
 
 	pta = g_slice_alloc0(sizeof(acting_s));
-	pta->number = amount_acting;	
+	pta->number = number;
 	set_bit_flag(flag,acting_user,1);
-	psu->acting = pta->number;
-	pta->player[0] = psu;
-	rc = cmd_new_acting(psu->fd,psu->package,pta->number);
-	if(rc == ){
-		
-	}		
-	global_log("Создал новою игру : %d!",psu->fd);
+	psu->acting = number;
+	pta->player[PLAYER_CREATOR] = psu;
+	g_hash_table_add(all_acting,pta);
+
+	global_log("Создал новою игру : %#04x!",pta->number);
 	return  SUCCESS;
 }
 
-static int join_acting(user_s * psu)
+static int join_acting(user_s * psu,uint16_t number)
 {
+	int rc;
+	uint32_t flag = psu->flag;
+	acting_s ta;
+	acting_s * pta;
+	ta->number = number;
+	
+	rc = g_hash_table_lookup_extended(all_acting,&ta,&pta,&pta);
+	if(rc == FALSE){
+		psu->acting = 0;
+		global_log("Нет такой игры %#04x в списке",number);
+		return FAILURE;
+	}
+	
+	if(pta->player[PLAYER_LEFT] == NULL){
+		pta->player[PLAYER_LEFT] = psu;
+	}
+	else{
+		if(pta->player[PLAYER_RIGHT] == NULL){
+			pta->player[PLAYER_RIGHT] = psu;
+		}
+		else{
+			global_log("Игра %#04x занята");
+			psu->acting = 0;
+			return FAILURE;
+		}
+	}
+	set_bit_flag(flag,acting_user);
+	psu->acting = pta->number;
+
 	return SUCCESS;
 }
+
 static int check_new_acting(user_s * psu)
 {
-	message_cmd_s * msg;
+	message_cmd_s * cmd;
 	int rc;
 	uint16_t flag;
 
-	rc = read_message_list(psu,(uint8_t **)&msg);
+	rc = read_message_list(psu,(uint8_t **)&cmd);
 	if(rc < sizeof(message_cmd_s)){
 		return FAILURE;
 	}
 	
-	if(msg->type == CMD_NEW_ACTING){
+	if(cmd->type == CMD_NEW_ACTING){
 		rc = create_acting(psu);
-		if(rc == )
-		del_message_list(psu,rc);
-	 	return SUCCESS;
+		del_message_list(psu,sizeof(message_cmd_s));
+	}
+	else{
+		if(cmd->type == CMD_JOIN_ACTING){
+			rc = join_acting(psu,cmd->msg);
+			del_message_list(psu,sizeof(message_cmd_s));
+		}
+		else{
+			global_log("Некоректная комманда от игрока %s : %d",psu->name,psu->fd);
+			del_user_list(psu->fd);
+			return FAILURE;
+		}
 	}
 
-		  	&& (msg->type != CMD_JOIN_ACTING)){
-	/*msg->type */
-
-	/*TODO запуск роботов*/
-
-	begin_acting = g_slist_prepend (begin_acting,pta);
-	global_log("Создал новую игру : %d",pta->number);	
-	amount_acting --;
-	/*TODO проверка на заполниность играми*/
-	if(amount_acting == 1){
-		global_warning("Нет места для игр");
+	rc = cmd_new_acting(psu->fd,psu->package,psu->acting);
+	if(rc == FAILURE){
+		global_log("Несмог отправить сообщение игроку %d на создание игры : %s",psu->fd,strerror(errno));
+		del_user_list(psu->fd);
 		return FAILURE;
 	}
+	psu->package++;
+
+	if(psu->acting == 0){
+		global_log("Несмог присоединить игрока %s : %d к игре",psu->name,psu->fd);
+	}
+	else{
+		global_log("Присоединил игрока %s : %d к игре %#04x",psu->name,psu->fd,psu->acting);
+	}
+	/*TODO запуск роботов*/
+
  	return SUCCESS;
 }
 /*****************************************************************************/
@@ -140,24 +213,16 @@ static int check_new_acting(user_s * psu)
 /*****************************************************************************/
 int init_list_acting(void)
 {
-	begin_acting = NULL;
-	amount_acting = 0;
+	amount_acting = UINT16_MAX;
+	all_acting = g_hash_table_new_full(acting_hash,acting_equal,acting_destroy,NULL);
 	global_log("Создал список игр!");
 	return SUCCESS;
 }
 
 int deinit_list_acting(void)
 {
-	acting_s * pta;
-	GSList * current = begin_acting;
-	for(;current != NULL;){
-		pta = current->data;
-		g_slice_free1(sizeof(acting_s),pta);
-		current = g_slist_next(current);
-	}
-	g_slist_free(begin_acting);
-	begin_acting = NULL;
-	amount_acting = 0;
+	amount_acting = UINT16_MAX;
+	g_hash_table_destroy(all_acting);
 	global_log("Удалил список игр!");
 	return SUCCESS;
 }
@@ -187,9 +252,10 @@ int create_actings(int * success)
 				}
 				else{
 					rc = check_new_acting(ptu);
-					if(rc == SUCCESS){
-						(*success)--;
+					if(rc == FAILURE){
+						global_log("Несмог создать игру!");
 					}
+					(*success)--;
 				}
 			}
 		}
@@ -199,6 +265,32 @@ int create_actings(int * success)
 
 int current_actings(void)
 {
+	return SUCCESS;
+}
+
+int delete_acting(uint16_t number)
+{
+	acting_s ta;
+	acting_s * pta;
+	user_s * ptu;
+	ta->number = number;
+
+	if(number == 0){
+		global_log("нет такой игры 0");
+		return FAILURE;
+	}	
+
+	rc = g_hash_table_lookup_extended(all_acting,&ta,&pta,&pta);
+	if(rc == FALSE){
+		global_log("Нет такой игры %#04x в списке",number);
+	 	return FAILURE;
+	}
+	
+	/*TODO послать команду другим участникам и удалить их*/
+
+	g_hash_table_remove(all_acting,pta);
+
+	
 	return SUCCESS;
 }
 /*****************************************************************************/

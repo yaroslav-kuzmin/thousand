@@ -108,6 +108,10 @@ int new_acting(void)
 		return rc;
 	}
 	rc = answer_new_acting(&number_acting);
+	if(number_acting == 0){
+		/*TODO несмог создать игру*/
+		return FAILURE;
+	}
 	if_create_game(number_acting);
 	global_log("Создал игру %#x",number_acting);
 	

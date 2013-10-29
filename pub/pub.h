@@ -46,10 +46,13 @@
 
 /*************** ERROR ***************/
 
-#define NOT_CONNECT_SERVER       -10
-#define INCORRECT_CMD            -11
-#define INCORRECT_LOGIN          -12
-#define INCORRECT_PASSWORD        -13 
+#define NOT_CONNECT_SERVER            -10
+#define NOT_CONNECT_CLIENT            -11
+#define INCORRECT_CMD                 -12
+#define INCORRECT_LOGIN               -13
+#define INCORRECT_PASSWORD            -14 
+#define ROBOT_CAN_NOT_CREATE_ACTING   -15
+#define LIMIT_ACTING                  -16
 #endif
 
 

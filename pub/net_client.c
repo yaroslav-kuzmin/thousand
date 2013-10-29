@@ -213,7 +213,7 @@ int cmd_new_acting(void)
 	message_cmd_s cmd;
 	cmd.number = number_packed;
 	cmd.type = CMD_NEW_ACTING;
-	cmd.len = 0;
+	cmd.msg = 0;
 
 	rc = write_socket((uint8_t *)&cmd,sizeof(message_cmd_s));
 	if(rc == SUCCESS){

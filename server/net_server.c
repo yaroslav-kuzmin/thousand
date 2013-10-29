@@ -287,6 +287,5 @@ int cmd_new_acting(int fd,uint16_t number,uint16_t number_acting)
 		rc = SUCCESS;
 	}
 	return rc; 
-
 }
 /*****************************************************************************/
