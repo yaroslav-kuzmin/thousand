@@ -28,6 +28,8 @@
 /* Дополнительные файлы                                                      */
 /*****************************************************************************/
 #include <stdint.h>
+#include <string.h>
+#include <errno.h>
 #include <openssl/md5.h>
 
 #include <glib.h>
@@ -105,7 +107,7 @@ static int create_acting(user_s * psu)
 	uint16_t number;
 	acting_s * pta = NULL;
 	
-	rc = check_bit_flag(flag,robot_user);
+	rc = check_bit_flag(flag,robot_user,1);
 	if(rc == YES){
 		global_log("Робот не может создавать игру!");
 		return ROBOT_CAN_NOT_CREATE_ACTING;
@@ -135,9 +137,9 @@ static int join_acting(user_s * psu,uint16_t number)
 	uint32_t flag = psu->flag;
 	acting_s ta;
 	acting_s * pta;
-	ta->number = number;
+	ta.number = number;
 	
-	rc = g_hash_table_lookup_extended(all_acting,&ta,&pta,&pta);
+	rc = g_hash_table_lookup_extended(all_acting,(gpointer)&ta,(gpointer *)&pta,(gpointer*)&pta);
 	if(rc == FALSE){
 		psu->acting = 0;
 		global_log("Нет такой игры %#04x в списке",number);
@@ -157,7 +159,7 @@ static int join_acting(user_s * psu,uint16_t number)
 			return FAILURE;
 		}
 	}
-	set_bit_flag(flag,acting_user);
+	set_bit_flag(flag,acting_user,1);
 	psu->acting = pta->number;
 
 	return SUCCESS;
@@ -167,7 +169,6 @@ static int check_new_acting(user_s * psu)
 {
 	message_cmd_s * cmd;
 	int rc;
-	uint16_t flag;
 
 	rc = read_message_list(psu,(uint8_t **)&cmd);
 	if(rc < sizeof(message_cmd_s)){
@@ -180,13 +181,21 @@ static int check_new_acting(user_s * psu)
 	}
 	else{
 		if(cmd->type == CMD_JOIN_ACTING){
-			rc = join_acting(psu,cmd->msg);
-			del_message_list(psu,sizeof(message_cmd_s));
+			if(cmd->msg != 0){
+				rc = join_acting(psu,cmd->msg);
+				del_message_list(psu,sizeof(message_cmd_s));
+			}
+			else{
+				/* TODO вернуть список игр */
+				global_log("Пока не возврашаем список игр");
+				del_message_list(psu,sizeof(message_cmd_s));
+				psu->acting = 0;
+			}
 		}
 		else{
 			global_log("Некоректная комманда от игрока %s : %d",psu->name,psu->fd);
 			del_user_list(psu->fd);
-			return FAILURE;
+			return SUCCESS;
 		}
 	}
 
@@ -194,7 +203,7 @@ static int check_new_acting(user_s * psu)
 	if(rc == FAILURE){
 		global_log("Несмог отправить сообщение игроку %d на создание игры : %s",psu->fd,strerror(errno));
 		del_user_list(psu->fd);
-		return FAILURE;
+		return SUCCESS;
 	}
 	psu->package++;
 
@@ -213,7 +222,6 @@ static int check_new_acting(user_s * psu)
 /*****************************************************************************/
 int init_list_acting(void)
 {
-	amount_acting = UINT16_MAX;
 	all_acting = g_hash_table_new_full(acting_hash,acting_equal,acting_destroy,NULL);
 	global_log("Создал список игр!");
 	return SUCCESS;
@@ -221,7 +229,6 @@ int init_list_acting(void)
 
 int deinit_list_acting(void)
 {
-	amount_acting = UINT16_MAX;
 	g_hash_table_destroy(all_acting);
 	global_log("Удалил список игр!");
 	return SUCCESS;
@@ -252,10 +259,9 @@ int create_actings(int * success)
 				}
 				else{
 					rc = check_new_acting(ptu);
-					if(rc == FAILURE){
-						global_log("Несмог создать игру!");
+					if(rc == SUCCESS){
+						(*success)--;
 					}
-					(*success)--;
 				}
 			}
 		}
@@ -270,17 +276,18 @@ int current_actings(void)
 
 int delete_acting(uint16_t number)
 {
+	int rc;
 	acting_s ta;
 	acting_s * pta;
-	user_s * ptu;
-	ta->number = number;
+	/*user_s * ptu;*/
+	ta.number = number;
 
 	if(number == 0){
 		global_log("нет такой игры 0");
 		return FAILURE;
 	}	
 
-	rc = g_hash_table_lookup_extended(all_acting,&ta,&pta,&pta);
+	rc = g_hash_table_lookup_extended(all_acting,(gpointer)&ta,(gpointer*)&pta,(gpointer*)&pta);
 	if(rc == FALSE){
 		global_log("Нет такой игры %#04x в списке",number);
 	 	return FAILURE;
@@ -289,7 +296,7 @@ int delete_acting(uint16_t number)
 	/*TODO послать команду другим участникам и удалить их*/
 
 	g_hash_table_remove(all_acting,pta);
-
+	global_log("Удаление игры под номером %#04x",number);
 	
 	return SUCCESS;
 }

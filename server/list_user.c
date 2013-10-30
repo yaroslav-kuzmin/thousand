@@ -40,6 +40,7 @@
 
 #include "list_user_pub.h"
 #include "access.h"
+#include "list_acting.h"
 
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -48,6 +49,18 @@
 static uint32_t amount_user = 0;
 static GSList * begin_user = NULL;
 static GSList * current_user = NULL;
+/*****************************************************************************/
+/* Вспомогательные функция                                                   */
+/*****************************************************************************/
+int compare_user_fd(gconstpointer a,gconstpointer b)
+{	
+	int ta = ((user_s *)a)->fd;
+	int tb = ((user_s *)b)->fd;
+	if(ta == tb ){
+		return SUCCESS;
+	}
+	return FAILURE;
+}
 /*****************************************************************************/
 /* Основные функции                                                          */
 /*****************************************************************************/
@@ -78,7 +91,89 @@ uint32_t get_amount_user(void)
 {
 	return amount_user;
 }
+/*************************************/
+int add_user_list(int fd)
+{
+	user_s * ptu;
+	user_s tu;
 
+	/*TODO проверить номера fd 0-stdin 1-stdout 2-stderr*/
+	if(fd < 0){
+		global_log("Некорректный идентификатор : %d!",fd);
+		return FAILURE;
+	}
+	
+	if(begin_user != NULL){
+		tu.fd = fd;
+		current_user = g_slist_find_custom(begin_user,&tu,compare_user_fd);
+		if(current_user == NULL){
+			global_log("Номера идентификаторов совпадают : %d!",fd);
+			current_user = begin_user;
+			return FAILURE;
+		}
+	}
+
+	ptu = (user_s *)g_slice_alloc0(sizeof(user_s));
+
+	ptu->fd = fd;
+	ptu->flag = init_bit_flags(last_flag_user);
+	/*ptu->name = {0};*/
+	/*ptu->passwd = {0};*/
+	ptu->timeout = time(NULL) + WAITING_USER;
+	/*ptu->package = 0;*/
+	ptu->buffer = g_byte_array_new ();
+
+	begin_user = g_slist_prepend (begin_user,ptu);
+	amount_user ++;
+	current_user = begin_user;
+/*TODO преобразовать время*/	
+	global_log("Соединения с сервером под номером %d время %ld!",ptu->fd,ptu->timeout);
+
+	return SUCCESS;
+}
+
+int del_user_list(int fd)
+{
+	user_s * ptu;
+	GByteArray * tb;
+	uint32_t tf;
+	uint16_t acting;
+	user_s tu;
+	
+	if(amount_user == 0){
+		global_log("В списке нет игроков!");
+		return FAILURE;
+	}
+
+	tu.fd = fd;
+	current_user = g_slist_find_custom(begin_user,&tu,compare_user_fd);
+	if(current_user == NULL){
+		global_log("Нет такого идентификатора игрока : %d!",fd);
+		current_user = begin_user;
+		return FAILURE;
+	}
+	
+	ptu = current_user->data;
+	global_log("Удаление из списка игрока %s под номером %d!",ptu->name,ptu->fd);
+
+	if(ptu->acting != 0){
+		acting = ptu->acting;
+		ptu->acting = 0;
+		delete_acting(acting);
+	}
+	close(fd);
+	close_access_user(ptu->name);
+	tf = ptu->flag;
+	deinit_bit_flag(tf);
+	tb = ptu->buffer;
+	g_byte_array_free(tb,TRUE);
+	begin_user = g_slist_remove(begin_user,ptu);
+	g_slice_free1(sizeof(user_s),ptu);
+	amount_user --;
+	current_user = begin_user;
+	return SUCCESS;
+}
+/*************************************/
 int init_list_user(void)
 {
 	begin_user = NULL;
@@ -106,90 +201,4 @@ int deinit_list_user(void)
 	return SUCCESS;
 }
 
-int add_user_list(int fd)
-{
-	user_s * ptu;
-
-	/*TODO проверить номера fd 0-stdin 1-stdout 2-stderr*/
-	if(fd < 0){
-		global_log("Некорректный идентификатор : %d!",fd);
-		return FAILURE;
-	}
-
-	current_user = begin_user;
-	for(;current_user != NULL;){
-		ptu = (user_s*)current_user->data;
-		if(fd == ptu->fd){
-			global_log("Номера идентификаторов совпадают : %d!",fd);
-			return FAILURE;
-		}
-		current_user = g_slist_next(current_user);
-	}
-
-	ptu = (user_s *)g_slice_alloc0(sizeof(user_s));
-
-	ptu->fd = fd;
-	ptu->flag = init_bit_flags(last_flag_user);
-	/*ptu->name = {0};*/
-	/*ptu->passwd = {0};*/
-	ptu->timeout = time(NULL) + WAITING_USER;
-	/*ptu->package = 0;*/
-	ptu->buffer = g_byte_array_new ();
-
-	begin_user = g_slist_prepend (begin_user,ptu);
-	amount_user ++;
-	current_user = begin_user;
-/*TODO преобразовать время*/	
-	global_log("Соединения с сервером под номером %d время %ld!",ptu->fd,ptu->timeout);
-
-	return SUCCESS;
-}
-
-int del_user_list(int fd)
-{
-	int check;
-	user_s * ptu;
-	GByteArray * tb;
-	uint32_t tf;
-	uint16_t acting;
-	
-	if(amount_user == 0){
-		global_log("В списке нет игроков!");
-		return FAILURE;
-	}
-
-	current_user = begin_user;
-	for(check = NO;current_user != NULL;){
-		ptu = (user_s *)current_user->data;
-		if(fd == ptu->fd){
-			global_log("Удаление из списка игрока %s под номером %d!",ptu->name,ptu->fd);
-			check = YES;
-			break;
-		}
-		current_user = g_slist_next(current_user);
-	}
-
-	if( check == NO ){
-		global_log("Нет такого индентификатора в списке : %d",fd);
-		return FAILURE;
-	}
-	
-	global_log("Игрок %s : %d отключен от сервера!",ptu->name,fd);
-	if(ptu->acting != 0){
-		acting = ptu->acting;
-		ptu->acting = 0;
-		delete_acting(acting);
-	}
-	close(fd);
-	close_access_user(ptu->name);
-	tf = ptu->flag;
-	deinit_bit_flag(tf);
-	tb = ptu->buffer;
-	g_byte_array_free(tb,TRUE);
-	begin_user = g_slist_remove(begin_user,ptu);
-	g_slice_free1(sizeof(user_s),ptu);
-	amount_user --;
-	current_user = begin_user;
-	return SUCCESS;
-}
 /*****************************************************************************/

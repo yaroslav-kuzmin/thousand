@@ -394,13 +394,19 @@ int init_o_game(void)
 	o_label_game.w = strlen(GAME);
 	o_label_game.data = GAME;
 
-	return SUCCESS;
+	return SUCCESS; 
 }
 int if_create_game(uint16_t number)
 {
 	wmove(main_win,o_label_game.y,o_label_game.x);
 	wprintw(main_win,"%s%#04x",o_label_game.data,number);
-	wprintw(main_win,"         ");	
+	if(number == 0){
+		wprintw(main_win,"Not create game");
+	}
+	else{
+		wmove(main_win,o_label_new_game.y,o_label_new_game.x);
+		wprintw(main_win,"                ");
+	}	
 	draw_main_win();
 
 	return SUCCESS;

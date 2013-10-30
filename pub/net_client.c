@@ -227,6 +227,7 @@ int answer_new_acting(uint16_t * number)
 {
 	int rc;
 	message_cmd_s * cmd = (message_cmd_s*)&pub_message;
+	*number = 0;
 
 	rc = read_socket((uint8_t**)&cmd,sizeof(message_cmd_s));
 	if(rc == FAILURE){

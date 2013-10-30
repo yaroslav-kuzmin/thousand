@@ -109,13 +109,17 @@ int new_acting(void)
 	}
 	rc = answer_new_acting(&number_acting);
 	if(number_acting == 0){
-		/*TODO несмог создать игру*/
-		return FAILURE;
+		rc = FAILURE;
+		global_log("Сервер не создал игру %#x",number_acting);
 	}
+	else{
+		rc = SUCCESS;
+		global_log("Сервер создал игру %#x",number_acting);
+	}
+
 	if_create_game(number_acting);
-	global_log("Создал игру %#x",number_acting);
 	
-	return SUCCESS;
+	return rc;
 }
 
 int access_server(void)
