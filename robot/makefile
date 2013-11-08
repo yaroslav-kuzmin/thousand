@@ -20,10 +20,13 @@
 #                                                                             #
 ###############################################################################
 
-EXEC=thr
-OBJS=robot.o
-CXX=gcc
 PUB_CATALOG=../pub/
+
+EXEC=thr
+SOURCE=$(wildcard *.c)
+OBJS=$(SOURCE:.c=.o)
+DEPEND=$(SOURCE:.c=.d)
+CXX=gcc
 CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` \
 		 -DDEBUG -D_GNU_SOURCE -DG_LOG_DOMAIN=\"thr\"
 LDFLAGS=-g2 -L$(PUB_CATALOG)
@@ -33,10 +36,15 @@ LIB=-lglib-2.0 -lthp
 $(EXEC):$(OBJS) $(LIB_PUB)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIB)
 
-.c.o:
+%.o:%.c
 	$(CXX) $(CFLAGS) -c $< -o $@
+
+%.d:%.c
+	$(CXX) -MM -I$(PUB_CATALOG) -I. $< > $@
+
+include $(DEPEND)
 
 .PHONY:clean
 clean:
-	-rm -f $(EXEC) *.o *~ 
+	-rm -f $(EXEC) *.o *~ *.d 
 

@@ -20,11 +20,13 @@
 #                                                                             #
 ###############################################################################
 
-EXEC=ths
-OBJS=server.o kernel.o net_server.o list_user.o list_message.o access.o \
-     list_acting.o
-CXX=gcc
 PUB_CATALOG=../pub/
+
+EXEC=ths
+SOURCE=$(wildcard *.c)
+OBJS=$(SOURCE:.c=.o)
+DEPEND=$(SOURCE:.c=.d)
+CXX=gcc
 CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` \
        -DDEBUG -D_GNU_SOURCE -DG_LOG_DOMAIN=\"ths\"
 LDFLAGS=-g2 -L$(PUB_CATALOG)
@@ -34,10 +36,15 @@ LIB=-lthp -lglib-2.0
 $(EXEC):$(OBJS) $(LIB_PUB)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIB)
 
-.c.o:
+%.o:%.c
 	$(CXX) $(CFLAGS) -c $< -o $@
+
+%.d:%.c
+	$(CXX) -MM -I$(PUB_CATALOG) -I. $< > $@
+
+include $(DEPEND)
 
 .PHONY:clean
 clean:
-	-rm -f $(EXEC) *.o *~ 
+	-rm -f $(EXEC) *.o *~ *.d 
 

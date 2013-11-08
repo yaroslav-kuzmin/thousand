@@ -20,10 +20,13 @@
 #                                                                             #
 ###############################################################################
 
-EXEC=thc
-OBJS=client.o interface.o
-CXX=gcc
 PUB_CATALOG=../pub/
+
+EXEC=thc
+SOURCE=$(wildcard *.c)
+OBJS=$(SOURCE:.c=.o)
+DEPEND=$(SOURCE:.c=.d)
+CXX=gcc
 CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` `pkg-config --cflags ncursesw`\
 		 -DDEBUG -D_GNU_SOURCE -DG_LOG_DOMAIN=\"thc\"
 LDFLAGS=-g2 -L$(PUB_CATALOG)
@@ -36,7 +39,12 @@ $(EXEC):$(OBJS) $(LIB_PUB)
 .c.o:
 	$(CXX) $(CFLAGS) -c $< -o $@
 
+%.d:%.c
+	$(CXX) -MM -I$(PUB_CATALOG) -I. $< > $@
+
+include $(DEPEND)
+
 .PHONY:clean
 clean:
-	-rm -f $(EXEC) *.o *~ 
+	-rm -f $(EXEC) *.o *~ *.d
 
