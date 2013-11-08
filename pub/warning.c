@@ -119,10 +119,7 @@ inline static int init_file_name(int flag)
 	return SUCCESS;
 }
 
-static FILE * warning_stream;
-#define NOT_OPEN      1
-#define OPEN          0
-static int open_warnig = NOT_OPEN;
+static FILE * warning_stream = NULL;
 
 int init_warning_system(int flag)
 {
@@ -131,7 +128,6 @@ int init_warning_system(int flag)
 	warning_stream = fopen(file_warning,"a");
 	if(warning_stream == NULL){
 		perror(file_warning);
-		open_warnig = NOT_OPEN;
 		return FAILURE;
 	}
 	else{
@@ -145,7 +141,7 @@ int init_warning_system(int flag)
 
 int close_warning_system(void)
 {
-	if(open_warnig == OPEN){
+	if(warning_stream != NULL){
 		current_time();
 		fprintf(warning_stream," %02d.%02d.%02d %02d:%02d:%02d :> Останов !\n",mday,mon,year,hour,min,sec);
 		fclose(warning_stream);	
@@ -159,7 +155,7 @@ int global_warning(char * str,...)
 {
 	va_list arg;
 	va_start(arg,str);
-	if(open_warnig != OPEN){
+	if(warning_stream == NULL){
 		vfprintf(stderr,str,arg);
 		fprintf(stderr,"\n");
 	}

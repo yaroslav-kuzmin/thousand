@@ -124,10 +124,7 @@ static int len_buffer_log = 0;
 #define SIZE_BUFFER_TEMP    0x400	 
 static char buffer_temp[SIZE_BUFFER_TEMP];
 
-static FILE * stream_log;
-#define NOT_OPEN      1
-#define OPEN          0
-static int open_log = NOT_OPEN;
+static FILE * log_stream = NULL;
 
 int init_log_system(int flag)
 {
@@ -137,14 +134,16 @@ int init_log_system(int flag)
 
 	rc = get_registration_operation();
 	if(rc != YES){
-		open_log = NOT_OPEN;
+		if(log_stream != NULL){
+			fclose(log_stream);
+		}
+		log_stream = NULL; 
 		return SUCCESS;
 	}
 
-	stream_log = fopen(file_log,"a");
-	if(stream_log == NULL){
+	log_stream = fopen(file_log,"a");
+	if(log_stream == NULL){
 		global_warning("Немогу открыть файл для записи лога %s : %s",file_log,strerror(errno));
-		open_log = NOT_OPEN;
 		return FAILURE;
 	}
 	else{
@@ -154,7 +153,6 @@ int init_log_system(int flag)
 		sprintf(str," %02d.%02d.%02d %02d:%02d:%02d :> Запуск !\n",mday,mon,year,hour,min,sec);
 		str = buffer_log;
 		len_buffer_log = strlen(str);
-		open_log = OPEN;
 	}
 	return SUCCESS;
 }
@@ -162,12 +160,12 @@ int init_log_system(int flag)
 int close_log_system(void)
 {
 	char * str = buffer_log;
-	if(open_log == OPEN){
-		fprintf(stream_log,"%s",str);
+	if(log_stream != NULL){
+		fprintf(log_stream,"%s",str);
 		current_time(); 
-		fprintf(stream_log," %02d.%02d.%02d %02d:%02d:%02d :> Останов !\n",mday,mon,year,hour,min,sec);
-		fflush(stream_log);
-		fclose(stream_log);	
+		fprintf(log_stream," %02d.%02d.%02d %02d:%02d:%02d :> Останов !\n",mday,mon,year,hour,min,sec);
+		fflush(log_stream);
+		fclose(log_stream);	
 		open_log = NOT_OPEN;
 	}	
 	return SUCCESS;
@@ -182,7 +180,7 @@ int global_log(char * str,...)
 	va_list arg;
 	va_start(arg,str);
 
-	if(open_log != OPEN ){
+	if(log_stream == NULL ){
 		va_end(arg);
 		return SUCCESS;
 	}
@@ -200,7 +198,7 @@ int global_log(char * str,...)
 	len_buf_temp ++;
 	if((len_buffer_log + len_buf_temp) >= SIZE_BUFFER_LOG){
 		buf = buffer_log;
-		fprintf(stream_log,"%s",buf);
+		fprintf(log_stream,"%s",buf);
 		len_buffer_log = 0;
 	}
 	buf_temp = buffer_temp;
