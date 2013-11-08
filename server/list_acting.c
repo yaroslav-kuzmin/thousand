@@ -178,6 +178,7 @@ static int check_new_acting(user_s * psu)
 	if(cmd->type == CMD_NEW_ACTING){
 		rc = create_acting(psu);
 		del_message_list(psu,sizeof(message_cmd_s));
+		rc = cmd_new_acting(psu->fd,psu->package,psu->acting);
 	}
 	else{
 		if(cmd->type == CMD_JOIN_ACTING){
@@ -191,6 +192,7 @@ static int check_new_acting(user_s * psu)
 				del_message_list(psu,sizeof(message_cmd_s));
 				psu->acting = 0;
 			}
+			rc = cmd_join_acting(psu->fd,psu->package,psu->acting);
 		}
 		else{
 			global_log("Некоректная комманда от игрока %s : %d",psu->name,psu->fd);
@@ -198,8 +200,7 @@ static int check_new_acting(user_s * psu)
 			return SUCCESS;
 		}
 	}
-
-	rc = cmd_new_acting(psu->fd,psu->package,psu->acting);
+	
 	if(rc == FAILURE){
 		global_log("Несмог отправить сообщение игроку %d на создание игры : %s",psu->fd,strerror(errno));
 		del_user_list(psu->fd);

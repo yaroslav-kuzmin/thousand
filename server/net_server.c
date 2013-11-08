@@ -288,4 +288,17 @@ int cmd_new_acting(int fd,uint16_t number,uint16_t number_acting)
 	}
 	return rc; 
 }
+int cmd_join_acting(int fd,uint16_t number,uint16_t number_acting)
+{
+	int rc;
+	rc = full_cmd(fd,number,CMD_JOIN_ACTING,number_acting);
+	if(rc == -1){
+	 	global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		rc = SUCCESS;
+	}
+	return rc; 
+}
 /*****************************************************************************/
