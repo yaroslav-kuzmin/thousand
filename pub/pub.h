@@ -53,6 +53,7 @@
 #define INCORRECT_PASSWORD            -14 
 #define ROBOT_CAN_NOT_CREATE_ACTING   -15
 #define LIMIT_ACTING                  -16
+
 #endif
 
 

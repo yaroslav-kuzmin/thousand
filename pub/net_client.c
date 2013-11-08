@@ -257,7 +257,6 @@ int answer_join_acting(uint16_t * number)
 		rc = NOT_CONNECT_SERVER; 
 		return rc;
 	}
-	
 	if(cmd->type != CMD_JOIN_ACTING){
 		rc =  INCORRECT_CMD; 
 		return rc;
