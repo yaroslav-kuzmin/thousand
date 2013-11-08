@@ -235,10 +235,12 @@ int main(int argc,char * argv[])
 		exit(0);
 	init_str_alloc();/**/ 
 	total_check();
+#if 0	
 	rc = init_warning_system(SERVER_FLAG);
 	if(rc == FAILURE){
 		fprintf(stderr,"Несмог инициализировать систему предупреждений !!");
 	}
+#endif	
 	rc = init_log_system(SERVER_FLAG);
 	if(rc == FAILURE){
 		global_warning("Несмог ининциализировать систему логирования!");
