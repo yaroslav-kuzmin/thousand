@@ -68,6 +68,7 @@ int read_config(void)
 	g_key_file_load_from_file (ini_file,file_ini,G_KEY_FILE_KEEP_COMMENTS,&check);
 	if(check != NULL){
 		global_warning("Ощибка при обработки файла конфигурации %s : %s",file_ini,check->message);
+		g_error_free(check);
  		return FAILURE;
 	}
 	global_log("Открыл файл конфигурации %s",file_ini);
@@ -93,6 +94,7 @@ int close_config(void)
 		buffer_config = g_key_file_to_data(ini_file,0,&check);
 		if(check != NULL){
 			global_warning("Несмог записать файл конфигурации %s : %s",file_ini,check->message);
+			g_error_free(check);
 		}
 		else{
  			fputs(buffer_config,stream);
