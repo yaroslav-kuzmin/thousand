@@ -21,7 +21,11 @@
 ###############################################################################
 
 LIB=libthp.a
-OBJS=warning.o alloc.o log.o ini.o total.o bit_flag.o net_client.o
+
+SOURCE=$(wildcard *.c)
+OBJS=$(SOURCE:.c=.o)
+DEPEND=$(SOURCE:.c=.d)
+
 AR=ar
 CXX=gcc
 CFLAGS=-g2 -Wall -I. -DDEBUG -D_GNU_SOURCE `pkg-config --cflags glib-2.0`
@@ -30,12 +34,17 @@ ARFLAGS=sru
 $(LIB):$(OBJS)
 	$(AR) $(ARFLAGS) $@ $^ 
 
-.c.o:
+%.o:%.c 
 	$(CXX) $(CFLAGS) -c $< -o $@
+
+%.d:%.c
+	$(CXX) -MM -I. $< > $@
+
+include $(DEPEND)
 
 .PHONY:clean
 clean:
-	-rm -f $(LIB) *.o *~ 
+	-rm -f $(LIB) *.o *~ *.d 
 
 
 
