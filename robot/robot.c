@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <getopt.h>
 #include <openssl/md5.h>
 #include <string.h>
@@ -121,13 +122,16 @@ static uint16_t check_acting(void)
 		return 0;
 	}
 	str++;
-	for(i = 0;i < SIZE_STR_ACTING;i++){
+	for(i = 0;;i++){
 		int c = *str;
 		cstr = strchr(symbol_hex,c);
 		if((cstr == NULL) || (*cstr == 0)){
 			return 0;
 		}
 		rc += symbol2hex(c);
+		if(i == (SIZE_STR_ACTING - 1)){
+			break;
+		}
 		rc <<= 4;
 		str++;
 	}
@@ -185,7 +189,7 @@ int access_server(void)
  				}
 			}
 			else{
-				global_log("Сервер не присоединил к игре %#x",acting);
+				global_log("Сервер не присоединил к игре %#x : %d",acting,rc);
 				rc = FAILURE;
  			}
 		}
@@ -201,7 +205,7 @@ int access_server(void)
 int main_loop(void)
 {
 	g_message("main loop");
-
+	global_log("Зашел в основной цикл !");
 	return SUCCESS;
 }
 
@@ -295,22 +299,25 @@ int main(int argc,char * argv[])
 	init_str_alloc(); 
 	total_check();
 /*************************************/
+#if 0	
+	отключил 
 	rc = init_warning_system(ROBOT_FLAG);
 	if(rc == FAILURE){
 		fprintf(stderr,"Несмог инициализировать систему предупреждений !!");
 	}
+#endif	
 	rc = init_log_system(ROBOT_FLAG);
 	if(rc == FAILURE){
 		global_warning("Несмог ининциализировать систему логирования!");
 	}
 	rc = read_config();
 	if(rc == FAILURE){
-		global_warning("Несмог инициализировать конфигурацию!");
+		global_log("Несмог инициализировать конфигурацию!");
 		goto exit_robot;
 	}
 	rc = init_socket();
 	if(rc == FAILURE){
-		global_warning("Несмог инициализировать соединение с сервером!");
+		global_log("Несмог инициализировать соединение с сервером!");
 		goto exit_robot;
 	}
 	global_log("Инициализирован связь с сервером!");
@@ -318,10 +325,10 @@ int main(int argc,char * argv[])
 /*************************************/
 
 	g_message(" robot  :> %s",robot);
-	g_message(" acting :> %s",str_acting);
+	g_message(" acting :> %#04x",acting);
 
-	global_log(" Имя робота :> %s",robot);
-	global_log(" Номер игры :> %#04x",acting);
+	global_log("Имя робота :> %s",robot);
+	global_log("Номер игры :> %#04x",acting);
 
 	rc = access_server();
 	if(rc == FAILURE){
