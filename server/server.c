@@ -48,6 +48,7 @@
 #include "list_user.h"
 #include "access.h"
 #include "list_acting.h"
+#include "list_robot.h"
 
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -88,6 +89,7 @@ void print_version(FILE * stream)
 
 void close_server(int signal_num)
 {
+	deinit_list_robot();
 	deinit_list_acting();
 	deinit_access_user();
 	close_soket();
@@ -280,6 +282,11 @@ int main(int argc,char * argv[])
 /*************************************/
 /* основной цикл                     */	
 /*************************************/
+	run_robot(0xFFFF);
+	run_robot(0x5);
+	run_robot(0xF3F);
+	run_robot(0x23);
+
 	main_loop();
 /*************************************/
 /* Завершение работы                 */	

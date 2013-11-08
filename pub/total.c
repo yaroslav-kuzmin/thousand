@@ -47,6 +47,12 @@ char LOCALE[] = "ru_RU.UTF-8";
 
 static int registration_operation = YES;
 
+char INI_GLOBAL_GROUP[] = "global";
+char INI_SERVER_GROUP[] = "server";
+char INI_CLIENT_GROUP[] = "client";
+char INI_ROBOT_GROUP[] = "robot"; 
+char ACCESS_ROBOT_GROUP[] = "robot"; 
+char ACCESS_USER_GROUP[] = "user";
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/

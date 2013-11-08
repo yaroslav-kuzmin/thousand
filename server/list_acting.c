@@ -89,7 +89,7 @@ uint16_t check_number_acting(void)
 	acting_s ta;
 	int rc;
 	
-	for(i = UINT16_MAX;i != 0;i--){
+	for(i = INT16_MAX;i != 0;i--){
 		ta.number = i;
 		rc = g_hash_table_contains(all_acting,&ta);
 		if(rc == FALSE){
@@ -127,7 +127,7 @@ static int create_acting(user_s * psu)
 	pta->player[PLAYER_CREATOR] = psu;
 	g_hash_table_add(all_acting,pta);
 
-	global_log("Создал новою игру : %#04x!",pta->number);
+	global_log("Создал новою игру : 0x%04x!",pta->number);
 	return  SUCCESS;
 }
 
@@ -142,7 +142,7 @@ static int join_acting(user_s * psu,uint16_t number)
 	rc = g_hash_table_lookup_extended(all_acting,(gpointer)&ta,(gpointer *)&pta,(gpointer*)&pta);
 	if(rc == FALSE){
 		psu->acting = 0;
-		global_log("Нет такой игры %#04x в списке",number);
+		global_log("Нет такой игры 0x%04x в списке",number);
 		return FAILURE;
 	}
 	
@@ -154,7 +154,7 @@ static int join_acting(user_s * psu,uint16_t number)
 			pta->player[PLAYER_RIGHT] = psu;
 		}
 		else{
-			global_log("Игра %#04x занята");
+			global_log("Игра 0x%04x занята");
 			psu->acting = 0;
 			return FAILURE;
 		}
@@ -212,7 +212,7 @@ static int check_new_acting(user_s * psu)
 		global_log("Несмог присоединить игрока %s : %d к игре",psu->name,psu->fd);
 	}
 	else{
-		global_log("Присоединил игрока %s : %d к игре %#04x",psu->name,psu->fd,psu->acting);
+		global_log("Присоединил игрока %s : %d к игре 0x%04x",psu->name,psu->fd,psu->acting);
 	}
 	/*TODO запуск роботов*/
 
@@ -290,14 +290,14 @@ int delete_acting(uint16_t number)
 
 	rc = g_hash_table_lookup_extended(all_acting,(gpointer)&ta,(gpointer*)&pta,(gpointer*)&pta);
 	if(rc == FALSE){
-		global_log("Нет такой игры %#04x в списке",number);
+		global_log("Нет такой игры 0x%04x в списке",number);
 	 	return FAILURE;
 	}
 	
 	/*TODO послать команду другим участникам и удалить их*/
 
 	g_hash_table_remove(all_acting,pta);
-	global_log("Удаление игры под номером %#04x",number);
+	global_log("Удаление игры под номером 0x%04x",number);
 	
 	return SUCCESS;
 }

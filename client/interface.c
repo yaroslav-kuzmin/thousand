@@ -400,7 +400,7 @@ int if_create_game(uint16_t number)
 {
 	chtype ch;
 	wmove(main_win,o_label_game.y,o_label_game.x);
-	wprintw(main_win,"%s%#04x",o_label_game.data,number);
+	wprintw(main_win,"%s0x%04x",o_label_game.data,number);
 	if(number == 0){
 		wprintw(main_win,"Not create game");
 		for(;;){

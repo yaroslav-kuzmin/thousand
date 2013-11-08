@@ -134,7 +134,6 @@ int init_warning_system(int flag)
 		current_time();
 		fprintf(warning_stream,"****************************************\n");
 		fprintf(warning_stream," %02d.%02d.%02d %02d:%02d:%02d :> Запуск !\n",mday,mon,year,hour,min,sec);
-		open_warnig = OPEN;
 	}
 	return SUCCESS;
 }
@@ -145,7 +144,6 @@ int close_warning_system(void)
 		current_time();
 		fprintf(warning_stream," %02d.%02d.%02d %02d:%02d:%02d :> Останов !\n",mday,mon,year,hour,min,sec);
 		fclose(warning_stream);	
-		open_warnig = NOT_OPEN;
 	}
 	return SUCCESS;
 }

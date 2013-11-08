@@ -123,8 +123,6 @@ static int full_passwd(user_s * psu)
 static char dig2sym[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 static char str_passwd[MD5_DIGEST_LENGTH * 2] = {0};
 static char bad_passwd[MD5_DIGEST_LENGTH * 2] = "00000000000000000000000000000000";
-static char * USER_GROUP = "user";
-static char * ROBOT_GROUP = "robot"; 
 
 static char * convert_passwd(uint8_t * p)
 {
@@ -154,7 +152,7 @@ static int check_access(user_s * psu)
 	int rc;
 
 	get_passwd = convert_passwd(p);
-	check_passwd = g_key_file_get_string(access_file,USER_GROUP,n,&error);
+	check_passwd = g_key_file_get_string(access_file,ACCESS_USER_GROUP,n,&error);
 	if(check_passwd != NULL){
 		rc = strncmp(get_passwd,check_passwd,(MD5_DIGEST_LENGTH *2));
 		/*пароль совпадает*/
@@ -168,6 +166,7 @@ static int check_access(user_s * psu)
 				if(rc == SUCCESS){
 					psu->package ++;
 				}
+				g_free(check_passwd);
 				return FAILURE;
 			}
 			g_hash_table_insert(who_plays,n,p);
@@ -177,6 +176,7 @@ static int check_access(user_s * psu)
 				psu->package ++;
 				global_log("Доступ разрешен на сервер игроку %s : %d",psu->name,psu->fd);
 			}
+			g_free(check_passwd);
 			return SUCCESS; 
 		}
 		else{
@@ -185,13 +185,14 @@ static int check_access(user_s * psu)
 			if(rc == SUCCESS){
 				psu->package ++;
 			}
+			g_free(check_passwd);
 			return FAILURE;
 		}
 	}
 	else{
 		g_error_free(error);
 		error = NULL;
-		check_passwd = g_key_file_get_string(access_file,ROBOT_GROUP,n,&error);
+		check_passwd = g_key_file_get_string(access_file,ACCESS_ROBOT_GROUP,n,&error);
 		if(check_passwd != NULL){
 			rc = strncmp(get_passwd,check_passwd,(MD5_DIGEST_LENGTH *2));
 			if(rc == 0){
@@ -202,6 +203,7 @@ static int check_access(user_s * psu)
 					psu->package ++;
 					global_log("Доступ разрешен на сервер роботу %s : %d",psu->name,psu->fd);
 				}
+				g_free(check_passwd);
 				return SUCCESS;
 			}
 			else{
@@ -210,6 +212,7 @@ static int check_access(user_s * psu)
 				if(rc == SUCCESS){
 					psu->package ++;
 				}
+				g_free(check_passwd);
 				return FAILURE;
 			}
 		}
@@ -224,7 +227,7 @@ static int check_access(user_s * psu)
 				}
 				return FAILURE;
 			}
-			g_key_file_set_string(access_file,USER_GROUP,n,get_passwd);
+			g_key_file_set_string(access_file,ACCESS_USER_GROUP,n,get_passwd);
 			change_key_file = YES;
 			global_log("Новый игрок на сервере : %s",n);
 			g_hash_table_insert(who_plays,n,p);
@@ -263,9 +266,9 @@ int init_access_user(void)
 	who_plays = g_hash_table_new(g_str_hash,g_str_equal);
 	global_log("Открыл файл доступа %s",file);
 	check = NULL;
-	list_robot = g_key_file_get_keys(access_file,ROBOT_GROUP,&len,&check);
+	list_robot = g_key_file_get_keys(access_file,ACCESS_ROBOT_GROUP,&len,&check);
 	if(list_robot == NULL){
-		global_log("В файле %s в секции %s нет имен для роботов!",file,ROBOT_GROUP);
+		global_log("В файле %s в секции %s нет имен для роботов!",file,ACCESS_ROBOT_GROUP);
 		if(check != NULL){
 			global_log("%s",check->message);	
 			g_error_free(check);

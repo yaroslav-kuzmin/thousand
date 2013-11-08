@@ -34,6 +34,13 @@ extern char DEFAULT[];
 
 extern char LOCALE[];
 
+extern char INI_GLOBAL_GROUP[]; 
+extern char INI_SERVER_GROUP[];
+extern char INI_CLIENT_GROUP[];
+extern char INI_ROBOT_GROUP[];
+extern char ACCESS_ROBOT_GROUP[];
+extern char ACCESS_USER_GROUP[];
+
 int get_registration_operation(void);
 void set_registration_operation(int rg);
 

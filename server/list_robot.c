@@ -32,24 +32,50 @@
 #include <glib.h>
 
 #include "pub.h"
+#include "total.h"
 #include "log.h"
+#include "ini.h"
 
 #include "access.h"
 
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
-int number_robot = 0;
+static int number_robot = 0;
+static GString * str_run_robot = NULL;
+static gssize len_name_bin = 0;
+static char * KEY_ROBOT = "robot";
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
 
+static char * get_name_bin(void)
+{
+	char * name = NULL;
+	GKeyFile * ini_file = get_key_file();
+
+	if(ini_file == NULL){
+		return name;
+	}
+
+	name = g_key_file_get_string(ini_file,INI_SERVER_GROUP,KEY_ROBOT,NULL);
+	if(name == NULL){
+		global_log("Нет имени программы робота в файле ini в секции %s!",INI_SERVER_GROUP);
+		return NULL;
+	}
+	global_log("Программа робот %s",name);
+	
+	return name;
+}
+
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
+static char * OPTION_ONE = " -u ";
+static char * OPTION_TWO = " -a ";
 int run_robot(uint16_t acting)
 {
-	char * name = NULL; 
+	char * name_robot = NULL; 
 	char ** list = list_name_robot();
 	int amount_robot = amount_name_robot();
 
@@ -62,11 +88,36 @@ int run_robot(uint16_t acting)
 		number_robot = 0;
 	}
 	list += number_robot;		
-	name = *list;
+	name_robot = *list;
+	
+	if(str_run_robot == NULL){
+		char * name_bin = get_name_bin();
+		if(name_bin == NULL){
+			return FAILURE;
+		}
+		str_run_robot = g_string_new(name_bin);
+		str_run_robot = g_string_append(str_run_robot,OPTION_ONE);
+		len_name_bin = str_run_robot->len;
+		g_free(name_bin);
+	}
+		
+	str_run_robot = g_string_append(str_run_robot,name_robot);
+	str_run_robot = g_string_append(str_run_robot,OPTION_TWO);
+	g_string_append_printf(str_run_robot,"0x%04x",acting);
 
-	g_message("name robot :> %s : acting :> %#04x",name,acting);
+	global_log("Запуск робота :> %s",str_run_robot->str);
+
+
 	number_robot ++;
+	str_run_robot = g_string_truncate(str_run_robot,len_name_bin);
+	g_message(" :> %s",str_run_robot->str);
 
+	return SUCCESS;
+}
+
+int deinit_list_robot(void)
+{
+	g_string_free(str_run_robot,TRUE);
 	return SUCCESS;
 }
 /*****************************************************************************/

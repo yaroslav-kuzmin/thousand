@@ -28,6 +28,7 @@
 #define LIST_ROBOT_H
 
 int run_robot(uint16_t acting);
+int deinit_list_robot(void);
 
 #endif 
 

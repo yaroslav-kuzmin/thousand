@@ -166,7 +166,6 @@ int close_log_system(void)
 		fprintf(log_stream," %02d.%02d.%02d %02d:%02d:%02d :> Останов !\n",mday,mon,year,hour,min,sec);
 		fflush(log_stream);
 		fclose(log_stream);	
-		open_log = NOT_OPEN;
 	}	
 	return SUCCESS;
 }
