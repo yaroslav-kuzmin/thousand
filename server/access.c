@@ -52,6 +52,8 @@
 static int change_key_file = NO;
 static GKeyFile * access_file = NULL;
 static GHashTable * who_plays = NULL;
+static char ** list_robot = NULL;
+static int amount_robot = 0;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
@@ -124,7 +126,7 @@ static char bad_passwd[MD5_DIGEST_LENGTH * 2] = "0000000000000000000000000000000
 static char * USER_GROUP = "user";
 static char * ROBOT_GROUP = "robot"; 
 
-static int convert_passwd(uint8_t * p)
+static char * convert_passwd(uint8_t * p)
 {
 	uint8_t t;
 	uint8_t tt;
@@ -138,22 +140,23 @@ static int convert_passwd(uint8_t * p)
 		tt = (t & 0x0F);
 		str_passwd[j] = dig2sym[tt];
 	}
-	return SUCCESS;
+	return str_passwd;
 }
 
 static int check_access(user_s * psu)
 {
 	GError *error = NULL;
 	uint8_t * p = psu->passwd;
+	char * get_passwd = NULL; 
 	char * n = psu->name;
 	gchar * check_passwd = NULL;
 	uint32_t flag = psu->flag;
 	int rc;
 
-	convert_passwd(p);
+	get_passwd = convert_passwd(p);
 	check_passwd = g_key_file_get_string(access_file,USER_GROUP,n,&error);
 	if(check_passwd != NULL){
-		rc = strncmp(str_passwd,check_passwd,(MD5_DIGEST_LENGTH *2));
+		rc = strncmp(get_passwd,check_passwd,(MD5_DIGEST_LENGTH *2));
 		/*пароль совпадает*/
 		if( rc == 0){
 			gpointer key;
@@ -186,10 +189,11 @@ static int check_access(user_s * psu)
 		}
 	}
 	else{
+		g_error_free(error);
 		error = NULL;
 		check_passwd = g_key_file_get_string(access_file,ROBOT_GROUP,n,&error);
 		if(check_passwd != NULL){
-			rc = strncmp(str_passwd,check_passwd,(MD5_DIGEST_LENGTH *2));
+			rc = strncmp(get_passwd,check_passwd,(MD5_DIGEST_LENGTH *2));
 			if(rc == 0){
 				set_bit_flag(flag,access_server_user,1);
 				set_bit_flag(flag,robot_user,1);
@@ -210,7 +214,8 @@ static int check_access(user_s * psu)
 			}
 		}
 		else{
-			rc = strncmp(str_passwd,bad_passwd,(MD5_DIGEST_LENGTH *2));
+			g_error_free(error);
+			rc = strncmp(get_passwd,bad_passwd,(MD5_DIGEST_LENGTH *2)); 
 			if(rc == 0){
 				global_log("Некоректный пароль %s : %d",psu->name,psu->fd);
 				rc = cmd_access_denied_passwd(psu->fd,psu->package);
@@ -219,7 +224,7 @@ static int check_access(user_s * psu)
 				}
 				return FAILURE;
 			}
-			g_key_file_set_string(access_file,USER_GROUP,n,str_passwd);
+			g_key_file_set_string(access_file,USER_GROUP,n,get_passwd);
 			change_key_file = YES;
 			global_log("Новый игрок на сервере : %s",n);
 			g_hash_table_insert(who_plays,n,p);
@@ -242,6 +247,7 @@ int init_access_user(void)
 {
 	GError * check = NULL;
 	gchar * file = NULL;
+	gsize len;
 
 	file = get_access_file();
 
@@ -250,11 +256,24 @@ int init_access_user(void)
 	g_key_file_load_from_file (access_file,file,G_KEY_FILE_KEEP_COMMENTS,&check);
 	if(check != NULL){
 		global_warning("Ощибка при обработки файла доступа %s : %s",file,check->message);
+		g_error_free (check);
  		return FAILURE;
 	}
 	change_key_file = NO;
 	who_plays = g_hash_table_new(g_str_hash,g_str_equal);
 	global_log("Открыл файл доступа %s",file);
+	check = NULL;
+	list_robot = g_key_file_get_keys(access_file,ROBOT_GROUP,&len,&check);
+	if(list_robot == NULL){
+		global_log("В файле %s в секции %s нет имен для роботов!",file,ROBOT_GROUP);
+		if(check != NULL){
+			global_log("%s",check->message);	
+			g_error_free(check);
+		}
+		return FAILURE;
+	}
+	amount_robot = len;
+	global_log("Количество имен роботов %d !",amount_robot);
 	return SUCCESS;
 }
 
@@ -276,6 +295,7 @@ int deinit_access_user(void)
 		buffer_config = g_key_file_to_data(access_file,0,&check);
 		if(check != NULL){
 			global_warning("Несмог записать файл доступа %s : %s",file,check->message);
+			g_error_free(check);
 		}
 		else{
  			fputs(buffer_config,stream);
@@ -286,6 +306,7 @@ int deinit_access_user(void)
  	}
 	g_hash_table_destroy(who_plays);
 	global_log("Закрыл систему доступа на сервер!");
+	g_strfreev(list_robot);
  	return SUCCESS;
 } 
 
@@ -354,5 +375,15 @@ int close_access_user(char * u)
 		rc = FAILURE;
 	}
 	return rc;
+}
+/*************************************/
+char ** list_name_robot(void)
+{
+	return list_robot;
+}
+
+int amount_name_robot(void)
+{
+	return amount_robot;
 }
 /*****************************************************************************/

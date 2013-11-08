@@ -32,6 +32,8 @@ int deinit_access_user(void);
 int access_users(int * success);
 int close_access_user(char * u);
 
+char ** list_name_robot(void);
+int amount_name_robot(void);
 #endif
 
 /*****************************************************************************/
