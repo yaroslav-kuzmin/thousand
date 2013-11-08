@@ -275,10 +275,12 @@ int main(int argc,char * argv[])
 	init_str_alloc(); 
 	total_check();
 /*************************************/
+#if 0	
 	rc = init_warning_system(CLIENT_FLAG);
 	if(rc == FAILURE){
 		fprintf(stderr,"Несмог инициализировать систему предупреждений !!");
 	}
+#endif	
 	rc = init_log_system(CLIENT_FLAG);
 	if(rc == FAILURE){
 		global_warning("Несмог ининциализировать систему логирования!");
@@ -305,13 +307,13 @@ int main(int argc,char * argv[])
 /*************************************/
 	rc = access_server();
 	if(rc == FAILURE){
-		global_log("Не корректный логин : %s или пароль : %s",user,passwd);
+		global_warning("Не корректный логин : %s или пароль : %s",user,passwd);
 	 	goto exit_client;
 	}
 	
 	rc = new_acting();
 	if(rc == FAILURE){
-		global_log("Несмог создать игру");
+		global_warning("Несмог создать игру");
 		goto exit_client;
 	}
 

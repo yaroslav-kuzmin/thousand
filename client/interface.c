@@ -398,10 +398,17 @@ int init_o_game(void)
 }
 int if_create_game(uint16_t number)
 {
+	chtype ch;
 	wmove(main_win,o_label_game.y,o_label_game.x);
 	wprintw(main_win,"%s%#04x",o_label_game.data,number);
 	if(number == 0){
 		wprintw(main_win,"Not create game");
+		for(;;){
+		 	ch = wgetch(main_win);
+			if( (ch == KEY_F(4)) || (ch == CR) ){
+				break;
+			}
+		}
 	}
 	else{
 		wmove(main_win,o_label_new_game.y,o_label_new_game.x);
