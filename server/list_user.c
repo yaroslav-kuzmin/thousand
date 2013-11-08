@@ -46,7 +46,7 @@
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
 #define ADD_USER    100
-static uint32_t amount_user = 0;
+/*static uint32_t amount_user = 0;*/
 static GSList * begin_user = NULL;
 static GSList * current_user = NULL;
 /*****************************************************************************/
@@ -89,7 +89,7 @@ user_s * get_next_user_list(void)
 
 uint32_t get_amount_user(void)
 {
-	return amount_user;
+	return g_slist_length(begin_user);
 }
 /*************************************/
 int add_user_list(int fd)
@@ -106,7 +106,7 @@ int add_user_list(int fd)
 	if(begin_user != NULL){
 		tu.fd = fd;
 		current_user = g_slist_find_custom(begin_user,&tu,compare_user_fd);
-		if(current_user == NULL){
+		if(current_user != NULL){
 			global_log("Номера идентификаторов совпадают : %d!",fd);
 			current_user = begin_user;
 			return FAILURE;
@@ -124,7 +124,7 @@ int add_user_list(int fd)
 	ptu->buffer = g_byte_array_new ();
 
 	begin_user = g_slist_prepend (begin_user,ptu);
-	amount_user ++;
+	/*amount_user ++;*/
 	current_user = begin_user;
 /*TODO преобразовать время*/	
 	global_log("Соединения с сервером под номером %d время %ld!",ptu->fd,ptu->timeout);
@@ -140,7 +140,7 @@ int del_user_list(int fd)
 	uint16_t acting;
 	user_s tu;
 	
-	if(amount_user == 0){
+	if(begin_user == NULL){
 		global_log("В списке нет игроков!");
 		return FAILURE;
 	}
@@ -169,7 +169,7 @@ int del_user_list(int fd)
 	g_byte_array_free(tb,TRUE);
 	begin_user = g_slist_remove(begin_user,ptu);
 	g_slice_free1(sizeof(user_s),ptu);
-	amount_user --;
+	/*amount_user --;*/
 	current_user = begin_user;
 	return SUCCESS;
 }
@@ -178,17 +178,20 @@ int init_list_user(void)
 {
 	begin_user = NULL;
 	current_user = NULL;
-	amount_user = 0;	
-	global_log("Создал список активных игроков на %d подсоединений!",amount_user);
+	/*amount_user = 0;	*/
+	global_log("Создал список активных игроков на подсоединений!");
 	return SUCCESS;	
 }
 
 int deinit_list_user(void)
 {
 	user_s * ptu;
+	GByteArray * tb;
 	current_user = begin_user;
 	for(;current_user != NULL;){
 		ptu = (user_s *)current_user->data;
+		tb = ptu->buffer;
+		g_byte_array_free(tb,TRUE);
 		g_slice_free1(sizeof(user_s),ptu);
 		current_user = g_slist_next(current_user);
 	}
@@ -196,7 +199,7 @@ int deinit_list_user(void)
 	begin_user = NULL;
 	current_user = NULL;
 
-	amount_user = 0;
+	/*amount_user = 0;*/
 	global_log("Удалил список активных игроков!");
 	return SUCCESS;
 }
