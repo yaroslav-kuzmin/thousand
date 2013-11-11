@@ -24,8 +24,10 @@ PUB_CATALOG=../pub/
 
 EXEC=ths
 SOURCE=$(wildcard *.c)
-OBJS=$(SOURCE:.c=.o)
-DEPEND=$(SOURCE:.c=.d)
+#OBJS=$(SOURCE:.c=.o)
+OBJS=$(patsubst %.c,obj/%.o,$(SOURCE))
+#DEPEND=$(SOURCE:.c=.d)
+DEPEND=$(patsubst %.c,depend/%.d,$(SOURCE))
 CXX=gcc
 CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` \
        -DDEBUG -D_GNU_SOURCE -DG_LOG_DOMAIN=\"ths\"
@@ -36,11 +38,13 @@ LIB=-lthp -lglib-2.0
 $(EXEC):$(OBJS) $(LIB_PUB)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIB)
 
-%.o:%.c
+obj/%.o:%.c
 	$(CXX) $(CFLAGS) -c $< -o $@
 
-%.d:%.c
-	$(CXX) -MM -I$(PUB_CATALOG) -I. $< > $@
+depend/%.d:%.c
+	$(CXX) -MM -I$(PUB_CATALOG) -I. $< | sed -e 's/^/obj\//' > $@
+
+#$(CXX) -MM -I$(PUB_CATALOG) -I. $< > $@
 
 include $(DEPEND)
 
