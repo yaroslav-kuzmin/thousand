@@ -202,6 +202,7 @@ int access_server(void)
  	return rc;
 }
 
+
 int main_loop(void)
 {
 	g_message("main loop");
@@ -329,7 +330,8 @@ int main(int argc,char * argv[])
 
 	global_log("Имя робота :> %s",robot);
 	global_log("Номер игры :> %#04x",acting);
-
+	/*TODO */
+	sleep(4);
 	rc = access_server();
 	if(rc == FAILURE){
 		global_log("Нет доступа на сервер !");

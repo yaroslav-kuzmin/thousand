@@ -27,6 +27,7 @@
 /*****************************************************************************/
 /* Дополнительные файлы                                                      */
 /*****************************************************************************/
+#include <unistd.h>
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
@@ -42,6 +43,8 @@
 
 #include "list_user.h"
 #include "list_message.h"
+#include "list_robot.h"
+
 #include "net_server.h"
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -89,7 +92,7 @@ uint16_t check_number_acting(void)
 	acting_s ta;
 	int rc;
 	
-	for(i = INT16_MAX;i != 0;i--){
+	for(i = UINT16_MAX;i != 0;i--){
 		ta.number = i;
 		rc = g_hash_table_contains(all_acting,&ta);
 		if(rc == FALSE){
@@ -146,6 +149,7 @@ static int join_acting(user_s * psu,uint16_t number)
 		return FAILURE;
 	}
 	
+
 	if(pta->player[PLAYER_LEFT] == NULL){
 		pta->player[PLAYER_LEFT] = psu;
 	}
@@ -162,6 +166,7 @@ static int join_acting(user_s * psu,uint16_t number)
 	set_bit_flag(flag,acting_user,1);
 	psu->acting = pta->number;
 
+---	послать информацию о присоединении игроков
 	return SUCCESS;
 }
 
@@ -179,12 +184,16 @@ static int check_new_acting(user_s * psu)
 		rc = create_acting(psu);
 		del_message_list(psu,sizeof(message_cmd_s));
 		rc = cmd_new_acting(psu->fd,psu->package,psu->acting);
+		/*запуск двух роботов*/
+		run_robot(psu->acting);
+		run_robot(psu->acting);
 	}
 	else{
 		if(cmd->type == CMD_JOIN_ACTING){
 			if(cmd->msg != 0){
 				rc = join_acting(psu,cmd->msg);
 				del_message_list(psu,sizeof(message_cmd_s));
+
 			}
 			else{
 				/* TODO вернуть список игр */
@@ -214,7 +223,6 @@ static int check_new_acting(user_s * psu)
 	else{
 		global_log("Присоединил игрока %s : %d к игре 0x%04x",psu->name,psu->fd,psu->acting);
 	}
-	/*TODO запуск роботов*/
 
  	return SUCCESS;
 }

@@ -154,6 +154,10 @@ int set_signals(void)
 		perror("sigaction failed SIGTERM");
 		return FAILURE;
 	}
+	if(sigaction(SIGABRT, &act, NULL) < 0){
+		perror("sigaction failed SIGTERM");
+		return FAILURE;
+	}
 
 	act.sa_handler = SIG_DFL;
 	if(sigaction(SIGBUS, &act, NULL) < 0){
@@ -274,6 +278,11 @@ int main(int argc,char * argv[])
 		global_warning("Несмог инициализировать список игр!");
 		goto exit_server;
 	}
+	rc = init_list_robot();
+	if(rc == FAILURE){
+		global_warning("Несмог инициализировать список роботов!");
+		goto exit_server;
+	}
 	rc = set_timer();
 	if(rc == FAILURE){
 		goto exit_server;
@@ -282,11 +291,6 @@ int main(int argc,char * argv[])
 /*************************************/
 /* основной цикл                     */	
 /*************************************/
-	run_robot(0xFFFF);
-	run_robot(0x5);
-	run_robot(0xF3F);
-	run_robot(0x23);
-
 	main_loop();
 /*************************************/
 /* Завершение работы                 */	
