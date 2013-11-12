@@ -55,7 +55,7 @@ ${HEADER}
 
 #Настройки сервера
 [server]
-robot=thr
+robot=/usr/local/games/thr
 
 #Настройки клиента
 [client]
