@@ -21,34 +21,35 @@
 ###############################################################################
 
 PUB_CATALOG=../pub/
+LIB_CATALOG=../lib/
+# добавить каталог в опцию sed 
+OBJ_CATALOG=obj/
+DEPEND_CATALOG=depend/
 
-EXEC=ths
+EXEC=../bin/ths
 SOURCE=$(wildcard *.c)
-#OBJS=$(SOURCE:.c=.o)
-OBJS=$(patsubst %.c,obj/%.o,$(SOURCE))
-#DEPEND=$(SOURCE:.c=.d)
-DEPEND=$(patsubst %.c,depend/%.d,$(SOURCE))
+OBJS=$(patsubst %.c,$(OBJ_CATALOG)%.o,$(SOURCE))
+DEPEND=$(patsubst %.c,$(DEPEND_CATALOG)%.d,$(SOURCE))
+
 CXX=gcc
 CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` \
        -DDEBUG -D_GNU_SOURCE -DG_LOG_DOMAIN=\"ths\"
-LDFLAGS=-g2 -L$(PUB_CATALOG)
-LIB_PUB=$(PUB_CATALOG)libthp.a
+LDFLAGS=-g2 -L$(LIB_CATALOG)
+LIB_PUB=$(LIB_CATALOG)libthp.a
 LIB=-lthp -lglib-2.0
 
 $(EXEC):$(OBJS) $(LIB_PUB)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIB)
 
-obj/%.o:%.c
+$(OBJ_CATALOG)%.o:%.c
 	$(CXX) $(CFLAGS) -c $< -o $@
 
-depend/%.d:%.c
-	$(CXX) -MM -I$(PUB_CATALOG) -I. $< | sed -e 's/^/obj\//' > $@
-
-#$(CXX) -MM -I$(PUB_CATALOG) -I. $< > $@
+$(DEPEND_CATALOG)%.d:%.c
+	$(CXX) -MM -I$(PUB_CATALOG) -I. $< | sed -e '1s/^/obj\//' > $@
 
 include $(DEPEND)
 
 .PHONY:clean
 clean:
-	-rm -f $(EXEC) *.o *~ *.d 
+	-rm -f $(EXEC) *~ $(OBJ_CATALOG)*.o $(DEPEND_CATALOG)*.d 
 

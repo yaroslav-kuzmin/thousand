@@ -21,30 +21,35 @@
 ###############################################################################
 
 PUB_CATALOG=../pub/
+LIB_CATALOG=../lib/
+# добавить каталог в опцию sed 
+OBJ_CATALOG=obj/
+DEPEND_CATALOG=depend/
 
-EXEC=thc
+EXEC=../bin/thc
 SOURCE=$(wildcard *.c)
-OBJS=$(SOURCE:.c=.o)
-DEPEND=$(SOURCE:.c=.d)
+OBJS=$(patsubst %.c,$(OBJ_CATALOG)%.o,$(SOURCE))
+DEPEND=$(patsubst %.c,$(DEPEND_CATALOG)%.d,$(SOURCE))
+
 CXX=gcc
 CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` `pkg-config --cflags ncursesw`\
 		 -DDEBUG -D_GNU_SOURCE -DG_LOG_DOMAIN=\"thc\"
-LDFLAGS=-g2 -L$(PUB_CATALOG)
-LIB_PUB=$(PUB_CATALOG)libthp.a
+LDFLAGS=-g2 -L$(LIB_CATALOG)
+LIB_PUB=$(LIB_CATALOG)libthp.a
 LIB=-lthp -lglib-2.0 -lcrypto -lncursesw -ltinfo
 
 $(EXEC):$(OBJS) $(LIB_PUB)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIB)
 
-.c.o:
+$(OBJ_CATALOG)%.o:%.c
 	$(CXX) $(CFLAGS) -c $< -o $@
 
-%.d:%.c
-	$(CXX) -MM -I$(PUB_CATALOG) -I. $< > $@
+$(DEPEND_CATALOG)%.d:%.c
+	$(CXX) -MM -I$(PUB_CATALOG) -I. $< | sed -e '1s/^/obj\//' > $@
 
 include $(DEPEND)
 
 .PHONY:clean
 clean:
-	-rm -f $(EXEC) *.o *~ *.d
+	-rm -f $(EXEC) *~ $(OBJ_CATALOG)*.o $(DEPEND_CATALOG)*.d 
 

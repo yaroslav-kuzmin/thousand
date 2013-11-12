@@ -166,7 +166,7 @@ static int join_acting(user_s * psu,uint16_t number)
 	set_bit_flag(flag,acting_user,1);
 	psu->acting = pta->number;
 
-/*---	послать информацию о присоединении игроков*/
+/*TODO ---	послать информацию о присоединении игроков*/
 	return SUCCESS;
 }
 
