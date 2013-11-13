@@ -41,6 +41,9 @@ LIB=-lglib-2.0 -lthp
 $(EXEC):$(OBJS) $(LIB_PUB)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIB)
 
+$(LIB_PUB):$(PUB_CATALOG)
+	make -C $<
+
 $(OBJ_CATALOG)%.o:%.c
 	$(CXX) $(CFLAGS) -c $< -o $@
 
