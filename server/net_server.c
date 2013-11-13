@@ -54,6 +54,20 @@ static int fd_local_socket = 0;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
+static int total_message(int fd,uint16_t number,uint16_t type,char * name,int len)
+{
+	int rc = 0;
+#if 0	
+	message_login_s msg;
+	g_message("total_message : %d",fd);
+
+	msg.number = number;
+	msg.type = type;
+	msg.len = len;
+	memcpy();
+#endif	
+	return rc;
+}
 static int full_cmd(int fd,uint16_t number,uint16_t type,uint16_t msg)
 {
 	int rc; 
@@ -300,5 +314,9 @@ int cmd_join_acting(int fd,uint16_t number,uint16_t number_acting)
 		rc = SUCCESS;
 	}
 	return rc; 
+}
+int cmd_join_player(int fd,uint16_t number,char * name)
+{
+	return SUCCESS;
 }
 /*****************************************************************************/

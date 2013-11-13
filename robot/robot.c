@@ -330,7 +330,7 @@ int main(int argc,char * argv[])
 
 	global_log("Имя робота :> %s",robot);
 	global_log("Номер игры :> %#04x",acting);
-	/*TODO */
+	/*TODO если нет задержли не происходит подключения*/
 	sleep(4);
 	rc = access_server();
 	if(rc == FAILURE){
