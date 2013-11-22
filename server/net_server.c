@@ -57,7 +57,6 @@ static int fd_local_socket = 0;
 static int total_message(int fd,uint16_t number,uint16_t type,char * name,int len)
 {
 	int rc = 0;
-#if 0	
 	message_login_s msg;
 	g_message("total_message : %d",fd);
 
@@ -65,7 +64,6 @@ static int total_message(int fd,uint16_t number,uint16_t type,char * name,int le
 	msg.type = type;
 	msg.len = len;
 	memcpy();
-#endif	
 	return rc;
 }
 static int full_cmd(int fd,uint16_t number,uint16_t type,uint16_t msg)
@@ -248,7 +246,6 @@ int cmd_check_connect(int fd,uint16_t number)
 	}
 	return rc; 
 }
-
 int cmd_access_denied_login(int fd,uint16_t number)
 {
 	int rc;
@@ -288,7 +285,6 @@ int cmd_access_allowed(int fd,uint16_t number)
 	}
 	return rc; 
 }
-
 int cmd_new_acting(int fd,uint16_t number,uint16_t number_acting)
 {
 	int rc;
