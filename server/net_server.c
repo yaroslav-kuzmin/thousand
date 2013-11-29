@@ -54,16 +54,27 @@ static int fd_local_socket = 0;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
-static int total_message(int fd,uint16_t number,uint16_t type,char * name,int len)
-{
-	int rc = 0;
-	message_login_s msg;
-	g_message("total_message : %d",fd);
 
+static int total_message(int fd,uint16_t number,uint16_t type,char * data,int len)
+{
+	int rc = FAILURE; 
+	message_data_s msg;
+	uint8_t * dest_data;
+	int full_len = sizeof(message_cmd_s) + len;
+
+	g_message("total_message : %d",fd);
+	
+	if(len > LEN_MESSAGE){
+		global_warning("Длина пакета больши размера буфера %d > %d!",len,LEN_MESSAGE);
+		return LONG_DATA; 
+	}
 	msg.number = number;
 	msg.type = type;
 	msg.len = len;
-	memcpy();
+	dest_data = msg.data;
+	memcpy(dest_data,data,len);
+		
+	rc = send(fd,(uint8_t *)&msg,full_len,0);
 	return rc;
 }
 static int full_cmd(int fd,uint16_t number,uint16_t type,uint16_t msg)
@@ -230,7 +241,6 @@ int check_new_connect(void)
 	return exit;
 }
 
-
 /**************************************/
 int cmd_check_connect(int fd,uint16_t number)
 {
@@ -313,6 +323,20 @@ int cmd_join_acting(int fd,uint16_t number,uint16_t number_acting)
 }
 int cmd_join_player(int fd,uint16_t number,char * name)
 {
-	return SUCCESS;
+	int rc;
+	size_t len = strlen(name);
+	if(len > LEN_USER_NAME){
+		return LONG_DATA; 
+	}
+	rc = total_message(fd,number,MESSAGE_JOIN_PLAYER,name,len);
+	if(rc == -1){
+	 	global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		rc = SUCCESS;
+	}
+
+	return rc;
 }
 /*****************************************************************************/

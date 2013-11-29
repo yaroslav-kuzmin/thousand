@@ -110,10 +110,10 @@ int new_acting(void)
 	rc = answer_new_acting(&number_acting);
 	if(number_acting == 0){
 		rc = FAILURE;
-		global_log("Сервер не создал игру %#x",number_acting);
+ 		global_log("Сервер не создал игру %#x",number_acting);
 	}
 	else{
-		rc = SUCCESS;
+ 		rc = SUCCESS;
 		global_log("Сервер создал игру %#x",number_acting);
 	}
 
@@ -316,7 +316,7 @@ int main(int argc,char * argv[])
 		global_warning("Несмог создать игру");
 		goto exit_client;
 	}
-
+	rc = 
 	main_loop();
 /*************************************/
 exit_client:

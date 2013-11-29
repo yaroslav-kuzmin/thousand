@@ -37,6 +37,7 @@ int cmd_access_denied_passwd(int fd,uint16_t number);
 int cmd_access_allowed(int fd,uint16_t number);
 int cmd_new_acting(int fd,uint16_t number,uint16_t number_acting);
 int cmd_join_acting(int fd,uint16_t number,uint16_t number_acting);
+int cmd_join_player(int fd,uint16_t number,char * name);
 
 #endif
 

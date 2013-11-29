@@ -27,6 +27,7 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
+
 typedef struct _message_cmd_s message_cmd_s;
 struct _message_cmd_s
 {
@@ -57,12 +58,22 @@ struct _message_passwd_s
 	uint8_t passwd[MD5_DIGEST_LENGTH];
 }__attribute__((packed));
 
+typedef struct _message_data_s message_data_s;
+struct _message_data_s
+{
+	uint16_t number;
+	uint16_t type;
+	uint16_t len;
+	uint8_t data[LEN_MESSAGE];
+}__attribute__((packed));
+
 typedef union _all_message_u all_message_u;
 union _all_message_u
 {
 	message_cmd_s    cmd;
 	message_login_s  login;
 	message_passwd_s passwd;
+	message_data_s   data;
 };
 
 #define CMD_CHECK_CONNECT           0x0001

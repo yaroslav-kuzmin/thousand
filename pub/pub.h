@@ -39,7 +39,9 @@
 #define CLIENT_FLAG       0x02
 #define ROBOT_FLAG        0x03
 /*************************************/
-#define LEN_USER_NAME      64           /*длина строки имени игрока*/
+/***** Длина сообщений ****/
+#define LEN_USER_NAME      64                  /*длина строки имени игрока*/
+#define LEN_MESSAGE        LEN_USER_NAME       /*длина максимального сообщения*/
 /*************************************/
 
 #define WAITING_USER           100   /*Проверка подключения в секундах каждого пользователя на сервере*/ 
@@ -53,7 +55,7 @@
 #define INCORRECT_PASSWORD            -14 
 #define ROBOT_CAN_NOT_CREATE_ACTING   -15
 #define LIMIT_ACTING                  -16
-
+#define LONG_DATA                     -17
 #endif
 
 

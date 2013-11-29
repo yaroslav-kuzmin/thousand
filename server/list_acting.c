@@ -148,7 +148,6 @@ static int join_acting(user_s * psu,uint16_t number)
 		global_log("Нет такой игры 0x%04x в списке",number);
 		return FAILURE;
 	}
-	
 
 	if(pta->player[PLAYER_LEFT] == NULL){
 		pta->player[PLAYER_LEFT] = psu;
@@ -166,6 +165,7 @@ static int join_acting(user_s * psu,uint16_t number)
 	set_bit_flag(flag,acting_user,1);
 	psu->acting = pta->number;
 /*TODO ---	послать информацию о присоединении игроков*/
+/*проанализировать кому посылать сообшение */	
 	return SUCCESS;
 }
 
