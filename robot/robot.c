@@ -80,14 +80,14 @@ static void print_help(FILE * stream)
 #define VERSION           "0.1"
 #define DATA_COM          __DATE__" : "__TIME__
 #define AUTOR             "Kuzmin Yaroslav"
-#define EMAIL             "kuzmin.yaroslav@gmail.com" 
+#define EMAIL             "kuzmin.yaroslav@gmail.com"
 
 static void print_version(FILE * stream)
 {
 	fprintf(stream,"\n  Version  %s : Data \'%s\' : Autor \'%s\' : Email \'%s\'\n\n",VERSION,DATA_COM,AUTOR,EMAIL);
 }
 /*************************************/
-#define SIZE_STR_ACTING  4 
+#define SIZE_STR_ACTING  4
 static char symbol_hex [] = "0123456789ABCDEF";
 static int symbol2hex(int c)
 {

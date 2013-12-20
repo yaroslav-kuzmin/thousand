@@ -47,9 +47,9 @@
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
 /*очередь ожидания*/
-#define BACKLOG              10  
+#define BACKLOG              10
 /*дискриптор  локального сокета*/
-static int fd_local_socket = 0;  
+static int fd_local_socket = 0;
 
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
@@ -57,29 +57,29 @@ static int fd_local_socket = 0;
 
 static int total_message(int fd,uint16_t number,uint16_t type,char * data,int len)
 {
-	int rc = FAILURE; 
+	int rc = FAILURE;
 	message_data_s msg;
 	uint8_t * dest_data;
 	int full_len = sizeof(message_cmd_s) + len;
 
 	g_message("total_message : %d",fd);
-	
+
 	if(len > LEN_MESSAGE){
 		global_warning("Длина пакета больши размера буфера %d > %d!",len,LEN_MESSAGE);
-		return LONG_DATA; 
+		return LONG_DATA;
 	}
 	msg.number = number;
 	msg.type = type;
 	msg.len = len;
 	dest_data = msg.data;
 	memcpy(dest_data,data,len);
-		
+
 	rc = send(fd,(uint8_t *)&msg,full_len,0);
 	return rc;
 }
 static int full_cmd(int fd,uint16_t number,uint16_t type,uint16_t msg)
 {
-	int rc; 
+	int rc;
 	message_cmd_s cmd;
 
 	g_message("full_cmd : %d",fd);
@@ -89,12 +89,12 @@ static int full_cmd(int fd,uint16_t number,uint16_t type,uint16_t msg)
 	cmd.number = number;
 	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
 
-	return rc; 
+	return rc;
 }
 
 static int total_cmd(int fd, uint16_t number,uint16_t type)
 {
-	int rc; 
+	int rc;
 	message_cmd_s cmd;
 
 	g_message("total_cmd : %d",fd);
@@ -104,7 +104,7 @@ static int total_cmd(int fd, uint16_t number,uint16_t type)
 	cmd.number = number;
 	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
 
-	return rc; 
+	return rc;
 }
 /*****************************************************************************/
 /* Основные функции                                                          */
@@ -127,7 +127,7 @@ int init_socket(void)
 	ssa.sun_family = AF_LOCAL;
 	local_socket = get_local_socket();
 	strcpy(ssa.sun_path,local_socket);
-	
+
 	rc = bind(s_fd,&ssa,SUN_LEN(&ssa));
 	if(rc == -1){
 		global_warning("Немогу связать локальный сокет с локальным файлом %s : %s",ssa.sun_path,strerror(errno));
@@ -157,15 +157,15 @@ bind_success:
 		close(s_fd);
 		return FAILURE;
 	}
-	rc = fcntl(s_fd , F_SETSIG , SIGIO);/*Установить сигнал, который будет послан, 
+	rc = fcntl(s_fd , F_SETSIG , SIGIO);/*Установить сигнал, который будет послан,
 													  когда станет возможен ввод или вывод*/
 	if(rc == -1){
 		global_warning("Несмог привизать сигнал к сокету %#x : %s",s_fd,strerror(errno));
 		close(s_fd);
 		return FAILURE;
 	}
-	rc = fcntl(s_fd , F_SETOWN , getpid()); /*Установить идентификатор процесса или группу процесса, 
-															которые будут принимать сигналы SIGIO и SIGURG для 
+	rc = fcntl(s_fd , F_SETOWN , getpid()); /*Установить идентификатор процесса или группу процесса,
+															которые будут принимать сигналы SIGIO и SIGURG для
 															событий на файловом дескрипторе */
 	if(rc == -1){
 		global_warning("Несмог установить привязку сигналов к процессу %#x : %#x : %s",getpid(),s_fd,strerror(errno));
@@ -175,7 +175,7 @@ bind_success:
 	global_log("Настроили сокет %#x!",s_fd);
 
 	fd_local_socket = s_fd;
-	return SUCCESS;	
+	return SUCCESS;
 }
 
 int close_soket(void)
@@ -183,7 +183,7 @@ int close_soket(void)
 	char * name = get_local_socket();
 	if(fd_local_socket != 0){
 		close(fd_local_socket);
-	}	
+	}
 	fd_local_socket = 0;
 	unlink(name);
 
@@ -207,7 +207,7 @@ int check_new_connect(void)
 			break;
 		}
 		/*Установить флаги работа в неблокируюшем и асинхроным режиме*/
-		rc = fcntl(c_fd,F_SETFL,O_NONBLOCK|O_ASYNC); 
+		rc = fcntl(c_fd,F_SETFL,O_NONBLOCK|O_ASYNC);
 		if( rc == -1){
 			global_warning("Несмог установить режим доступа к клиенту %#x : %s",c_fd,strerror(errno));
 			close(c_fd);
@@ -220,10 +220,10 @@ int check_new_connect(void)
 			close(c_fd);
 			continue;
 		}
-		/*Установить идентификатор процесса или группу процесса, 
-		которые будут принимать сигналы SIGIO и SIGURG для 
+		/*Установить идентификатор процесса или группу процесса,
+		которые будут принимать сигналы SIGIO и SIGURG для
 		событий на файловом дескрипторе */
-		rc = fcntl(c_fd , F_SETOWN , getpid()); 
+		rc = fcntl(c_fd , F_SETOWN , getpid());
 		if(rc == -1){
 			global_warning("Несмог установить привязку сигналов к процессу %#x : %#x : %s",getpid(),c_fd,strerror(errno));
 			close(c_fd);
@@ -254,7 +254,7 @@ int cmd_check_connect(int fd,uint16_t number)
 		g_message("check conect : %d - %d",fd,number);
 		rc = SUCCESS;
 	}
-	return rc; 
+	return rc;
 }
 int cmd_access_denied_login(int fd,uint16_t number)
 {
@@ -267,7 +267,7 @@ int cmd_access_denied_login(int fd,uint16_t number)
 	else{
 		rc = SUCCESS;
 	}
-	return rc; 
+	return rc;
 }
 int cmd_access_denied_passwd(int fd,uint16_t number)
 {
@@ -280,7 +280,7 @@ int cmd_access_denied_passwd(int fd,uint16_t number)
 	else{
 		rc = SUCCESS;
 	}
-	return rc; 
+	return rc;
 }
 int cmd_access_allowed(int fd,uint16_t number)
 {
@@ -293,7 +293,7 @@ int cmd_access_allowed(int fd,uint16_t number)
 	else{
 		rc = SUCCESS;
 	}
-	return rc; 
+	return rc;
 }
 int cmd_new_acting(int fd,uint16_t number,uint16_t number_acting)
 {
@@ -306,7 +306,7 @@ int cmd_new_acting(int fd,uint16_t number,uint16_t number_acting)
 	else{
 		rc = SUCCESS;
 	}
-	return rc; 
+	return rc;
 }
 int cmd_join_acting(int fd,uint16_t number,uint16_t number_acting)
 {
@@ -319,14 +319,14 @@ int cmd_join_acting(int fd,uint16_t number,uint16_t number_acting)
 	else{
 		rc = SUCCESS;
 	}
-	return rc; 
+	return rc;
 }
 int cmd_join_player(int fd,uint16_t number,char * name)
 {
 	int rc;
 	size_t len = strlen(name);
 	if(len > LEN_USER_NAME){
-		return LONG_DATA; 
+		return LONG_DATA;
 	}
 	rc = total_message(fd,number,MESSAGE_JOIN_PLAYER,name,len);
 	if(rc == -1){
