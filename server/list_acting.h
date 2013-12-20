@@ -33,6 +33,6 @@ int deinit_list_acting(void);
 int create_actings(int * success);
 int current_actings(void);
 int delete_acting(uint16_t number);
-#endif 
+#endif
 
 /*****************************************************************************/

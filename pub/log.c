@@ -67,7 +67,7 @@ inline static void current_time(void)
 	hour = tm_current->tm_hour;
 	min = tm_current->tm_min;
 	sec = tm_current->tm_sec;
-} 
+}
 
 /*****************************************************************************/
 static char * file_log;
@@ -91,7 +91,7 @@ inline static int init_file_name(int flag)
 	FILE_LOG[5] = temp[4];
 	FILE_LOG[6] = temp[5];
 	FILE_LOG[7] = temp[6];
-	
+
 
 	catalog_log = get_log_catalog();
 	rc = strlen(catalog_log);
@@ -121,7 +121,7 @@ inline static int init_file_name(int flag)
 #define SIZE_BUFFER_LOG     0x2800
 static char buffer_log[SIZE_BUFFER_LOG];
 static int len_buffer_log = 0;
-#define SIZE_BUFFER_TEMP    0x400	 
+#define SIZE_BUFFER_TEMP    0x400
 static char buffer_temp[SIZE_BUFFER_TEMP];
 
 static FILE * log_stream = NULL;
@@ -137,7 +137,7 @@ int init_log_system(int flag)
 		if(log_stream != NULL){
 			fclose(log_stream);
 		}
-		log_stream = NULL; 
+		log_stream = NULL;
 		return SUCCESS;
 	}
 
@@ -162,11 +162,11 @@ int close_log_system(void)
 	char * str = buffer_log;
 	if(log_stream != NULL){
 		fprintf(log_stream,"%s",str);
-		current_time(); 
+		current_time();
 		fprintf(log_stream," %02d.%02d.%02d %02d:%02d:%02d :> Останов !\n",mday,mon,year,hour,min,sec);
 		fflush(log_stream);
-		fclose(log_stream);	
-	}	
+		fclose(log_stream);
+	}
 	return SUCCESS;
 }
 
@@ -202,7 +202,7 @@ int global_log(char * str,...)
 	}
 	buf_temp = buffer_temp;
 	strcpy(buf,buf_temp);
-	len_buffer_log += len_buf_temp;	
+	len_buffer_log += len_buf_temp;
 
 	va_end(arg);
 	return SUCCESS;

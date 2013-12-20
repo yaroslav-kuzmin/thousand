@@ -38,7 +38,7 @@
 #include <unistd.h>
 
 #include "pub.h"
-#include "total.h" 
+#include "total.h"
 #include "alloc.h"
 
 /*****************************************************************************/
@@ -68,10 +68,10 @@ inline static void current_time(void)
 	hour = tm_current->tm_hour;
 	min = tm_current->tm_min;
 	sec = tm_current->tm_sec;
-} 
+}
 
 /*****************************************************************************/
-static char * file_warning; 
+static char * file_warning;
 static char FILE_WARNING[] = ".0000000.warning";
 
 #define SIZE_STR_FILE_WARNING 25
@@ -143,7 +143,7 @@ int close_warning_system(void)
 	if(warning_stream != NULL){
 		current_time();
 		fprintf(warning_stream," %02d.%02d.%02d %02d:%02d:%02d :> Останов !\n",mday,mon,year,hour,min,sec);
-		fclose(warning_stream);	
+		fclose(warning_stream);
 	}
 	return SUCCESS;
 }

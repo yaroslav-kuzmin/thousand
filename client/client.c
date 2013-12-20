@@ -58,9 +58,9 @@ char str_passwd[LEN_USER_NAME] = {0};
 uint16_t number_acting = 0;
 
 uint8_t passwd_md5[MD5_DIGEST_LENGTH] = {0};
- 
+
 const char * const short_options = "u:p:hVl";
-const struct option long_options[] = 
+const struct option long_options[] =
 {
 	{"user",    1, NULL, 'u'},
 	{"passwd",  1, NULL, 'p'},
@@ -87,7 +87,7 @@ static void print_help(FILE * stream)
 #define VERSION           "0.1"
 #define DATA_COM          __DATE__" : "__TIME__
 #define AUTOR             "Kuzmin Yaroslav"
-#define EMAIL             "kuzmin.yaroslav@gmail.com" 
+#define EMAIL             "kuzmin.yaroslav@gmail.com"
 
 static void print_version(FILE * stream)
 {
@@ -97,12 +97,12 @@ static void print_version(FILE * stream)
 int new_acting(void)
 {
 	int rc;
-	
+
 	rc = if_new_game();
 	if(rc == FAILURE){
 		return FAILURE;
 	}
-	
+
 	rc = cmd_new_acting();
 	if(rc == FAILURE){
 		return rc;
@@ -118,7 +118,7 @@ int new_acting(void)
 	}
 
 	if_create_game(number_acting);
-	
+
 	return rc;
 }
 
@@ -134,7 +134,7 @@ int access_server(void)
 		rc = if_set_name_user(user);
 	}
 	global_log("Игрок : %s",user);
-	
+
 
 	if(passwd == NULL){
 		passwd = str_passwd;
@@ -161,7 +161,7 @@ int access_server(void)
 	if(rc == FAILURE){
 		return rc;
 	}
-	
+
 	rc = answer_access_server();
 	if(rc == SUCCESS){
 		if_set_connect();
@@ -192,7 +192,7 @@ int main_loop(void)
 /*************************************/
 void close_client(int signal_num)
 {
-	close_interface();	
+	close_interface();
 	close_socket();
 	close_config();
 	close_log_system();
@@ -210,7 +210,7 @@ int set_signals(void)
 	if(sigfillset(&set) < 0){
 		perror("sigfillset failed");
 		return FAILURE;
-	}	
+	}
 
 	act.sa_handler = close_client;
 	if(sigaction(SIGQUIT, &act, NULL) < 0){
@@ -220,14 +220,14 @@ int set_signals(void)
 	if(sigaction(SIGINT, &act , NULL) < 0){
 		perror("sigaction failed SIGINT");
 		return FAILURE;
-	}	
+	}
 	if(sigaction(SIGTERM, &act, NULL) < 0){
 		perror("sigaction failed SIGTERM");
 		return FAILURE;
 	}
 
 	return SUCCESS;
-}	
+}
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
@@ -245,8 +245,8 @@ int main(int argc,char * argv[])
 				break;
 			case 'p':
 				passwd = optarg;
-				break;	
-			case 'h': 
+				break;
+			case 'h':
 				print_help(stdout);
 				exit(SUCCESS);
 				break;
@@ -260,7 +260,7 @@ int main(int argc,char * argv[])
 			case '?':
 				print_help(stdout);
 				exit(SUCCESS);
-				break; 
+				break;
 			case -1:
 				break;
 			default:
@@ -272,15 +272,15 @@ int main(int argc,char * argv[])
 	if(rc == FAILURE)
 		exit(0);
 
-	init_str_alloc(); 
+	init_str_alloc();
 	total_check();
 /*************************************/
-#if 0	
+#if 0
 	rc = init_warning_system(CLIENT_FLAG);
 	if(rc == FAILURE){
 		fprintf(stderr,"Несмог инициализировать систему предупреждений !!");
 	}
-#endif	
+#endif
 	rc = init_log_system(CLIENT_FLAG);
 	if(rc == FAILURE){
 		global_warning("Несмог ининциализировать систему логирования!");
@@ -310,18 +310,18 @@ int main(int argc,char * argv[])
 		global_warning("Не корректный логин : %s или пароль : %s",user,passwd);
 	 	goto exit_client;
 	}
-	
+
 	rc = new_acting();
 	if(rc == FAILURE){
 		global_warning("Несмог создать игру");
 		goto exit_client;
 	}
-	rc = 
+	rc =
 	main_loop();
 /*************************************/
 exit_client:
 	close_client(SIGQUIT);
-	return 0;	  
+	return 0;
 }
 
 

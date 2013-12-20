@@ -53,7 +53,7 @@ static GSList * current_user = NULL;
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
 int compare_user_fd(gconstpointer a,gconstpointer b)
-{	
+{
 	int ta = ((user_s *)a)->fd;
 	int tb = ((user_s *)b)->fd;
 	if(ta == tb ){
@@ -83,7 +83,7 @@ user_s * get_next_user_list(void)
 	current_user = g_slist_next(current_user);
 	if(current_user == NULL){
 		return NULL;
-	}	
+	}
 	return (user_s*)current_user->data;
 }
 
@@ -102,7 +102,7 @@ int add_user_list(int fd)
 		global_log("Некорректный идентификатор : %d!",fd);
 		return FAILURE;
 	}
-	
+
 	if(begin_user != NULL){
 		tu.fd = fd;
 		current_user = g_slist_find_custom(begin_user,&tu,compare_user_fd);
@@ -126,7 +126,7 @@ int add_user_list(int fd)
 	begin_user = g_slist_prepend (begin_user,ptu);
 	/*amount_user ++;*/
 	current_user = begin_user;
-/*TODO преобразовать время*/	
+/*TODO преобразовать время*/
 	global_log("Соединения с сервером под номером %d время %ld!",ptu->fd,ptu->timeout);
 
 	return SUCCESS;
@@ -139,7 +139,7 @@ int del_user_list(int fd)
 	uint32_t tf;
 	uint16_t acting;
 	user_s tu;
-	
+
 	if(begin_user == NULL){
 		global_log("В списке нет игроков!");
 		return FAILURE;
@@ -152,7 +152,7 @@ int del_user_list(int fd)
 		current_user = begin_user;
 		return FAILURE;
 	}
-	
+
 	ptu = current_user->data;
 	global_log("Удаление из списка игрока %s под номером %d!",ptu->name,ptu->fd);
 
@@ -180,7 +180,7 @@ int init_list_user(void)
 	current_user = NULL;
 	/*amount_user = 0;	*/
 	global_log("Создал список активных игроков на подсоединений!");
-	return SUCCESS;	
+	return SUCCESS;
 }
 
 int deinit_list_user(void)

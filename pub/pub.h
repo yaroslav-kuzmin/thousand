@@ -31,7 +31,7 @@
 #define FAILURE        -1
 
 #define YES            1
-#define NO             0 
+#define NO             0
 
 #define BEGIN_TIME     1900
 
@@ -44,7 +44,7 @@
 #define LEN_MESSAGE        LEN_USER_NAME       /*длина максимального сообщения*/
 /*************************************/
 
-#define WAITING_USER           100   /*Проверка подключения в секундах каждого пользователя на сервере*/ 
+#define WAITING_USER           100   /*Проверка подключения в секундах каждого пользователя на сервере*/
 
 /*************** ERROR ***************/
 
@@ -52,7 +52,7 @@
 #define NOT_CONNECT_CLIENT            -11
 #define INCORRECT_CMD                 -12
 #define INCORRECT_LOGIN               -13
-#define INCORRECT_PASSWORD            -14 
+#define INCORRECT_PASSWORD            -14
 #define ROBOT_CAN_NOT_CREATE_ACTING   -15
 #define LIMIT_ACTING                  -16
 #define LONG_DATA                     -17

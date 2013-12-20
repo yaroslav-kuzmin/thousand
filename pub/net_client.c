@@ -76,7 +76,7 @@ int init_socket(void)
 	memset(&pub_message,0,sizeof(all_message_u));
 	global_log("Соединились с сервером!");
 
-	return SUCCESS; 
+	return SUCCESS;
 }
 
 int write_socket(uint8_t * buff,int len)
@@ -136,12 +136,12 @@ int cmd_login(char * user)
 		number_packed ++;
 		global_log("Отправил login %d : %d : %d : %s",msg.number,msg.type,msg.len,msg.login);
 	}
-	return rc; 
+	return rc;
 }
 
 int cmd_passwd(uint8_t * passwd)
 {
-	int rc; 
+	int rc;
 	message_passwd_s msg;
 	uint8_t * str = passwd;
 	uint8_t * str_msg = msg.passwd;
@@ -154,14 +154,14 @@ int cmd_passwd(uint8_t * passwd)
 	if(rc == SUCCESS){
 		number_packed ++;
 		global_log("Отправил passwd %d : %d : %d ",msg.number,msg.type,msg.len);
-	}	
+	}
 
-	return rc; 
+	return rc;
 }
 
 int answer_access_server(void)
 {
-	int rc; 
+	int rc;
 	message_cmd_s * msg = (message_cmd_s*)&pub_message;
 
 	rc = read_socket((uint8_t**)&msg,sizeof(message_cmd_s));
@@ -177,18 +177,18 @@ int answer_access_server(void)
 			rc =  SUCCESS;
 			break;
 		case CMD_ACCESS_DENIED_LOGIN:
-			rc = INCORRECT_LOGIN;	
+			rc = INCORRECT_LOGIN;
 			break;
 		case CMD_ACCESS_DENIED_PASSWD:
 			rc = INCORRECT_PASSWORD;
 			break;
 		default:
 			rc  = INCORRECT_CMD;
-			break;	
+			break;
 	}
-		
+
 	 return rc;
-}	
+}
 
 int cmd_join_acting(uint16_t number)
 {
@@ -232,12 +232,12 @@ int answer_new_acting(uint16_t * number)
 	rc = read_socket((uint8_t**)&cmd,sizeof(message_cmd_s));
 	if(rc == FAILURE){
 		global_log("Нет связи с сервером!");
-		rc = NOT_CONNECT_SERVER; 
+		rc = NOT_CONNECT_SERVER;
 		return rc;
 	}
-	
+
 	if(cmd->type != CMD_NEW_ACTING){
-		rc =  INCORRECT_CMD; 
+		rc =  INCORRECT_CMD;
 		return rc;
 	}
 
@@ -254,14 +254,14 @@ int answer_join_acting(uint16_t * number)
 	rc = read_socket((uint8_t**)&cmd,sizeof(message_cmd_s));
 	if(rc == FAILURE){
 		global_log("Нет связи с сервером!");
-		rc = NOT_CONNECT_SERVER; 
+		rc = NOT_CONNECT_SERVER;
 		return rc;
 	}
 	if(cmd->type != CMD_JOIN_ACTING){
-		rc =  INCORRECT_CMD; 
+		rc =  INCORRECT_CMD;
 		return rc;
 	}
-	
+
 	*number = cmd->msg;
 
 	return SUCCESS;

@@ -51,7 +51,7 @@
 /*****************************************************************************/
 #define AMOUNT_PLAYER      3
 #define PLAYER_CREATOR     0
-#define PLAYER_CENTR       0
+#define PLAYER_CENTR       PLAYER_CREATOR
 #define PLAYER_LEFT        1
 #define PLAYER_RIGHT       2
 
@@ -136,7 +136,7 @@ static int create_acting(user_s * psu)
 
 static int join_acting(user_s * psu,uint16_t number)
 {
-	int rc;
+	int rc,i;
 	uint32_t flag = psu->flag;
 	acting_s ta;
 	acting_s * pta;
@@ -159,13 +159,27 @@ static int join_acting(user_s * psu,uint16_t number)
 		else{
 			global_log("Игра 0x%04x занята");
 			psu->acting = 0;
-			return FAILURE;
-		}
+	 		return FAILURE;
+	 	}
 	}
 	set_bit_flag(flag,acting_user,1);
 	psu->acting = pta->number;
-/*TODO ---	послать информацию о присоединении игроков*/
-/*проанализировать кому посылать сообшение */
+
+	for(i = 0;i < AMOUNT_PLAYER;i++){
+		user_s * opsu = pta->player[i];
+		if((opsu == NULL) || (opsu == psu)){ /*нет игрока или это текущий игрок*/
+			continue;
+		}
+		flag = opsu->flag;
+		rc = check_bit_flag(flag,robot_user,1);
+		if(rc == YES){
+			continue;
+		}
+		rc = cmd_join_player(opsu->fd,opsu->package,psu->name)
+		opsu->package ++;
+		global_log("Отправил игроку %s о присоединени игрока %s в игру 0x%04x"
+		          ,opsu->name,psy->name,pta->number);
+	}
 	return SUCCESS;
 }
 
@@ -183,7 +197,9 @@ static int check_new_acting(user_s * psu)
 		rc = create_acting(psu);
 		del_message_list(psu,sizeof(message_cmd_s));
 		rc = cmd_new_acting(psu->fd,psu->package,psu->acting);
-		/*запуск двух роботов*/
+		/*TODO сделать запуск в основном цикле ,  */
+		/*  здесь поставить флаг о не обходимости запуска */
+		/*  запуск двух роботов*/
 		run_robot(psu->acting);
 		run_robot(psu->acting);
 	}
@@ -192,7 +208,6 @@ static int check_new_acting(user_s * psu)
 			if(cmd->msg != 0){
 				rc = join_acting(psu,cmd->msg);
 				del_message_list(psu,sizeof(message_cmd_s));
-
 			}
 			else{
 				/* TODO вернуть список игр */

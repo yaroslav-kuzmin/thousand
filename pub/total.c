@@ -50,8 +50,8 @@ static int registration_operation = YES;
 char INI_GLOBAL_GROUP[] = "global";
 char INI_SERVER_GROUP[] = "server";
 char INI_CLIENT_GROUP[] = "client";
-char INI_ROBOT_GROUP[] = "robot"; 
-char ACCESS_ROBOT_GROUP[] = "robot"; 
+char INI_ROBOT_GROUP[] = "robot";
+char ACCESS_ROBOT_GROUP[] = "robot";
 char ACCESS_USER_GROUP[] = "user";
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
@@ -72,7 +72,7 @@ void set_registration_operation(int rg)
 }
 /*****************************************************************************/
 static char * user_name = NULL;
-static char * home_user = NULL; 
+static char * home_user = NULL;
 
 static char * home_catalog = NULL;
 static const char * HOME_CATALOG = "/.thousand/";
@@ -139,7 +139,7 @@ int total_check(void)
 		fprintf(stderr,"Нет переменой \"HOME\" в системе !!");
 		exit(1);
 	}
-	
+
 	size = strlen(home_user);
 	size += SIZE_STR_HOME_CATAOLG;
 	home_catalog = str_alloc(size);
@@ -174,7 +174,7 @@ int total_check(void)
 	if(rc != 0){
 		perror(log_catalog);
 		exit(0);
-	}	
+	}
 
 	size = strlen(home_catalog);
 	size += SIZE_STR_LOCAL_SOCKET;
@@ -199,7 +199,7 @@ int total_check(void)
 	else{
 		DEBUG_PRINTF_S("Not malloc!");
 	}
-#endif	
+#endif
 	return SUCCESS;
 }
 

@@ -53,7 +53,7 @@ uint8_t * passwd = str_passwd;
 uint16_t acting = 0;
 char * str_acting = NULL;
 const char * const short_options = "u:a:hVl";
-const struct option long_options[] = 
+const struct option long_options[] =
 {
 	{"user",    1, NULL, 'u'},
 	{"acting",  1, NULL, 'a'},
@@ -152,7 +152,7 @@ int access_server(void)
 	if(rc == FAILURE){
 		return rc;
 	}
-	
+
 	rc = answer_access_server();
 	switch(rc){
 		case INCORRECT_LOGIN:
@@ -230,7 +230,7 @@ int set_signals(void)
 	if(sigfillset(&set) < 0){
 		perror("sigfillset failed");
 		return FAILURE;
-	}	
+	}
 
 	act.sa_handler = close_robot;
 	if(sigaction(SIGQUIT, &act, NULL) < 0){
@@ -240,14 +240,14 @@ int set_signals(void)
 	if(sigaction(SIGINT, &act , NULL) < 0){
 		perror("sigaction failed SIGINT");
 		return FAILURE;
-	}	
+	}
 	if(sigaction(SIGTERM, &act, NULL) < 0){
 		perror("sigaction failed SIGTERM");
 		return FAILURE;
 	}
 
 	return SUCCESS;
-}	
+}
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
@@ -266,7 +266,7 @@ int main(int argc,char * argv[])
 				str_acting = optarg;
 				acting = check_acting();
 				break;
-			case 'h': 
+			case 'h':
 				print_help(stdout);
 				exit(SUCCESS);
 				break;
@@ -280,7 +280,7 @@ int main(int argc,char * argv[])
 			case '?':
 				print_help(stdout);
 				exit(SUCCESS);
-				break; 
+				break;
 			case -1:
 				break;
 			default:
@@ -297,16 +297,16 @@ int main(int argc,char * argv[])
 	if(rc == FAILURE)
 		exit(0);
 
-	init_str_alloc(); 
+	init_str_alloc();
 	total_check();
 /*************************************/
-#if 0	
-	отключил 
+#if 0
+	отключил
 	rc = init_warning_system(ROBOT_FLAG);
 	if(rc == FAILURE){
 		fprintf(stderr,"Несмог инициализировать систему предупреждений !!");
 	}
-#endif	
+#endif
 	rc = init_log_system(ROBOT_FLAG);
 	if(rc == FAILURE){
 		global_warning("Несмог ининциализировать систему логирования!");
@@ -337,12 +337,12 @@ int main(int argc,char * argv[])
 		global_log("Нет доступа на сервер !");
 		goto exit_robot;
 	}
-	
+
 	main_loop();
 
 /*************************************/
 exit_robot:
 	close_robot(SIGQUIT);
-	return 0;	  
+	return 0;
 }
 /*****************************************************************************/

@@ -82,7 +82,7 @@ static char * get_name_bin(void)
 		return NULL;
 	}
 	global_log("Программа робот %s",name);
-	
+
 	return name;
 }
 
@@ -100,16 +100,16 @@ static int spawn_robot(char * robot,char ** list)
 		global_warning("Несмог запустить робота!");
 		exit(0);
 	}
-	
+
 	return FAILURE;
 }
-	
+
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
 int run_robot(uint16_t acting)
 {
-	char * name_robot = NULL; 
+	char * name_robot = NULL;
 	char ** list = list_name_robot();
 	int amount_robot = amount_name_robot();
 
@@ -121,9 +121,9 @@ int run_robot(uint16_t acting)
 	if(number_robot == amount_robot){
 		number_robot = 0;
 	}
-	list += number_robot;		
+	list += number_robot;
 	name_robot = *list;
-	
+
 	g_string_printf(option_one,OPTION_ONE,name_robot);
 	g_string_printf(option_two,OPTION_TWO,acting);
 
@@ -133,7 +133,7 @@ int run_robot(uint16_t acting)
 	number_robot ++;
 
 	spawn_robot(arg_list[PATH_ROBOT],arg_list);
-	
+
 	g_message("run robot :> %s %s %s",arg_list[PATH_ROBOT],arg_list[NAME_ROBOT],arg_list[ACTING_ROBOT]);
 	return SUCCESS;
 }
@@ -146,7 +146,7 @@ int init_list_robot(void)
 	}
 
 	arg_list[PATH_ROBOT] = name_bin;
-	option_one = g_string_sized_new(SIZE_OPTION_ONE);	
+	option_one = g_string_sized_new(SIZE_OPTION_ONE);
 	option_two = g_string_sized_new(SIZE_OPTION_TWO);
 
 	return SUCCESS;

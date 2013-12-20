@@ -57,7 +57,7 @@
 const char * programm_name;
 
 const char * const short_options = "hVl";
-const struct option long_options[] = 
+const struct option long_options[] =
 {
 	{"help",    0, NULL, 'h'},
 	{"version", 0, NULL, 'V'},
@@ -80,7 +80,7 @@ void print_help(FILE * stream)
 #define VERSION           "0.1"
 #define DATA_COM          __DATE__" : "__TIME__
 #define AUTOR             "Kuzmin Yaroslav"
-#define EMAIL             "kuzmin.yaroslav@gmail.com" 
+#define EMAIL             "kuzmin.yaroslav@gmail.com"
 
 void print_version(FILE * stream)
 {
@@ -99,7 +99,7 @@ void close_server(int signal_num)
 	close_log_system();
 	close_warning_system();
 	deinit_str_alloc();
-	exit(0); 
+	exit(0);
 }
 
 int set_signals(void)
@@ -112,7 +112,7 @@ int set_signals(void)
 	if(sigfillset(&set) < 0){
 		perror("sigfillset failed");
 		return FAILURE;
-	}	
+	}
 
 	act.sa_handler = SIG_IGN;
 	if(sigaction(SIGHUP, &act, NULL) < 0){
@@ -149,7 +149,7 @@ int set_signals(void)
 	if(sigaction(SIGINT, &act , NULL) < 0){
 		perror("sigaction failed SIGINT");
 		return FAILURE;
-	}	
+	}
 	if(sigaction(SIGTERM, &act, NULL) < 0){
 		perror("sigaction failed SIGTERM");
 		return FAILURE;
@@ -211,7 +211,7 @@ int main(int argc,char * argv[])
 	for(;next_option != -1;){
  		next_option = getopt_long(argc,argv,short_options,long_options,NULL);
 		switch(next_option){
-			case 'h': 
+			case 'h':
 				print_help(stdout);
 				exit(SUCCESS);
 				break;
@@ -225,7 +225,7 @@ int main(int argc,char * argv[])
 			case '?':
 				print_help(stdout);
 				exit(SUCCESS);
-				break; 
+				break;
 			case -1:
 				break;
 			default:
@@ -239,14 +239,14 @@ int main(int argc,char * argv[])
 	rc = set_signals();
 	if(rc == FAILURE)
 		exit(0);
-	init_str_alloc();/**/ 
+	init_str_alloc();/**/
 	total_check();
-#if 0	
+#if 0
 	rc = init_warning_system(SERVER_FLAG);
 	if(rc == FAILURE){
 		fprintf(stderr,"Несмог инициализировать систему предупреждений !!");
 	}
-#endif	
+#endif
 	rc = init_log_system(SERVER_FLAG);
 	if(rc == FAILURE){
 		global_warning("Несмог ининциализировать систему логирования!");
@@ -260,7 +260,7 @@ int main(int argc,char * argv[])
 	rc = init_list_user();
 	if(rc == FAILURE){
 		global_warning("Несмог инициализировать Пользователей!");
-		goto exit_server;	
+		goto exit_server;
 	}
 	rc = init_socket();
 	if(rc == FAILURE){
@@ -289,15 +289,15 @@ int main(int argc,char * argv[])
 	}
 	global_log("Инициализирован таймер!");
 /*************************************/
-/* основной цикл                     */	
+/* основной цикл                     */
 /*************************************/
 	main_loop();
 /*************************************/
-/* Завершение работы                 */	
+/* Завершение работы                 */
 /*************************************/
 exit_server:
 	close_server(SIGQUIT);
-	return 0;	  
+	return 0;
 }
 
 /*****************************************************************************/
