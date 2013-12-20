@@ -76,7 +76,7 @@ int set_timer(void)
 {
 	int rc ;
 	main_timer.it_interval.tv_sec = WAITING_USER;
-	main_timer.it_interval.tv_usec = 0;	
+	main_timer.it_interval.tv_usec = 0;
 	main_timer.it_value.tv_sec = WAITING_USER;
 	main_timer.it_value.tv_usec = 0;
 
@@ -109,7 +109,7 @@ int main_loop(void)
 		rc = check_new_connect();
 		if(new_connect == NO){
 			new_connect = rc;
-		}	
+		}
 /*Чтение информации от клиентов*/
 		ptu = get_first_user_list();
 		for(;ptu != NULL;ptu = get_next_user_list()){
@@ -129,18 +129,18 @@ g_message(" read fd : %d | rc : %d",fd,rc);
 						/* TODO проверка ошибки*/
 						global_log("Ошибка в соединении : %d : %s",fd,strerror(errno));
 						/*TODO удаляется игрок из списка и указатель списка переходит в начало (( */
-						del_user_list(fd); 
+						del_user_list(fd);
 						continue;
 					}
 				}
 				if(rc == 0){
 					/*Если канал был закрыт но непришло сообщение о прекрашении работы*/
-check_timeout:					
+check_timeout:
 					if(ptu->timeout <= time(NULL)){
 						rc = cmd_check_connect(ptu->fd,ptu->package);
 						if(rc == FAILURE){
 						/*TODO корректное сохранение игры */
-						/*TODO проверка ошибки отправки сообщения*/	
+						/*TODO проверка ошибки отправки сообщения*/
 						/*TODO удаляется игрок из списка и указатель списка переходит в начало (( */
 							del_user_list(fd);
 							continue;
@@ -165,9 +165,9 @@ check_timeout:
 			}
 		}
 
-		
+
 /* Ожидание сигналов на дискрипторах*/
-		if(amount_sig_io <= 1){	
+		if(amount_sig_io <= 1){
 			amount_sig_io = 0;
 			rc = pause();
 		}
@@ -176,7 +176,7 @@ check_timeout:
 			/*TODO взвести таймер с начала*/
 		}
 	}/*main loop*/
-	
+
 	return SUCCESS;
 }
 /*****************************************************************************/

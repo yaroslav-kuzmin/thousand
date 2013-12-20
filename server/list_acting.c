@@ -91,7 +91,7 @@ uint16_t check_number_acting(void)
 	uint32_t i;
 	acting_s ta;
 	int rc;
-	
+
 	for(i = UINT16_MAX;i != 0;i--){
 		ta.number = i;
 		rc = g_hash_table_contains(all_acting,&ta);
@@ -109,13 +109,13 @@ static int create_acting(user_s * psu)
 	int rc;
 	uint16_t number;
 	acting_s * pta = NULL;
-	
+
 	rc = check_bit_flag(flag,robot_user,1);
 	if(rc == YES){
 		global_log("Робот не может создавать игру!");
 		return ROBOT_CAN_NOT_CREATE_ACTING;
 	}
-	
+
 	number = check_number_acting();
 	if(number == 0){
 		psu->acting = 0;
@@ -141,7 +141,7 @@ static int join_acting(user_s * psu,uint16_t number)
 	acting_s ta;
 	acting_s * pta;
 	ta.number = number;
-	
+
 	rc = g_hash_table_lookup_extended(all_acting,(gpointer)&ta,(gpointer *)&pta,(gpointer*)&pta);
 	if(rc == FALSE){
 		psu->acting = 0;
@@ -165,7 +165,7 @@ static int join_acting(user_s * psu,uint16_t number)
 	set_bit_flag(flag,acting_user,1);
 	psu->acting = pta->number;
 /*TODO ---	послать информацию о присоединении игроков*/
-/*проанализировать кому посылать сообшение */	
+/*проанализировать кому посылать сообшение */
 	return SUCCESS;
 }
 
@@ -178,7 +178,7 @@ static int check_new_acting(user_s * psu)
 	if(rc < sizeof(message_cmd_s)){
 		return FAILURE;
 	}
-	
+
 	if(cmd->type == CMD_NEW_ACTING){
 		rc = create_acting(psu);
 		del_message_list(psu,sizeof(message_cmd_s));
@@ -208,7 +208,7 @@ static int check_new_acting(user_s * psu)
 			return SUCCESS;
 		}
 	}
-	
+
 	if(rc == FAILURE){
 		global_log("Несмог отправить сообщение игроку %d на создание игры : %s",psu->fd,strerror(errno));
 		del_user_list(psu->fd);
@@ -293,19 +293,19 @@ int delete_acting(uint16_t number)
 	if(number == 0){
 		global_log("нет такой игры 0");
 		return FAILURE;
-	}	
+	}
 
 	rc = g_hash_table_lookup_extended(all_acting,(gpointer)&ta,(gpointer*)&pta,(gpointer*)&pta);
 	if(rc == FALSE){
 		global_log("Нет такой игры 0x%04x в списке",number);
 	 	return FAILURE;
 	}
-	
+
 	/*TODO послать команду другим участникам и удалить их*/
 
 	g_hash_table_remove(all_acting,pta);
 	global_log("Удаление игры под номером 0x%04x",number);
-	
+
 	return SUCCESS;
 }
 /*****************************************************************************/
