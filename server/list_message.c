@@ -59,19 +59,19 @@ int write_message_list(user_s * psu,uint8_t * buf,int len)
 {
 	uint32_t flag = psu->flag;
 	GByteArray * array = psu->buffer;
-	
+
 	if(len == 0){
 		return FAILURE;
 	}
 	array = g_byte_array_append(array,buf,len);
-	set_bit_flag(flag,message_user,1); 
+	set_bit_flag(flag,message_user,1);
 
 	psu->buffer = array;
 	/*DEBUG*/
 	g_message("wm : %d : %d",psu->fd,len);
 
 	return SUCCESS;
-}	
+}
 /* Читает сообщения из буфера без удаления*/
 int read_message_list(user_s * psu,uint8_t ** msg)
 {
@@ -80,13 +80,13 @@ int read_message_list(user_s * psu,uint8_t ** msg)
 
 	*msg = array->data;
 	return total_len;
-}	
+}
 /* Удаляет сообщения из буфера */
 int del_message_list(user_s * psu,int len)
 {
 	uint32_t flag = psu->flag;
 	GByteArray * array = psu->buffer;
-	
+
 	/*DEBUG*/
 	g_message("dm : %d : %d",psu->fd,len);
 

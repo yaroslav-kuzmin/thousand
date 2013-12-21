@@ -41,7 +41,7 @@ typedef struct line_s
 {
 	char * begin;
 	char * position;
-	uint32_t size;  
+	uint32_t size;
 	uint32_t item;
 }line_t;
 
@@ -49,7 +49,7 @@ line_t * begin_line = NULL;
 uint32_t amount_line = 0;
 
 #define ADD_LINE    3
-#define ADD_SIZE    4096 
+#define ADD_SIZE    4096
 
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
@@ -65,7 +65,7 @@ int init_str_alloc(void)
 
 	memset(begin_line,0,size);
 
-	return SUCCESS;	
+	return SUCCESS;
 }
 
 int deinit_str_alloc(void)
@@ -83,12 +83,12 @@ int deinit_str_alloc(void)
 int resize_line(void)
 {
 	line_t * line;
-	uint32_t size = sizeof(line_t); 
+	uint32_t size = sizeof(line_t);
 	uint32_t amount_temp = amount_line + ADD_LINE;
 	size = amount_temp * size;
 
 	line = (line_t *)g_malloc(size);
-	
+
 	memset(line,0,size);
 
 	size = sizeof(line_t);
@@ -118,7 +118,7 @@ int new_line(line_t ** l,uint32_t s)
 	line->begin = str;
 	line->position = str;
 	line->size = size;
-	line->item = 0;	
+	line->item = 0;
 
 	return SUCCESS;
 }
@@ -144,14 +144,14 @@ char * str_alloc(int add)
 		}
 	}
 
-	resize_line();	
+	resize_line();
 	line = begin_line + i;
 	new_line(&line,add);
 
-exit_str_alloc:	
+exit_str_alloc:
 	t = line->position;
 	line->position += add;
 	line->item += add;
-	return t;		
+	return t;
 }
 /*****************************************************************************/

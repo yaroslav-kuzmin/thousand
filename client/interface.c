@@ -78,7 +78,7 @@ static int draw_main_win(void)
 {
 	if(main_win != NULL){
 		wrefresh(main_win);
-	}	
+	}
 	return SUCCESS;
 }
 static int create_main_win(void)
@@ -97,7 +97,7 @@ static int create_main_win(void)
 	o_main_win.x = x;
 	o_main_win.h = h;
 	o_main_win.w = w;
-	o_main_win.data = NULL;	
+	o_main_win.data = NULL;
 	draw_main_win();
 	return SUCCESS;
 }
@@ -129,7 +129,7 @@ int init_o_user(void)
 	wprintw(main_win,o_field_user.data);
 	draw_main_win();
 
-	return SUCCESS;		
+	return SUCCESS;
 }
 int if_get_name_user(char ** user,int len)
 {
@@ -140,9 +140,9 @@ int if_get_name_user(char ** user,int len)
 	wmove(main_win,o_field_user.y,o_field_user.x);
 	for(i = 0;i < (len - 1);){
 		ch = wgetch(main_win);
-		if(  (ch == KEY_ENTER) 
-		  || (ch == CR) 
-		  || (ch == NL) 
+		if(  (ch == KEY_ENTER)
+		  || (ch == CR)
+		  || (ch == NL)
 		  || (ch == TAB)){
 			break;
 		}
@@ -155,7 +155,7 @@ int if_get_name_user(char ** user,int len)
 				wmove(main_win,y,x-1);
 				waddch(main_win,ch);
 				wmove(main_win,y,x-1);
-			}	
+			}
 		}
 		/*TODO добавить поддержку UTF-8*/
 		if(isalnum(ch)){
@@ -163,13 +163,13 @@ int if_get_name_user(char ** user,int len)
 			i++;
 			if(i < o_field_user.w){
 				waddch(main_win,ch);
-			}	
+			}
 		}
 		draw_main_win();
 	}
 
-	str[i] = 0;	
-	
+	str[i] = 0;
+
 	return SUCCESS;
 }
 int if_set_name_user(char *user)
@@ -209,7 +209,7 @@ int init_o_passwd(void)
 	wprintw(main_win,o_field_passwd.data);
 	draw_main_win();
 
-	return SUCCESS;		
+	return SUCCESS;
 }
 int if_get_passwd(char ** passwd,int len)
 {
@@ -220,8 +220,8 @@ int if_get_passwd(char ** passwd,int len)
 	wmove(main_win,o_field_passwd.y,o_field_passwd.x);
 	for(i = 0;i < (len - 1);){
 		ch = wgetch(main_win);
-		if(  (ch == KEY_ENTER) 
-		  || (ch == CR) 
+		if(  (ch == KEY_ENTER)
+		  || (ch == CR)
 		  || (ch == NL)
 		  || (ch == TAB)){
 
@@ -236,22 +236,22 @@ int if_get_passwd(char ** passwd,int len)
 				wmove(main_win,y,x-1);
 				waddch(main_win,ch );
 				wmove(main_win,y,x-1);
-			}	
+			}
 		}
 		/*TODO добавить поддержку UTF-8*/
 		if(isalnum(ch)){
-			*(str+i) = (char)ch; 
+			*(str+i) = (char)ch;
 			i++;
 			if(i < o_field_passwd.w){
 				waddch(main_win,ch );
-			}	
+			}
 		}
 		draw_main_win ();
 	}
 
-	str[i] = 0;	
-	
-	return SUCCESS; 
+	str[i] = 0;
+
+	return SUCCESS;
 }
 int if_set_passwd(char * passwd)
 {
@@ -279,7 +279,7 @@ int init_o_connect(void)
 	wmove(main_win,o_label_connect.y,o_label_connect.x);
 	wprintw(main_win,o_label_connect.data);
 	draw_main_win();
-	return SUCCESS;		
+	return SUCCESS;
 }
 int if_set_connect(void)
 {
@@ -308,7 +308,7 @@ int if_not_set_connetc(int type)
 	int len ;
 	chtype ch;
 	int y = 3;
-	int x ; 
+	int x ;
 
 	wattrset(main_win,COLOR_PAIR(ERROR_PAIR));
 	wmove(main_win,o_label_connect.y,o_label_connect.x);
@@ -325,7 +325,7 @@ int if_not_set_connetc(int type)
 	len = strlen(str);
 	x = (MAX_WIDTH - len)/2;
 	wmove(main_win,y,x);
-	wprintw(main_win,"%s",str);	
+	wprintw(main_win,"%s",str);
 	draw_main_win();
 	for(;;){
 	 	ch = wgetch(main_win);
@@ -333,7 +333,7 @@ int if_not_set_connetc(int type)
 			break;
 		}
 	}
-	return SUCCESS; 
+	return SUCCESS;
 }
 
 /*************************************/
@@ -356,7 +356,7 @@ int init_o_new_game(void)
 	o_label_create.h = 2;
 	o_label_create.w = strlen(CREATE);
 	o_label_create.data = CREATE;
-	
+
 	return SUCCESS;
 }
 int if_new_game(void)
@@ -380,7 +380,7 @@ int if_new_game(void)
 			break;
 		}
 	}
-   
+
 	return rc;
 }
 /*************************************/
@@ -394,7 +394,7 @@ int init_o_game(void)
 	o_label_game.w = strlen(GAME);
 	o_label_game.data = GAME;
 
-	return SUCCESS; 
+	return SUCCESS;
 }
 int if_create_game(uint16_t number)
 {
@@ -413,7 +413,7 @@ int if_create_game(uint16_t number)
 	else{
 		wmove(main_win,o_label_new_game.y,o_label_new_game.x);
 		wprintw(main_win,"                ");
-	}	
+	}
 	draw_main_win();
 
 	return SUCCESS;
@@ -421,7 +421,7 @@ int if_create_game(uint16_t number)
 /*************************************/
 interface_cmd_e if_cmd(void)
 {
-	interface_cmd_e cmd;  
+	interface_cmd_e cmd;
 	chtype ch;
 
 	ch = wgetch(main_win);
@@ -430,7 +430,7 @@ interface_cmd_e if_cmd(void)
 			cmd = exit_client;
 			break;
 		default:
-			cmd = null_client;		  
+			cmd = null_client;
 			break;
 	}
 	return cmd;
@@ -469,7 +469,7 @@ int init_interface(void)
 	init_pair(IN_ERROR_PAIR,COLOR_BLACK,COLOR_RED);
 	bkgdset(COLOR_PAIR(MAIN_PAIR));
 	attron(COLOR_PAIR(MAIN_PAIR));
-	
+
 	if( (LINES < MAX_HEIGHT) || (COLS < MAX_WIDTH)){
 		global_warning("Маленький размер терминала %dx%d необходим %dx%d!"
 		              ,COLS,LINES,MAX_WIDTH,MAX_HEIGHT);
@@ -485,7 +485,7 @@ int init_interface(void)
 	refresh();
 
 	create_main_win();
-	
+
 	init_o_user();
 	init_o_passwd();
 	init_o_connect();

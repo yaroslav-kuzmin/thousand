@@ -31,6 +31,6 @@ int run_robot(uint16_t acting);
 int init_list_robot(void);
 int deinit_list_robot(void);
 
-#endif 
+#endif
 
 /*****************************************************************************/

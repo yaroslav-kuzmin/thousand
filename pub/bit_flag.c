@@ -61,7 +61,7 @@ int init_bit_fields(void)
 {
 	size_t s = sizeof(bit_field_t) * AMOUNT_BIT_FIELDS;
 	bit_fields = (bit_field_t *)g_malloc(s);
-	memset(bit_fields,0,s);	
+	memset(bit_fields,0,s);
 	amount_bit_fields = AMOUNT_BIT_FIELDS;
 	current_bit_field = 0;
 	return SUCCESS;
@@ -71,7 +71,7 @@ int deinit_bit_fields(void)
 	g_free(bit_fields);
 	amount_bit_fields = 0;
 	current_bit_field = 0;
-	return SUCCESS;	
+	return SUCCESS;
 }
 static int reinit_bit_fields(void)
 {
@@ -93,7 +93,7 @@ static int reinit_bit_fields(void)
 /*---------------------------------------------------------------------------*/
 uint32_t init_bit_flags(uint32_t size)
 {
-	bit_field_t * bfst = bit_fields;	
+	bit_field_t * bfst = bit_fields;
 	uint32_t s = size >> AMOUNT_BIT_IN_UINT8;
 	uint8_t * t;
 	uint32_t c = 0;
@@ -105,7 +105,7 @@ uint32_t init_bit_flags(uint32_t size)
 		if(bfst->byte == 0 ){
 			break;
 		}
-		bfst++; 
+		bfst++;
 	}
 
 	if(c == current_bit_field){
@@ -121,16 +121,16 @@ uint32_t init_bit_flags(uint32_t size)
 	bfst->byte = s;
 
 	return c;
-}	
+}
 
 int deinit_bit_flag(uint32_t number)
 {
-	bit_field_t * bft = bit_fields;	
+	bit_field_t * bft = bit_fields;
 	uint8_t * t;
 
 	if(number >= current_bit_field){
 		return FAILURE;
-	}	
+	}
 	bft = bft + number;
 	t = bft->bits;
 	g_free(t);
@@ -165,7 +165,7 @@ int reinit_bit_flags(uint32_t number,uint32_t size)
 
 	new_tb = (uint8_t *)g_malloc(new_s);
 	memset(new_tb,0,new_s);
-	memcpy(new_tb,old_tb,old_s);	
+	memcpy(new_tb,old_tb,old_s);
 	g_free(old_tb);
 
 	bft->bits = new_tb;
@@ -175,13 +175,13 @@ int reinit_bit_flags(uint32_t number,uint32_t size)
 /*---------------------------------------------------------------------------*/
 int set_bit_flag(uint32_t number,uint32_t number_bit,uint32_t size)
 {
-	bit_field_t * bft = bit_fields;	
+	bit_field_t * bft = bit_fields;
 	uint8_t * bits;
 	uint32_t as;
 
 	uint32_t i, n;
 	uint32_t n_byte;
-	int n_bit; 
+	int n_bit;
 	uint8_t * t_c;
 
 	if(number >= current_bit_field){
@@ -214,15 +214,15 @@ int set_bit_flag(uint32_t number,uint32_t number_bit,uint32_t size)
 
 int unset_bit_flag(uint32_t number, uint32_t number_bit,uint32_t size)
 {
-	bit_field_t * bft = bit_fields;	
+	bit_field_t * bft = bit_fields;
 	uint8_t * bits;
 	uint32_t as;
 
 	uint32_t i,n;
 	uint32_t n_byte;
-	int n_bit; 
+	int n_bit;
 	uint8_t * t_c;
-	
+
 	if(number >= current_bit_field){
 		return FAILURE;
 	}
@@ -253,22 +253,22 @@ int unset_bit_flag(uint32_t number, uint32_t number_bit,uint32_t size)
 
 int check_bit_flag(uint32_t number,uint32_t number_bit,uint32_t size)
 {
-	bit_field_t * bft = bit_fields;	
+	bit_field_t * bft = bit_fields;
 	uint8_t * bits;
 	uint32_t as;
 
  	uint32_t i,n;
 	uint32_t n_byte;
-	int n_bit; 
+	int n_bit;
 	uint8_t * t_c;
-	
+
 	if(number >= current_bit_field){
 		return FAILURE;
 	}
 	bft = bft + number;
 	bits = bft->bits;
 	as = bft->byte;
-	
+
 	if( (number_bit + size) > (as << AMOUNT_BIT_IN_UINT8) ){
 		return FAILURE;
 	}
@@ -290,24 +290,24 @@ int check_bit_flag(uint32_t number,uint32_t number_bit,uint32_t size)
 /*выдает первый свободный порядковый номер*/
 uint32_t free_bit_flag(uint32_t number,uint32_t size)
 {
-	bit_field_t * bft = bit_fields;	
+	bit_field_t * bft = bit_fields;
 	uint8_t * bits;
 	uint32_t as;
 
-	uint32_t n; 
+	uint32_t n;
 	uint32_t s,cs;
 	uint32_t n_byte;
-	int n_bit; 
+	int n_bit;
 	uint8_t * t_c;
-	uint32_t a; 
-	
+	uint32_t a;
+
 	if(number >= current_bit_field){
 		return UINT32_MAX;
 	}
 	bft = bft + number;
 	bits = bft->bits;
 	as = bft->byte;
-	a = as << AMOUNT_BIT_IN_UINT8; 
+	a = as << AMOUNT_BIT_IN_UINT8;
 
 	if( size > a ){
 		return UINT32_MAX;
@@ -325,7 +325,7 @@ uint32_t free_bit_flag(uint32_t number,uint32_t size)
 		for(s = 0,cs = 0;s < size;s++){
 			uint8_t c = *t_c;
 			if( !(c & n_bit)){
-				cs ++; 
+				cs ++;
 				if(cs >= s){
 					if(  FAILURE != set_bit_flag(number,n,size))
 						return n;
@@ -335,7 +335,7 @@ uint32_t free_bit_flag(uint32_t number,uint32_t size)
 			}
 			else{
 				n = nt;
-				break; 
+				break;
 			}
 			nt++;
 			n_byte = nt >> AMOUNT_BIT_IN_UINT8;

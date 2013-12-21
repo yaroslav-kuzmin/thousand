@@ -41,6 +41,6 @@ interface_cmd_e if_cmd(void);
 int init_interface(void);
 int close_interface(void);
 
-#endif 
+#endif
 
 /*****************************************************************************/

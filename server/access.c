@@ -76,7 +76,7 @@ static int full_login(user_s * psu)
 	if(msg->type != MESSAGE_LOGIN){
 		del_message_list(psu,rc);
 		global_log("Ожидается имя игрока : %d!",psu->fd);
-		return FAILURE; 
+		return FAILURE;
 	}
 	if(msg->len > LEN_USER_NAME){
 		del_message_list(psu,rc);
@@ -87,13 +87,13 @@ static int full_login(user_s * psu)
 	memcpy(n,msg->login,msg->len);
 	del_message_list(psu,len);
 	set_bit_flag(flag,login_user,1);
-	global_log("На %d соединении игрок %s",psu->fd,psu->name);	
+	global_log("На %d соединении игрок %s",psu->fd,psu->name);
 	return SUCCESS;
 }
 
 static int full_passwd(user_s * psu)
 {
-	int rc; 
+	int rc;
 	message_passwd_s * msg;
 	uint8_t * p = psu->passwd;
 	uint32_t flag = psu->flag;
@@ -117,7 +117,7 @@ static int full_passwd(user_s * psu)
 	memcpy(p,msg->passwd,msg->len);
 	del_message_list(psu,len);
 	set_bit_flag(flag,passwd_user,1);
-	global_log("На %d соединении пароль ***",psu->fd);	
+	global_log("На %d соединении пароль ***",psu->fd);
 	return SUCCESS;
 }
 static char dig2sym[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
@@ -145,7 +145,7 @@ static int check_access(user_s * psu)
 {
 	GError *error = NULL;
 	uint8_t * p = psu->passwd;
-	char * get_passwd = NULL; 
+	char * get_passwd = NULL;
 	char * n = psu->name;
 	gchar * check_passwd = NULL;
 	uint32_t flag = psu->flag;
@@ -177,7 +177,7 @@ static int check_access(user_s * psu)
 				global_log("Доступ разрешен на сервер игроку %s : %d",psu->name,psu->fd);
 			}
 			g_free(check_passwd);
-			return SUCCESS; 
+			return SUCCESS;
 		}
 		else{
 			global_log("Некоректный пароль %s : %d",psu->name,psu->fd);
@@ -218,7 +218,7 @@ static int check_access(user_s * psu)
 		}
 		else{
 			g_error_free(error);
-			rc = strncmp(get_passwd,bad_passwd,(MD5_DIGEST_LENGTH *2)); 
+			rc = strncmp(get_passwd,bad_passwd,(MD5_DIGEST_LENGTH *2));
 			if(rc == 0){
 				global_log("Некоректный пароль %s : %d",psu->name,psu->fd);
 				rc = cmd_access_denied_passwd(psu->fd,psu->package);
@@ -270,7 +270,7 @@ int init_access_user(void)
 	if(list_robot == NULL){
 		global_log("В файле %s в секции %s нет имен для роботов!",file,ACCESS_ROBOT_GROUP);
 		if(check != NULL){
-			global_log("%s",check->message);	
+			global_log("%s",check->message);
 			g_error_free(check);
 		}
 		return FAILURE;
@@ -311,7 +311,7 @@ int deinit_access_user(void)
 	global_log("Закрыл систему доступа на сервер!");
 	g_strfreev(list_robot);
  	return SUCCESS;
-} 
+}
 
 int access_users(int * success)
 {
@@ -329,7 +329,7 @@ int access_users(int * success)
 			if( rc == NO ){
 				exit++;
 			}
-			else{	
+			else{
 	 			rc = check_bit_flag(flag,login_user,1);
 				if( rc == NO){
 					rc = full_login(ptu);
@@ -351,7 +351,7 @@ int access_users(int * success)
 				else{
 					(*success)++;
 				}
-			} 
+			}
 		}
 	}
 
@@ -362,7 +362,7 @@ int access_users(int * success)
 		exit = SUCCESS;
 	}
 
-	return exit; 
+	return exit;
 }
 
 int close_access_user(char * u)
@@ -370,10 +370,10 @@ int close_access_user(char * u)
 	int rc;
 	if(u != NULL){
 		rc = g_hash_table_remove(who_plays,u);
-	}	
+	}
 	if(rc == TRUE){
 		rc = SUCCESS;
-	}	
+	}
 	else{
 		rc = FAILURE;
 	}

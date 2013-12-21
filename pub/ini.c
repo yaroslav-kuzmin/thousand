@@ -69,11 +69,11 @@ int read_config(void)
 	if(check != NULL){
 		global_warning("Ощибка при обработки файла конфигурации %s : %s",file_ini,check->message);
 		g_error_free(check);
- 		return FAILURE;
+		return FAILURE;
 	}
 	global_log("Открыл файл конфигурации %s",file_ini);
-	
- 	return SUCCESS;	
+
+	return SUCCESS;
 }
 
 int close_config(void)
@@ -89,7 +89,7 @@ int close_config(void)
 		stream = fopen(file_ini,"w");
 		if(stream == NULL){
 			global_warning("Немогу открыть файл конфигурации для записи !");
- 			return FAILURE;
+			return FAILURE;
 		}
 		buffer_config = g_key_file_to_data(ini_file,0,&check);
 		if(check != NULL){
@@ -97,12 +97,12 @@ int close_config(void)
 			g_error_free(check);
 		}
 		else{
- 			fputs(buffer_config,stream);
+			fputs(buffer_config,stream);
 			global_log("Записал файл конфигурации %s",file_ini);
 			g_free(buffer_config);
 		}
 		fclose(stream);
- 	}
+	}
 	return SUCCESS;
 }
 
