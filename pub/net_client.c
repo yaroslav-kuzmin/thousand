@@ -93,10 +93,42 @@ int write_socket(uint8_t * buff,int len)
 	return rc;
 }
 
-int read_socket(uint8_t ** buff,int len)
+#define SIZE_READ_BUFF       1024
+static uint8_t read_buff[SIZE_READ_BUFF] = {0};
+static uint32_t size_read_buff = 0;
+
+int read_socket(uint8_t ** buff,int len_buff)
 {
- 	uint8_t * tbuff = *buff;
-	int rc = recv(fd_local_socket,tbuff,len,0);
+	int rc;
+ 	uint8_t * nbuff = *buff;
+	uint8_t * obuff = read_buff;
+	message_cmd_s * cmd;
+	uint16_t len = sizeof(message_cmd_s);
+
+	if(size_read_buff != 0){
+		cmd = (message_cmd_s *)obuff;
+		/*TODO проверка на неполное сообщение*/
+		switch(cmd->type){
+			case CMD_NEW_ACTING:
+			case CMD_JOIN_ACTING:
+			case CMD_CHECK_CONNECT:
+			case CMD_ACCESS_DENIED_LOGIN:
+			case CMD_ACCESS_DENIED_PASSWD:
+			case CMD_ACCESS_ALLOWED:
+				break;
+			default:
+				len += cmd->len;
+				break;
+		}
+		memcpy(nbuff,obuff,len);
+		/*TODO проверка на некорректны размер*/
+		size_read_buff -= len;
+		if(size_read_buff != 0){
+TODO
+		}
+	}
+
+	rc = recv(fd_local_socket,obuff,len,0);
 	if(rc == -1){
  		global_warning("Несмог прочитать сообшение : %d : %s",fd_local_socket,strerror(errno));
 		rc = FAILURE;
@@ -288,7 +320,6 @@ int c_answer_name_partner(char ** name)
 	}
 	len = msg->len;
 	memcpy(dname,sname,len);
-
 	return SUCCESS;
 }
 /*****************************************************************************/
