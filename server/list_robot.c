@@ -97,7 +97,7 @@ static int spawn_robot(char * robot,char ** list)
 	}
 	else{
 		execv(robot,list);
-		global_warning("Несмог запустить робота!");
+		global_warning("Несмог запустить робота : %s!",robot);
 		exit(0);
 	}
 

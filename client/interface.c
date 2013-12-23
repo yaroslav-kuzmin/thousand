@@ -283,17 +283,20 @@ int init_o_connect(void)
 }
 int if_set_connect(void)
 {
+/*
 	int i;
-	char * str = CONNECT;
 	int len = strlen(str);
 	chtype ch;
-
+	char * str = CONNECT;
+*/
 	wmove(main_win,o_label_connect.y,o_label_connect.x);
+	wprintw(main_win,o_label_connect.data);
+/*
 	for(i = 0;i < len-1;i++){
 		ch = *(str + i) | COLOR_PAIR(IN_MAIN_PAIR);
 		waddch(main_win,ch);
 	}
-
+*/
 	draw_main_win();
 	return SUCCESS;
 }

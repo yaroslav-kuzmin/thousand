@@ -175,10 +175,10 @@ static int join_acting(user_s * psu,uint16_t number)
 		if(rc == YES){
 			continue;
 		}
-		rc = cmd_join_player(opsu->fd,opsu->package,psu->name)
+		rc = cmd_join_player(opsu->fd,opsu->package,psu->name);
 		opsu->package ++;
-		global_log("Отправил игроку %s о присоединени игрока %s в игру 0x%04x"
-		          ,opsu->name,psy->name,pta->number);
+		global_log("Отправил игроку %s сообщение о присоединени игрока %s в игру 0x%04x"
+		          ,opsu->name,psu->name,pta->number);
 	}
 	return SUCCESS;
 }

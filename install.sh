@@ -32,14 +32,15 @@ FILE_ACCESS=access
 
 ################################ FUNCTION #####################################
 
-################################## MAIN ######################################
+################################## MAIN #######################################
 
 cd $HOME
-mkdir $DIR_ROOT 2>&- 
+mkdir -p $DIR_ROOT 2>&-
 CHECK=$?
 if [ $CHECK -eq 1 ]
 then
 	printf "Немогу создать каталог %s \n" $DIR_ROOT
+	rm -rf $DIR_ROOT
 	exit 0;
 fi
 printf "Создан рабочий каталог\n"
@@ -68,7 +69,7 @@ printf "Создан файл ini\n"
 
 ##############
 
-mkdir $DIR_LOG 2>&- 
+mkdir -p $DIR_LOG 2>&-
 CHECK=$?
 if [ $CHECK -eq 1 ]
 then
@@ -79,7 +80,7 @@ printf "Создан каталог %s\n" $DIR_LOG
 
 ##############
 
-mkdir $DIR_DATABASE 2>&- 
+mkdir -p $DIR_DATABASE 2>&-
 CHECK=$?
 if [ $CHECK -eq 1 ]
 then
@@ -89,7 +90,7 @@ fi
 printf "Создан каталог %s\n" $DIR_DATABASE
 
 cd ${DIR_DATABASE}
-exec 11> ${FILE_ACCESS} 
+exec 11> ${FILE_ACCESS}
 cat >&11 << _ANYEOF
 ${HEADER}
 #Доступ для роботов

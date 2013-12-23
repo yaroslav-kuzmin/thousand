@@ -316,7 +316,6 @@ int main(int argc,char * argv[])
 		global_warning("Несмог создать игру");
 		goto exit_client;
 	}
-	rc =
 	main_loop();
 /*************************************/
 exit_client:

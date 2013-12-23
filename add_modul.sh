@@ -34,7 +34,7 @@ MODUL_H=${MODUL}.h
 if [ $# -ne 2 ]
 	then
 		printf "Нет названия каталога и названия модуля!\n"
-		exit 0 
+		exit 0
 	fi
 
 cd $DIR
@@ -82,7 +82,7 @@ printf "Создан файл %s\n" ${MODUL_C}
 ##############
 
 MODUL_NAME=`printf "%s" ${MODUL} | tr 'a-z' 'A-Z'`
-exec 11> ${MODUL_H} 
+exec 11> ${MODUL_H}
 cat >&11 << _ANYEOF
 ${HEADER}
 /*****************************************************************************/
@@ -92,7 +92,7 @@ ${HEADER}
 #ifndef ${MODUL_NAME}_H
 #define ${MODUL_NAME}_H
 
-#endif 
+#endif
 
 /*****************************************************************************/
 _ANYEOF
