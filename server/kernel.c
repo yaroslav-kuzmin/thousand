@@ -65,7 +65,7 @@ void sigaction_io(int num,siginfo_t * sig,void * test)
 {
 	amount_sig_io++;
 	/*TODO более точная обработка дискрипторов*/
-	/*g_message("fd :> %d",sig->si_fd);*/
+	g_message("fd :> %d : sig_io :> %d",sig->si_fd,amount_sig_io);
 }
 
 /*****************************************************************************/
@@ -105,6 +105,7 @@ int main_loop(void)
 	g_message("main_loop");
 
 	for(;;){
+g_message("New check !");
 /*Проверка нового подсоединения*/
 		rc = check_new_connect();
 		if(new_connect == NO){
@@ -137,7 +138,7 @@ g_message(" read fd : %d | rc : %d",fd,rc);
 					/*Если канал был закрыт но непришло сообщение о прекрашении работы*/
 check_timeout:
 					if(ptu->timeout <= time(NULL)){
-						rc = cmd_check_connect(ptu->fd,ptu->package);
+						rc = s_cmd_check_connect(ptu->fd,ptu->package);
 						if(rc == FAILURE){
 						/*TODO корректное сохранение игры */
 						/*TODO проверка ошибки отправки сообщения*/
@@ -169,6 +170,7 @@ check_timeout:
 /* Ожидание сигналов на дискрипторах*/
 		if(amount_sig_io <= 1){
 			amount_sig_io = 0;
+g_message("Pause!");
 			rc = pause();
 		}
 		else{

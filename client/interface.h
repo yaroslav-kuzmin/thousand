@@ -35,6 +35,8 @@ int if_set_connect(void);
 int if_not_set_connetc(int type);
 int if_new_game(void);
 int if_create_game(uint16_t number);
+int if_partner_left(char * name);
+int if_partner_right(char * name);
 
 interface_cmd_e if_cmd(void);
 

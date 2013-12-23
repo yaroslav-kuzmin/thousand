@@ -95,10 +95,10 @@ int write_socket(uint8_t * buff,int len)
 
 int read_socket(uint8_t ** buff,int len)
 {
-	uint8_t * tbuff = *buff;
+ 	uint8_t * tbuff = *buff;
 	int rc = recv(fd_local_socket,tbuff,len,0);
 	if(rc == -1){
-		global_warning("Несмог прочитать сообшение : %s",strerror(errno));
+ 		global_warning("Несмог прочитать сообшение : %d : %s",fd_local_socket,strerror(errno));
 		rc = FAILURE;
 	}
 	else{
@@ -114,7 +114,7 @@ int close_socket(void)
 }
 
 /*************************************/
-int cmd_login(char * user)
+int c_cmd_login(char * user)
 {
 	int rc;
 	message_login_s msg;
@@ -139,7 +139,7 @@ int cmd_login(char * user)
 	return rc;
 }
 
-int cmd_passwd(uint8_t * passwd)
+int c_cmd_passwd(uint8_t * passwd)
 {
 	int rc;
 	message_passwd_s msg;
@@ -159,7 +159,7 @@ int cmd_passwd(uint8_t * passwd)
 	return rc;
 }
 
-int answer_access_server(void)
+int c_answer_access_server(void)
 {
 	int rc;
 	message_cmd_s * msg = (message_cmd_s*)&pub_message;
@@ -190,7 +190,7 @@ int answer_access_server(void)
 	 return rc;
 }
 
-int cmd_join_acting(uint16_t number)
+int c_cmd_join_acting(uint16_t number)
 {
 	int rc;
 	message_cmd_s cmd;
@@ -207,7 +207,7 @@ int cmd_join_acting(uint16_t number)
 	return rc;
 }
 
-int cmd_new_acting(void)
+int c_cmd_new_acting(void)
 {
 	int rc;
 	message_cmd_s cmd;
@@ -223,7 +223,7 @@ int cmd_new_acting(void)
 	return rc;
 }
 
-int answer_new_acting(uint16_t * number)
+int c_answer_new_acting(uint16_t * number)
 {
 	int rc;
 	message_cmd_s * cmd = (message_cmd_s*)&pub_message;
@@ -246,7 +246,7 @@ int answer_new_acting(uint16_t * number)
 	return rc;
 }
 
-int answer_join_acting(uint16_t * number)
+int c_answer_join_acting(uint16_t * number)
 {
 	int rc;
 	message_cmd_s * cmd = (message_cmd_s*)&pub_message;
@@ -263,6 +263,31 @@ int answer_join_acting(uint16_t * number)
 	}
 
 	*number = cmd->msg;
+
+	return SUCCESS;
+}
+
+int c_answer_name_partner(char ** name)
+{
+	int rc;
+	message_login_s * msg = (message_login_s*)&pub_message;
+	char * dname = *name;
+	char * sname = (char *)msg->login;
+	int len;
+
+	rc = read_socket((uint8_t**)&msg,sizeof(message_login_s));
+	if(rc == FAILURE){
+		global_log("Нет связи с сервером!");
+		rc = NOT_CONNECT_SERVER;
+		return rc;
+	}
+
+	if(msg->type != MESSAGE_JOIN_PLAYER){
+		rc = INCORRECT_MESSAGE;
+		return rc;
+	}
+	len = msg->len;
+	memcpy(dname,sname,len);
 
 	return SUCCESS;
 }

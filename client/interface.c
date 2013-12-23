@@ -64,7 +64,7 @@ struct _object_s
 };
 
 #define MAX_WIDTH              80
-#define MAX_HEIGHT             5
+#define MAX_HEIGHT             7
 
 static WINDOW * main_win = NULL;
 static char * str_locale = NULL;
@@ -401,7 +401,7 @@ int init_o_game(void)
 }
 int if_create_game(uint16_t number)
 {
-	chtype ch;
+	 chtype ch;
 	wmove(main_win,o_label_game.y,o_label_game.x);
 	wprintw(main_win,"%s0x%04x",o_label_game.data,number);
 	if(number == 0){
@@ -422,11 +422,51 @@ int if_create_game(uint16_t number)
 	return SUCCESS;
 }
 /*************************************/
+/*отображение имен игроков           */
+static char * PARTNER_LEFT  = "partner left  : ";
+static char * PARTNER_RIGHT = "partner right : ";
+object_s o_partner_left;
+object_s o_partner_right;
+int init_partner(void)
+{
+	o_partner_left.y = 3;
+	o_partner_left.x = 1;
+	o_partner_left.h = 1;
+	o_partner_left.w = strlen(PARTNER_LEFT);
+	o_partner_left.data = PARTNER_LEFT;
+
+	o_partner_right.y = 4;
+	o_partner_right.x = 1;
+	o_partner_right.h = 1;
+	o_partner_right.w = strlen(PARTNER_RIGHT);
+	o_partner_right.data = PARTNER_RIGHT;
+
+	return SUCCESS;
+}
+
+int if_partner_left(char * name)
+{
+	wmove(main_win,o_partner_left.y,o_partner_left.x);
+	wprintw(main_win,"%s%s",o_partner_left.data,name);
+	draw_main_win();
+	return SUCCESS;
+}
+int if_partner_right(char * name)
+{
+	wmove(main_win,o_partner_right.y,o_partner_right.x);
+	wprintw(main_win,"%s%s",o_partner_right.data,name);
+	draw_main_win();
+	return SUCCESS;
+}
+/*************************************/
+#define LAST_Y             MAX_HEIGHT-2
+#define LAST_X             1
 interface_cmd_e if_cmd(void)
 {
 	interface_cmd_e cmd;
 	chtype ch;
 
+	wmove(main_win,LAST_Y,LAST_X);
 	ch = wgetch(main_win);
 	switch(ch){
 		case KEY_F(4):
@@ -494,6 +534,7 @@ int init_interface(void)
 	init_o_connect();
 	init_o_new_game();
 	init_o_game();
+	init_partner();
 
 	return SUCCESS;
 }

@@ -32,13 +32,14 @@ int close_socket(void);
 int read_socket(uint8_t ** buff,int len);
 int write_socket(uint8_t * buff,int len);
 
-int cmd_login(char * user);
-int cmd_passwd(uint8_t * passwd);
-int cmd_new_acting(void);
-int cmd_join_acting(uint16_t number);
-int answer_access_server(void);
-int answer_new_acting(uint16_t * number);
-int answer_join_acting(uint16_t * number);
+int c_cmd_login(char * user);
+int c_cmd_passwd(uint8_t * passwd);
+int c_cmd_new_acting(void);
+int c_cmd_join_acting(uint16_t number);
+int c_answer_access_server(void);
+int c_answer_new_acting(uint16_t * number);
+int c_answer_join_acting(uint16_t * number);
+int c_answer_name_partner(char ** name);
 
 #endif
 

@@ -175,7 +175,7 @@ static int join_acting(user_s * psu,uint16_t number)
 		if(rc == YES){
 			continue;
 		}
-		rc = cmd_join_player(opsu->fd,opsu->package,psu->name);
+		rc = s_cmd_join_player(opsu->fd,opsu->package,psu->name);
 		opsu->package ++;
 		global_log("Отправил игроку %s сообщение о присоединени игрока %s в игру 0x%04x"
 		          ,opsu->name,psu->name,pta->number);
@@ -196,7 +196,7 @@ static int check_new_acting(user_s * psu)
 	if(cmd->type == CMD_NEW_ACTING){
 		rc = create_acting(psu);
 		del_message_list(psu,sizeof(message_cmd_s));
-		rc = cmd_new_acting(psu->fd,psu->package,psu->acting);
+		rc = s_cmd_new_acting(psu->fd,psu->package,psu->acting);
 		/*TODO сделать запуск в основном цикле ,  */
 		/*  здесь поставить флаг о не обходимости запуска */
 		/*  запуск двух роботов*/
@@ -215,7 +215,7 @@ static int check_new_acting(user_s * psu)
 				del_message_list(psu,sizeof(message_cmd_s));
 				psu->acting = 0;
 			}
-			rc = cmd_join_acting(psu->fd,psu->package,psu->acting);
+			rc = s_cmd_join_acting(psu->fd,psu->package,psu->acting);
 		}
 		else{
 			global_log("Некоректная комманда от игрока %s : %d",psu->name,psu->fd);

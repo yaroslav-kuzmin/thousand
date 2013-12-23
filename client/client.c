@@ -53,6 +53,10 @@
 const char * programm_name = NULL;
 char * user = NULL;
 char str_user[LEN_USER_NAME] = {0};
+char str_partner_left[LEN_USER_NAME] = {0};
+char * partner_left = str_partner_left;
+char str_partner_right[LEN_USER_NAME] = {0};
+char * partner_right = str_partner_right;
 char * passwd = NULL;
 char str_passwd[LEN_USER_NAME] = {0};
 uint16_t number_acting = 0;
@@ -103,21 +107,39 @@ int new_acting(void)
 		return FAILURE;
 	}
 
-	rc = cmd_new_acting();
+	rc = c_cmd_new_acting();
 	if(rc == FAILURE){
 		return rc;
 	}
-	rc = answer_new_acting(&number_acting);
+	rc = c_answer_new_acting(&number_acting);
 	if(number_acting == 0){
 		rc = FAILURE;
- 		global_log("Сервер не создал игру %#x",number_acting);
+  		global_log("Сервер не создал игру %#x",number_acting);
+		return rc;
 	}
 	else{
  		rc = SUCCESS;
-		global_log("Сервер создал игру %#x",number_acting);
+ 		global_log("Сервер создал игру %#x",number_acting);
 	}
 
 	if_create_game(number_acting);
+
+	/* */
+	rc = c_answer_name_partner(&partner_left);
+  	if(rc == FAILURE){
+		global_log("Сервер неприсоединяет игроков!");
+		return rc;
+	}
+	global_log("К игре присоединился игрок %s !",partner_left);
+	if_partner_left(partner_left);
+
+	rc = c_answer_name_partner(&partner_right);
+  	if(rc == FAILURE){
+		global_log("Сервер неприсоединяет игроков!");
+		return rc;
+	}
+	global_log("К игре присоединился игрок %s !",partner_right);
+	if_partner_right(partner_right);
 
 	return rc;
 }
@@ -153,16 +175,16 @@ int access_server(void)
 	global_log("Пароль : %s",passwd);
 	MD5((uint8_t*)passwd,rc,passwd_md5);
 
-	rc = cmd_login(user);
+	rc = c_cmd_login(user);
 	if(rc == FAILURE){
 		return rc;
 	}
-	rc = cmd_passwd(passwd_md5);
+	rc = c_cmd_passwd(passwd_md5);
 	if(rc == FAILURE){
 		return rc;
 	}
 
-	rc = answer_access_server();
+	rc = c_answer_access_server();
 	if(rc == SUCCESS){
 		if_set_connect();
 		rc = SUCCESS;

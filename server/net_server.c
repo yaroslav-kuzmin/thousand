@@ -97,7 +97,7 @@ static int total_cmd(int fd, uint16_t number,uint16_t type)
 	int rc;
 	message_cmd_s cmd;
 
-	g_message("total_cmd : %d",fd);
+	g_message("total_cmd : fd %d : type %d",fd,type);
 
 	cmd.type = type;
 	cmd.len = 0;
@@ -172,6 +172,13 @@ bind_success:
 		close(s_fd);
 		return FAILURE;
 	}
+	rc = fcntl(s_fd,F_SETFD,FD_CLOEXEC); /*Устанавливает флаг, закрыть файл при вызове дочерниго процесса*/
+	if(rc == -1){
+		global_warning("Несмог установить флаг закрытия файла для дочерниго процесса %#x : %#x : %s",getpid(),s_fd,strerror(errno));
+		close(s_fd);
+		return FAILURE;
+	}
+
 	global_log("Настроили сокет %#x!",s_fd);
 
 	fd_local_socket = s_fd;
@@ -229,6 +236,13 @@ int check_new_connect(void)
 			close(c_fd);
 			continue;
 		}
+		/*Устанавливает флаг, закрыть файл при вызове дочерниго процесса*/
+		rc = fcntl(c_fd,F_SETFD,FD_CLOEXEC);
+		if(rc == -1){
+			global_warning("Несмог установить флаг закрытия файла для дочерниго процесса %#x : %#x : %s",getpid(),c_fd,strerror(errno));
+			close(c_fd);
+			continue;
+		}
 
 		rc = add_user_list(c_fd);
 		if(rc == FAILURE){
@@ -242,7 +256,7 @@ int check_new_connect(void)
 }
 
 /**************************************/
-int cmd_check_connect(int fd,uint16_t number)
+int s_cmd_check_connect(int fd,uint16_t number)
 {
 	int rc;
 	rc = total_cmd(fd,number,CMD_CHECK_CONNECT);
@@ -256,7 +270,7 @@ int cmd_check_connect(int fd,uint16_t number)
 	}
 	return rc;
 }
-int cmd_access_denied_login(int fd,uint16_t number)
+int s_cmd_access_denied_login(int fd,uint16_t number)
 {
 	int rc;
 	rc = total_cmd(fd,number,CMD_ACCESS_DENIED_LOGIN);
@@ -269,7 +283,7 @@ int cmd_access_denied_login(int fd,uint16_t number)
 	}
 	return rc;
 }
-int cmd_access_denied_passwd(int fd,uint16_t number)
+int s_cmd_access_denied_passwd(int fd,uint16_t number)
 {
 	int rc;
 	rc = total_cmd(fd,number,CMD_ACCESS_DENIED_PASSWD);
@@ -282,7 +296,7 @@ int cmd_access_denied_passwd(int fd,uint16_t number)
 	}
 	return rc;
 }
-int cmd_access_allowed(int fd,uint16_t number)
+int s_cmd_access_allowed(int fd,uint16_t number)
 {
 	int rc;
 	rc = total_cmd(fd,number,CMD_ACCESS_ALLOWED);
@@ -295,7 +309,7 @@ int cmd_access_allowed(int fd,uint16_t number)
 	}
 	return rc;
 }
-int cmd_new_acting(int fd,uint16_t number,uint16_t number_acting)
+int s_cmd_new_acting(int fd,uint16_t number,uint16_t number_acting)
 {
 	int rc;
 	rc = full_cmd(fd,number,CMD_NEW_ACTING,number_acting);
@@ -308,7 +322,7 @@ int cmd_new_acting(int fd,uint16_t number,uint16_t number_acting)
 	}
 	return rc;
 }
-int cmd_join_acting(int fd,uint16_t number,uint16_t number_acting)
+int s_cmd_join_acting(int fd,uint16_t number,uint16_t number_acting)
 {
 	int rc;
 	rc = full_cmd(fd,number,CMD_JOIN_ACTING,number_acting);
@@ -321,7 +335,7 @@ int cmd_join_acting(int fd,uint16_t number,uint16_t number_acting)
 	}
 	return rc;
 }
-int cmd_join_player(int fd,uint16_t number,char * name)
+int s_cmd_join_player(int fd,uint16_t number,char * name)
 {
 	int rc;
 	size_t len = strlen(name);

@@ -144,16 +144,16 @@ int access_server(void)
 	int rc;
 	uint16_t acting_check;
 
-	rc = cmd_login(robot);
+	rc = c_cmd_login(robot);
 	if(rc == FAILURE){
 		return rc;
 	}
-	rc = cmd_passwd(passwd);
+	rc = c_cmd_passwd(passwd);
 	if(rc == FAILURE){
 		return rc;
 	}
 
-	rc = answer_access_server();
+	rc = c_answer_access_server();
 	switch(rc){
 		case INCORRECT_LOGIN:
 			global_log("Не совпадает имя робота : %s",robot);
@@ -175,9 +175,9 @@ int access_server(void)
 	}
 
 	if(rc == SUCCESS){
-		rc = cmd_join_acting(acting);
+		rc = c_cmd_join_acting(acting);
 		if(rc == SUCCESS){
-			rc = answer_join_acting(&acting_check);
+			rc = c_answer_join_acting(&acting_check);
 			if(rc == SUCCESS){
 				if(acting_check == acting){
 					global_log("Присоединился к игре %#x",acting);

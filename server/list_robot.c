@@ -92,7 +92,7 @@ static int spawn_robot(char * robot,char ** list)
 
 	child_pid = fork();
 	if(child_pid != 0){
-		global_log("Запуск робота :> %s %s %s",robot,list[NAME_ROBOT],list[ACTING_ROBOT]);
+		global_log("Запуск робота : %d :> %s %s %s",child_pid,robot,list[NAME_ROBOT],list[ACTING_ROBOT]);
 		return SUCCESS;
 	}
 	else{
