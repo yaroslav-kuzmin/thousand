@@ -125,6 +125,7 @@ int read_socket(uint8_t ** buff,int len_buff)
 		size_read_buff -= len;
 		if(size_read_buff != 0){
 TODO колличество данных
+	test
 		}
 	}
 
