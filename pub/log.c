@@ -34,6 +34,8 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "pub.h"
 #include "total.h"
@@ -154,6 +156,17 @@ int init_log_system(int flag)
 		str = buffer_log;
 		len_buffer_log = strlen(str);
 	}
+	rc = fileno(log_stream);
+	if(rc != -1){
+		rc = fcntl(rc,F_SETFD,FD_CLOEXEC); /*Устанавливает флаг, закрыть файл при вызове дочерниго процесса*/
+		if(rc == -1){
+			global_warning("Несмог установить флаг закрытия файла для дочерниго процесса %#x : %s",getpid(),strerror(errno));
+			fclose(log_stream);
+			log_stream = NULL;
+			return FAILURE;
+		}
+	}
+
 	return SUCCESS;
 }
 
