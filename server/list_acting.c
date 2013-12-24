@@ -58,11 +58,19 @@ int delete_acting(uint16_t number,user_s * psu);
 #define PLAYER_LEFT        1
 #define PLAYER_RIGHT       2
 
+typedef enum _acting_flag_e acting_flag_e;
+
+enum _actingr_flag_e{
+	last_flag_acting;
+};
 typedef struct _acting_s acting_s;
 struct _acting_s
 {
 	uint16_t number;
+	uint32_t flag;
  	user_s * player[AMOUNT_PLAYER];
+	uint32_t stroke;
+	uint16_t points[AMOUNT_PLAYER];
 };
 
 static GHashTable * all_acting = NULL;
@@ -77,7 +85,7 @@ uint32_t acting_hash(gconstpointer key)
 }
 int acting_equal(gconstpointer a,gconstpointer b)
 {
-	uint16_t ta = ((acting_s *)a)->number;
+	uint16_t ta = ((acting_s  *)a)->number;
 	uint16_t tb = ((acting_s*)b)->number;
 	if(ta == tb){
 		return TRUE;
@@ -86,6 +94,8 @@ int acting_equal(gconstpointer a,gconstpointer b)
 }
 void acting_destroy(gpointer psa)
 {
+	uint32_t flag = psa->flag;
+	deinit_bit_flag(flag);
 	g_slice_free1(sizeof(acting_s),psa);
 }
 
@@ -128,10 +138,12 @@ static int create_acting(user_s * psu)
 
 	pta = g_slice_alloc0(sizeof(acting_s));
 	pta->number = number;
+	pta->player[PLAYER_CREATOR] = psu;
+	pta->flag = init_bit_flags(last_flag_acting);
+	g_hash_table_add(all_acting,pta);
+
 	set_bit_flag(flag,acting_user,1);
 	psu->acting = number;
-	pta->player[PLAYER_CREATOR] = psu;
-	g_hash_table_add(all_acting,pta);
 
 	global_log("Создал новою игру : 0x%04x!",pta->number);
 	return  SUCCESS;
@@ -240,8 +252,13 @@ static int check_new_acting(user_s * psu)
 
  	return SUCCESS;
 }
+void check_acting_server(gpointer psa,gpointer dupsa,gpointer data)
+{
+	acting_s * pta = (acting_s*)psa;
+остановился здесь
+}
 
-static int check_current_acting(user_s * psu)
+static int check_acting_user(user_s * psu)
 {
 	message_cmd_s * cmd;
 	int rc;
@@ -318,6 +335,8 @@ int current_actings(void)
 	user_s * ptu;
 	uint16_t flag;
 
+	g_hash_table_foreach(all_acting,check_acting_server,NULL);
+
 	ptu = get_first_user_list();
 	for(;ptu != NULL;ptu = get_next_user_list()){
 		flag = ptu->flag;
@@ -331,6 +350,7 @@ int current_actings(void)
 		}
 		check_current_acting(ptu);
 	}
+
 	return SUCCESS;
 }
 
