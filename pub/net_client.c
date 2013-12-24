@@ -26,6 +26,7 @@
 /*****************************************************************************/
 /* Дополнительные файлы                                                      */
 /*****************************************************************************/
+#include <stdlib.h>
 #include <stdint.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -48,7 +49,9 @@
 static all_message_u pub_message;
 static int fd_local_socket;
 static uint16_t number_packed = 0;
-static GByteArray * read_buff = NULL;
+static GByteArray * buff_save = NULL;
+#define SIZE_READ_BUFF         1024
+static uint8_t read_buff[SIZE_READ_BUFF] = {0};
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
@@ -76,7 +79,7 @@ int init_socket(void)
 	}
 	memset(&pub_message,0,sizeof(all_message_u));
 	global_log("Соединились с сервером!");
-	read_buff = g_byte_array_new();
+	buff_save = g_byte_array_new();
 	return SUCCESS;
 }
 
@@ -93,53 +96,87 @@ int write_socket(uint8_t * buff,int len)
 	}
 	return rc;
 }
-
-int read_socket(uint8_t ** buff,int len_buff)
+static int wait_read_socket(void)
 {
 	int rc;
- 	uint8_t * nbuff = *buff;
-	message_cmd_s * cmd;
-	uint16_t len = sizeof(message_cmd_s);
-
-	if(read_buff->len != 0){
-		cmd = (message_cmd_s *)obuff;
-		/*TODO проверка на неполное сообщение*/
-		switch(cmd->type){
-			case CMD_NEW_ACTING:
-			case CMD_JOIN_ACTING:
-			case CMD_CHECK_CONNECT:
-			case CMD_ACCESS_DENIED_LOGIN:
-			case CMD_ACCESS_DENIED_PASSWD:
-			case CMD_ACCESS_ALLOWED:
-				break;
-			default:
-				len += cmd->len;
-				break;
-		}
-		memcpy(nbuff,obuff,len);
-		/*TODO проверка на некорректны размер*/
-		size_read_buff -= len;
-		if(size_read_buff != 0){
-TODO колличество данных
-	test
-		}
-	}
-
-	rc = recv(fd_local_socket,obuff,len,0);
+	rc = recv(fd_local_socket,read_buff,SIZE_READ_BUFF,0);
 	if(rc == -1){
  		global_warning("Несмог прочитать сообшение : %d : %s",fd_local_socket,strerror(errno));
 		rc = FAILURE;
 	}
 	else{
+		buff_save = g_byte_array_append(buff_save,read_buff,rc);
 		rc = SUCCESS;
 	}
+
+	return rc;
+}
+static int record_buff(uint8_t ** buff,int max_len)
+{
+ 	uint8_t * dbuff = *buff;
+	uint8_t * sbuff = NULL;
+	message_cmd_s * cmd;
+	uint16_t len = sizeof(message_cmd_s);
+
+	if(len > buff_save->len){
+		return FAILURE;
+	}
+
+	cmd = (message_cmd_s *)buff_save->data;
+	switch(cmd->type){
+		case CMD_NEW_ACTING:
+		case CMD_JOIN_ACTING:
+		case CMD_CHECK_CONNECT:
+		case CMD_ACCESS_DENIED_LOGIN:
+		case CMD_ACCESS_DENIED_PASSWD:
+		case CMD_ACCESS_ALLOWED:
+			break;
+		default:
+			len += cmd->len;
+			break;
+	}
+	if(len > buff_save->len){
+		return FAILURE;
+	}
+
+	if(len > max_len){
+		/*TODO проверка на последовательность пакетов*/
+		global_warning("Привышен размер данных %d > %d!",len,max_len);
+		exit(EXIT_SUCCESS);
+	}
+	sbuff = buff_save->data;
+
+	memcpy(dbuff,sbuff,len);
+	buff_save = g_byte_array_remove_range(buff_save,0,len);
+
+	return SUCCESS;
+}
+
+int read_socket(uint8_t ** buff,int max_len)
+{
+	int rc;
+
+	for(;;){
+		if(buff_save->len != 0){
+			rc = record_buff(buff,max_len);
+			if(rc == SUCCESS ){
+				goto exit_read_socket;
+			}
+		}
+		rc = wait_read_socket();
+		if(rc == FAILURE){
+			goto exit_read_socket;
+		}
+	}
+exit_read_socket:
+
 	return rc;
 }
 
 int close_socket(void)
 {
 	close(fd_local_socket);
-	g_byte_array_free(read_buff,TRUE);
+	g_byte_array_free(buff_save,TRUE);
 	return SUCCESS;
 }
 
@@ -319,5 +356,32 @@ int c_answer_name_partner(char ** name)
 	len = msg->len;
 	memcpy(dname,sname,len);
 	return SUCCESS;
+}
+
+int c_cmd_game_over(uint16_t acting)
+{
+	int rc;
+	message_cmd_s cmd;
+	cmd.number = number_packed;
+	cmd.type = CMD_GAME_OVER;
+	cmd.msg = acting;
+
+	rc = write_socket((uint8_t *)&cmd,sizeof(message_cmd_s));
+	if(rc == SUCCESS){
+		number_packed++;
+		global_log("Отправил запрос на удаления игры : 0x%04x",acting);
+	}
+	return rc;
+}
+
+int c_answer_message(all_message_u * msg)
+{
+	int rc;
+	rc = read_socket((uint8_t**)&msg,sizeof(all_message_u));
+	if(rc == FAILURE){
+		global_log("Нет связи с сервером!");
+		rc = NOT_CONNECT_SERVER;
+	}
+	return rc;
 }
 /*****************************************************************************/

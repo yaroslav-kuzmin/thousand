@@ -46,6 +46,9 @@
 #include "list_robot.h"
 
 #include "net_server.h"
+
+
+int delete_acting(uint16_t number,user_s * psu);
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
@@ -59,7 +62,7 @@ typedef struct _acting_s acting_s;
 struct _acting_s
 {
 	uint16_t number;
-	user_s * player[AMOUNT_PLAYER];
+ 	user_s * player[AMOUNT_PLAYER];
 };
 
 static GHashTable * all_acting = NULL;
@@ -197,9 +200,6 @@ static int check_new_acting(user_s * psu)
 		rc = create_acting(psu);
 		del_message_list(psu,sizeof(message_cmd_s));
 		rc = s_cmd_new_acting(psu->fd,psu->package,psu->acting);
-		/*TODO сделать запуск в основном цикле ,  */
-		/*  здесь поставить флаг о не обходимости запуска */
-		/*  запуск двух роботов*/
 		run_robot(psu->acting);
 		run_robot(psu->acting);
 	}
@@ -240,6 +240,32 @@ static int check_new_acting(user_s * psu)
 
  	return SUCCESS;
 }
+
+static int check_current_acting(user_s * psu)
+{
+	message_cmd_s * cmd;
+	int rc;
+
+	rc = read_message_list(psu,(uint8_t **)&cmd);
+	if(rc < sizeof(message_cmd_s)){
+		return FAILURE;
+	}
+	switch(cmd->type){
+		case CMD_CHECK_CONNECT:
+			global_log("проверка соединения от игрока : %s",psu->name);
+			break;
+		case CMD_GAME_OVER:
+			global_log("Команда завершение игры от игрока : %s",psu->name);
+			delete_acting(psu->acting,psu);
+			break;
+		default:
+			global_log("Неизвестная команда %#x от игрока : %s",psu->name);
+			delete_acting(psu->acting,NULL);
+			break;
+	}
+
+	return SUCCESS;
+}
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
@@ -270,23 +296,17 @@ int create_actings(int * success)
 		if(rc == NO){
 			continue;
 		}
-		else{
-			rc = check_bit_flag(flag,acting_user,1);
-			if(rc == YES){
-				continue;
-			}
-			else{
-				rc = check_bit_flag(flag,message_user,1);
-				if(rc == NO){
-					continue;
-				}
-				else{
-					rc = check_new_acting(ptu);
-					if(rc == SUCCESS){
-						(*success)--;
-					}
-				}
-			}
+		rc = check_bit_flag(flag,acting_user,1);
+		if(rc == YES){
+			continue;
+		}
+		rc = check_bit_flag(flag,message_user,1);
+		if(rc == NO){
+			continue;
+		}
+		rc = check_new_acting(ptu);
+		if(rc == SUCCESS){
+			(*success)--;
 		}
 	}
 	return SUCCESS;
@@ -294,29 +314,61 @@ int create_actings(int * success)
 
 int current_actings(void)
 {
+	int rc;
+	user_s * ptu;
+	uint16_t flag;
+
+	ptu = get_first_user_list();
+	for(;ptu != NULL;ptu = get_next_user_list()){
+		flag = ptu->flag;
+		rc = check_bit_flag(flag,acting_user,1);
+		if(rc == NO){
+			continue;
+		}
+		rc = check_bit_flag(flag,message_user,1);
+		if(rc == NO){
+			continue;
+		}
+		check_current_acting(ptu);
+	}
 	return SUCCESS;
 }
 
-int delete_acting(uint16_t number)
+int delete_acting(uint16_t number,user_s * psu)
 {
-	int rc;
+ 	int rc;
 	acting_s ta;
 	acting_s * pta;
-	/*user_s * ptu;*/
+	user_s * ptu;
 	ta.number = number;
 
 	if(number == 0){
-		global_log("нет такой игры 0");
+ 		global_log("нет такой игры 0");
 		return FAILURE;
 	}
 
 	rc = g_hash_table_lookup_extended(all_acting,(gpointer)&ta,(gpointer*)&pta,(gpointer*)&pta);
 	if(rc == FALSE){
-		global_log("Нет такой игры 0x%04x в списке",number);
+ 		global_log("Нет такой игры 0x%04x в списке",number);
 	 	return FAILURE;
 	}
 
-	/*TODO послать команду другим участникам и удалить их*/
+	if(psu == NULL){ /*сервер является инициатором окончания игры*/
+		ptu = pta->player[PLAYER_CREATOR];
+		s_cmd_game_over(ptu->fd,ptu->package,pta->number);
+	}
+	else{
+		ptu = psu;
+	}
+	del_user_list(ptu->fd);
+
+	ptu = pta->player[PLAYER_LEFT];
+	s_cmd_game_over(ptu->fd,ptu->package,pta->number);
+	del_user_list(ptu->fd);
+
+	ptu = pta->player[PLAYER_RIGHT];
+	s_cmd_game_over(ptu->fd,ptu->package,pta->number);
+	del_user_list(ptu->fd);
 
 	g_hash_table_remove(all_acting,pta);
 	global_log("Удаление игры под номером 0x%04x",number);

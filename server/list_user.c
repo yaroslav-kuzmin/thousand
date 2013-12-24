@@ -156,11 +156,6 @@ int del_user_list(int fd)
 	ptu = current_user->data;
 	global_log("Удаление из списка игрока %s под номером %d!",ptu->name,ptu->fd);
 
-	if(ptu->acting != 0){
-		acting = ptu->acting;
-		ptu->acting = 0;
-		delete_acting(acting);
-	}
 	close(fd);
 	close_access_user(ptu->name);
 	tf = ptu->flag;

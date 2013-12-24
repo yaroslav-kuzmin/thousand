@@ -62,7 +62,7 @@ static int total_message(int fd,uint16_t number,uint16_t type,char * data,int le
 	uint8_t * dest_data;
 	int full_len = sizeof(message_cmd_s) + len;
 
-	g_message("total_message : %d",fd);
+g_message("total_message : %d",fd);
 
 	if(len > LEN_MESSAGE){
 		global_warning("Длина пакета больши размера буфера %d > %d!",len,LEN_MESSAGE);
@@ -351,6 +351,19 @@ int s_cmd_join_player(int fd,uint16_t number,char * name)
 		rc = SUCCESS;
 	}
 
+	return rc;
+}
+int s_cmd_game_over(int fd,uint16_t number,uint16_t number_acting)
+{
+	int rc;
+	rc = full_cmd(fd,number,CMD_GAME_OVER,number_acting);
+	if(rc == -1){
+	 	global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		rc = SUCCESS;
+	}
 	return rc;
 }
 /*****************************************************************************/

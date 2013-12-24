@@ -65,7 +65,7 @@ void sigaction_io(int num,siginfo_t * sig,void * test)
 {
 	amount_sig_io++;
 	/*TODO более точная обработка дискрипторов*/
-	g_message("fd :> %d : sig_io :> %d",sig->si_fd,amount_sig_io);
+	/*g_message("fd :> %d : sig_io :> %d",sig->si_fd,amount_sig_io);*/
 }
 
 /*****************************************************************************/
@@ -101,6 +101,7 @@ int main_loop(void)
 	int fd;
 	int new_connect = NO;
 	int new_acting = 0;
+	uint16_t check_acting = 0;
 
 	g_message("main_loop");
 
@@ -116,8 +117,8 @@ g_message("New check !");
 		for(;ptu != NULL;ptu = get_next_user_list()){
 			fd = ptu->fd;
 			rc = recv(fd,t_buff,SIZE_TEMP_BUFF,0);
-g_message(" read fd : %d | rc : %d",fd,rc);
 			if(rc > 0){
+g_message(" read fd : %d | rc : %d",fd,rc);
 				write_message_list(ptu,t_buff,rc);
 			}
 			else{
@@ -131,6 +132,7 @@ g_message(" read fd : %d | rc : %d",fd,rc);
 						global_log("Ошибка в соединении : %d : %s",fd,strerror(errno));
 						/*TODO удаляется игрок из списка и указатель списка переходит в начало (( */
 						del_user_list(fd);
+						/*TODO Проверка сушествующих игр на корректность*/
 						continue;
 					}
 				}
@@ -166,6 +168,7 @@ check_timeout:
 			}
 		}
 
+		current_actings();
 
 /* Ожидание сигналов на дискрипторах*/
 		if(amount_sig_io <= 1){

@@ -85,6 +85,7 @@ union _all_message_u
 #define CMD_NEW_ACTING              0x0009
 #define CMD_JOIN_ACTING             0x000A
 #define MESSAGE_JOIN_PLAYER         0x000B
+#define CMD_GAME_OVER               0x000C
 
 #endif
 

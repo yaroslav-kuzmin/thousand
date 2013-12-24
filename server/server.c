@@ -99,7 +99,7 @@ void close_server(int signal_num)
 	close_log_system();
 	close_warning_system();
 	deinit_str_alloc();
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
 
 int set_signals(void)

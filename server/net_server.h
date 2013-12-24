@@ -38,6 +38,7 @@ int s_cmd_access_allowed(int fd,uint16_t number);
 int s_cmd_new_acting(int fd,uint16_t number,uint16_t number_acting);
 int s_cmd_join_acting(int fd,uint16_t number,uint16_t number_acting);
 int s_cmd_join_player(int fd,uint16_t number,char * name);
+int s_cmd_game_over(int fd,uint16_t number,uint16_t number_acting);
 
 #endif
 

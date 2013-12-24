@@ -39,8 +39,8 @@
 #include "warning.h"
 #include "log.h"
 #include "ini.h"
-#include "net_client.h"
 #include "protocol.h"
+#include "net_client.h"
 
 /*****************************************************************************/
 /* глобальные переменые                                                      */
@@ -143,16 +143,17 @@ int access_server(void)
 {
 	int rc;
 	uint16_t acting_check;
-
+g_message("cmd login");
 	rc = c_cmd_login(robot);
 	if(rc == FAILURE){
 		return rc;
 	}
+g_message("cmd passwd");
 	rc = c_cmd_passwd(passwd);
 	if(rc == FAILURE){
 		return rc;
 	}
-
+g_message("wait answer");
 	rc = c_answer_access_server();
 	switch(rc){
 		case INCORRECT_LOGIN:
@@ -173,7 +174,7 @@ int access_server(void)
 			rc = FAILURE;
 			break;
 	}
-
+g_message("answer");
 	if(rc == SUCCESS){
 		rc = c_cmd_join_acting(acting);
 		if(rc == SUCCESS){
@@ -198,15 +199,53 @@ int access_server(void)
 			rc = FAILURE;
  		}
 	}
-
+g_message("SUCCESS");
  	return rc;
 }
 
+static all_message_u message;
+
+static int check_message(void)
+{
+	int rc = SUCCESS;
+
+	message_cmd_s * cmd = (message_cmd_s*)&message;
+	switch(cmd->type){
+		case CMD_CHECK_CONNECT:
+			global_log("Проверка соединения!");
+			break;
+		case CMD_GAME_OVER:
+			global_log("Пришла команда \'игра окончена\'!");
+			rc = FAILURE;
+			break;
+		default:
+			global_log("Пришла не известная команда : %#x",cmd->type);
+			rc = FAILURE;
+	 		break;
+	}
+	return rc;
+}
 
 int main_loop(void)
 {
+	int rc;
+
 	g_message("main loop");
 	global_log("Зашел в основной цикл !");
+
+	for(;;){
+		rc = c_answer_message(&message);
+		if(rc == FAILURE){
+			global_log("Зачем я нужен если нет связи ?");
+			break;
+		}
+		rc = check_message();
+		if(rc == FAILURE){
+			global_log("Закончилась игра!");
+			break;
+		}
+	}
+
 	return SUCCESS;
 }
 
@@ -217,7 +256,7 @@ void close_robot(int signal_num)
 	close_config();
 	close_log_system();
 	close_warning_system();
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
 
 int set_signals(void)
@@ -330,8 +369,7 @@ int main(int argc,char * argv[])
 
 	global_log("Имя робота :> %s",robot);
 	global_log("Номер игры :> %#04x",acting);
-	/*TODO если нет задержли не происходит подключения*/
-	sleep(4);
+	/*sleep(4); если нужно отлаживать сигналы поставить паузу*/
 	rc = access_server();
 	if(rc == FAILURE){
 		global_log("Нет доступа на сервер !");

@@ -40,8 +40,8 @@
 #include "warning.h"
 #include "log.h"
 #include "ini.h"
-#include "net_client.h"
 #include "protocol.h"
+#include "net_client.h"
 
 #include "interface_cmd.h"
 #include "interface.h"
@@ -124,7 +124,6 @@ int new_acting(void)
 
 	if_create_game(number_acting);
 
-	/* */
 	rc = c_answer_name_partner(&partner_left);
   	if(rc == FAILURE){
 		global_log("Сервер неприсоединяет игроков!");
@@ -199,11 +198,12 @@ int access_server(void)
 
 int main_loop(void)
 {
-	 interface_cmd_e  cmd;
+	interface_cmd_e  cmd;
 
 	for(;;){
 	 	cmd = if_cmd();
 		if (cmd == exit_client){
+			c_cmd_game_over(number_acting);
 			break;
 		}
 	}
@@ -219,7 +219,7 @@ void close_client(int signal_num)
 	close_config();
 	close_log_system();
 	close_warning_system();
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
 
 int set_signals(void)
