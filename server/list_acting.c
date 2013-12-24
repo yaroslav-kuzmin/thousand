@@ -60,8 +60,8 @@ int delete_acting(uint16_t number,user_s * psu);
 
 typedef enum _acting_flag_e acting_flag_e;
 
-enum _actingr_flag_e{
-	last_flag_acting;
+enum _acting_flag_e{
+	last_flag_acting
 };
 typedef struct _acting_s acting_s;
 struct _acting_s
@@ -94,7 +94,8 @@ int acting_equal(gconstpointer a,gconstpointer b)
 }
 void acting_destroy(gpointer psa)
 {
-	uint32_t flag = psa->flag;
+	acting_s * tk = (acting_s*)psa;
+	uint32_t flag = tk->flag;
 	deinit_bit_flag(flag);
 	g_slice_free1(sizeof(acting_s),psa);
 }
@@ -255,7 +256,7 @@ static int check_new_acting(user_s * psu)
 void check_acting_server(gpointer psa,gpointer dupsa,gpointer data)
 {
 	acting_s * pta = (acting_s*)psa;
-остановился здесь
+/*остановился здесь*/
 }
 
 static int check_acting_user(user_s * psu)
@@ -348,7 +349,7 @@ int current_actings(void)
 		if(rc == NO){
 			continue;
 		}
-		check_current_acting(ptu);
+		check_acting_user(ptu);
 	}
 
 	return SUCCESS;
