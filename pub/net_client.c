@@ -48,6 +48,7 @@
 static all_message_u pub_message;
 static int fd_local_socket;
 static uint16_t number_packed = 0;
+static GByteArray * read_buff = NULL;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
@@ -75,7 +76,7 @@ int init_socket(void)
 	}
 	memset(&pub_message,0,sizeof(all_message_u));
 	global_log("Соединились с сервером!");
-
+	read_buff = g_byte_array_new();
 	return SUCCESS;
 }
 
@@ -93,19 +94,14 @@ int write_socket(uint8_t * buff,int len)
 	return rc;
 }
 
-#define SIZE_READ_BUFF       1024
-static uint8_t read_buff[SIZE_READ_BUFF] = {0};
-static uint32_t size_read_buff = 0;
-
 int read_socket(uint8_t ** buff,int len_buff)
 {
 	int rc;
  	uint8_t * nbuff = *buff;
-	uint8_t * obuff = read_buff;
 	message_cmd_s * cmd;
 	uint16_t len = sizeof(message_cmd_s);
 
-	if(size_read_buff != 0){
+	if(read_buff->len != 0){
 		cmd = (message_cmd_s *)obuff;
 		/*TODO проверка на неполное сообщение*/
 		switch(cmd->type){
@@ -143,6 +139,7 @@ TODO колличество данных
 int close_socket(void)
 {
 	close(fd_local_socket);
+	g_byte_array_free(read_buff,TRUE);
 	return SUCCESS;
 }
 
