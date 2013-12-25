@@ -47,8 +47,6 @@
 
 #include "net_server.h"
 
-
-int delete_acting(uint16_t number,user_s * psu);
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
@@ -57,6 +55,9 @@ int delete_acting(uint16_t number,user_s * psu);
 #define PLAYER_CENTR       PLAYER_CREATOR
 #define PLAYER_LEFT        1
 #define PLAYER_RIGHT       2
+
+#define DELETE_ACTING_USER    -10
+#define DELETE_ACTING_SERVER  -11
 
 typedef enum _acting_flag_e acting_flag_e;
 
@@ -97,7 +98,7 @@ void acting_destroy(gpointer psa)
 	acting_s * tk = (acting_s*)psa;
 	uint32_t flag = tk->flag;
 	deinit_bit_flag(flag);
-	g_slice_free1(sizeof(acting_s),psa);
+ 	g_slice_free1(sizeof(acting_s),psa);
 }
 
 uint16_t check_number_acting(void)
@@ -253,36 +254,95 @@ static int check_new_acting(user_s * psu)
 
  	return SUCCESS;
 }
-void check_acting_server(gpointer psa,gpointer dupsa,gpointer data)
+int check_acting_server(acting_s * psa)
 {
-	acting_s * pta = (acting_s*)psa;
-/*остановился здесь*/
+	return SUCCESS;
 }
 
 static int check_acting_user(user_s * psu)
 {
-	message_cmd_s * cmd;
-	int rc;
+	message_cmd_s *  cmd;
+	int rc = SUCCESS;
+	int lm;
 
-	rc = read_message_list(psu,(uint8_t **)&cmd);
-	if(rc < sizeof(message_cmd_s)){
+	lm = read_message_list(psu,(uint8_t **)&cmd);
+	if(lm < sizeof(message_cmd_s)){
 		return FAILURE;
 	}
 	switch(cmd->type){
-		case CMD_CHECK_CONNECT:
-			global_log("проверка соединения от игрока : %s",psu->name);
+	 	case CMD_CHECK_CONNECT:
+	 		global_log( "проверка соединения от игрока : %s",psu->name);
 			break;
 		case CMD_GAME_OVER:
-			global_log("Команда завершение игры от игрока : %s",psu->name);
-			delete_acting(psu->acting,psu);
+	 		global_log(" Команда завершение игры от игрока : %s",psu->name);
+			rc = DELETE_ACTING_USER;
 			break;
 		default:
-			global_log("Неизвестная команда %#x от игрока : %s",psu->name);
-			delete_acting(psu->acting,NULL);
+			global_log("Н еизвестная команда %#x от игрока : %s",psu->name);
+			rc = DELETE_ACTING_SERVER;
 			break;
 	}
+	del_message_list(psu,lm);
+	return rc;
+}
 
-	return SUCCESS;
+int delete_acting(acting_s * psa,int cs)
+{
+	user_s * ptu;
+
+	ptu = psa->player[PLAYER_CREATOR];
+	if( cs == DELETE_ACTING_SERVER){ /*сервер является инициатором окончания игры*/
+		s_cmd_game_over(ptu->fd,ptu->package,psa->number);
+	}
+	del_user_list(ptu->fd);
+
+	ptu = psa->player[PLAYER_LEFT];
+	if(ptu != NULL){
+		s_cmd_game_over(ptu->fd,ptu->package,psa->number);
+		del_user_list(ptu->fd);
+	}
+
+	ptu = psa->player[PLAYER_RIGHT];
+	if(ptu != NULL){
+		s_cmd_game_over(ptu->fd,ptu->package,psa->number);
+		del_user_list(ptu->fd);
+	}
+	global_log("Удаление игры под номером 0x%04x",psa->number);
+
+	return TRUE;
+}
+
+gboolean check_acting(gpointer psa,gpointer dupsa,gpointer data)
+{
+	int rc;
+	int i;
+	acting_s * pta = (acting_s *)psa;
+	user_s * ptu;
+	uint32_t flag;
+
+	rc = check_acting_server(pta);
+	if(rc == DELETE_ACTING_SERVER){
+		return delete_acting(pta,rc);
+	}
+
+	for(i = 0;i < AMOUNT_PLAYER;i++){
+		ptu = pta->player[i];
+		flag = ptu->flag;
+		rc = check_bit_flag(flag,acting_user,1);
+		if(rc == NO){
+			continue;
+		}
+		rc = check_bit_flag(flag,message_user,1);
+		if(rc == NO){
+			continue;
+		}
+		rc = check_acting_user(ptu);
+		if((rc == DELETE_ACTING_USER) || (rc == DELETE_ACTING_SERVER)){
+			return delete_acting(pta,rc);
+		}
+	}
+
+	return FALSE;
 }
 /*****************************************************************************/
 /* Основная функция                                                          */
@@ -306,6 +366,7 @@ int create_actings(int * success)
 	int rc;
 	user_s * ptu;
 	uint16_t flag;
+
 
 	ptu = get_first_user_list();
 	for(;ptu != NULL;ptu = get_next_user_list()){
@@ -333,67 +394,12 @@ int create_actings(int * success)
 int current_actings(void)
 {
 	int rc;
-	user_s * ptu;
-	uint16_t flag;
 
-	g_hash_table_foreach(all_acting,check_acting_server,NULL);
+	rc = g_hash_table_foreach_remove(all_acting,check_acting,NULL);
 
-	ptu = get_first_user_list();
-	for(;ptu != NULL;ptu = get_next_user_list()){
-		flag = ptu->flag;
-		rc = check_bit_flag(flag,acting_user,1);
-		if(rc == NO){
-			continue;
-		}
-		rc = check_bit_flag(flag,message_user,1);
-		if(rc == NO){
-			continue;
-		}
-		check_acting_user(ptu);
-	}
+	global_log("Проверили текущие игры : %d",rc);
 
-	return SUCCESS;
+ 	return SUCCESS;
 }
 
-int delete_acting(uint16_t number,user_s * psu)
-{
- 	int rc;
-	acting_s ta;
-	acting_s * pta;
-	user_s * ptu;
-	ta.number = number;
-
-	if(number == 0){
- 		global_log("нет такой игры 0");
-		return FAILURE;
-	}
-
-	rc = g_hash_table_lookup_extended(all_acting,(gpointer)&ta,(gpointer*)&pta,(gpointer*)&pta);
-	if(rc == FALSE){
- 		global_log("Нет такой игры 0x%04x в списке",number);
-	 	return FAILURE;
-	}
-
-	if(psu == NULL){ /*сервер является инициатором окончания игры*/
-		ptu = pta->player[PLAYER_CREATOR];
-		s_cmd_game_over(ptu->fd,ptu->package,pta->number);
-	}
-	else{
-		ptu = psu;
-	}
-	del_user_list(ptu->fd);
-
-	ptu = pta->player[PLAYER_LEFT];
-	s_cmd_game_over(ptu->fd,ptu->package,pta->number);
-	del_user_list(ptu->fd);
-
-	ptu = pta->player[PLAYER_RIGHT];
-	s_cmd_game_over(ptu->fd,ptu->package,pta->number);
-	del_user_list(ptu->fd);
-
-	g_hash_table_remove(all_acting,pta);
-	global_log("Удаление игры под номером 0x%04x",number);
-
-	return SUCCESS;
-}
 /*****************************************************************************/
