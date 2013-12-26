@@ -56,25 +56,29 @@
 #define PLAYER_LEFT        1
 #define PLAYER_RIGHT       2
 
-#define DELETE_ACTING_USER    -10
-#define DELETE_ACTING_SERVER  -11
-
 typedef enum _acting_flag_e acting_flag_e;
 
 enum _acting_flag_e{
+	all_join_acting,
+	begin_acting,
+	auction_acting,
+	play_acting,
+	end_acting,
 	last_flag_acting
 };
 typedef struct _acting_s acting_s;
 struct _acting_s
 {
-	uint16_t number;
+ 	uint16_t number;
 	uint32_t flag;
  	user_s * player[AMOUNT_PLAYER];
 	uint32_t stroke;
 	uint16_t points[AMOUNT_PLAYER];
+	uint8_t dealer;
 };
 
 static GHashTable * all_acting = NULL;
+static GRand * fortune = NULL;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
@@ -100,8 +104,8 @@ void acting_destroy(gpointer psa)
 	deinit_bit_flag(flag);
  	g_slice_free1(sizeof(acting_s),psa);
 }
-
-uint16_t check_number_acting(void)
+/************************************/
+static uint16_t check_number_acting(void)
 {
 	uint32_t i;
 	acting_s ta;
@@ -117,7 +121,6 @@ uint16_t check_number_acting(void)
 
 	return 0;
 }
-
 static int create_acting(user_s * psu)
 {
 	uint32_t flag = psu->flag;
@@ -148,17 +151,16 @@ static int create_acting(user_s * psu)
 	psu->acting = number;
 
 	global_log("Создал новою игру : 0x%04x!",pta->number);
-	return  SUCCESS;
+	 return  SUCCESS;
 }
-
 static int join_acting(user_s * psu,uint16_t number)
 {
-	int rc,i;
+	int rc,i,c;
 	uint32_t flag = psu->flag;
 	acting_s ta;
 	acting_s * pta;
-	ta.number = number;
 
+	ta.number = number;
 	rc = g_hash_table_lookup_extended(all_acting,(gpointer)&ta,(gpointer *)&pta,(gpointer*)&pta);
 	if(rc == FALSE){
 		psu->acting = 0;
@@ -182,9 +184,13 @@ static int join_acting(user_s * psu,uint16_t number)
 	set_bit_flag(flag,acting_user,1);
 	psu->acting = pta->number;
 
-	for(i = 0;i < AMOUNT_PLAYER;i++){
+	for(c = 0,i = 0;i < AMOUNT_PLAYER;i++){
 		user_s * opsu = pta->player[i];
-		if((opsu == NULL) || (opsu == psu)){ /*нет игрока или это текущий игрок*/
+		if(opsu == NULL){ /*нет игрока*/
+			continue;
+		}
+		c++;
+		if( opsu == psu){/*это текущий игрок*/
 			continue;
 		}
 		flag = opsu->flag;
@@ -197,9 +203,14 @@ static int join_acting(user_s * psu,uint16_t number)
 		global_log("Отправил игроку %s сообщение о присоединени игрока %s в игру 0x%04x"
 		          ,opsu->name,psu->name,pta->number);
 	}
+
+	if(c == i){
+		flag = pta->flag;
+		set_bit_flag(flag,all_join_acting,1);
+	}
+
 	return SUCCESS;
 }
-
 static int check_new_acting(user_s * psu)
 {
 	message_cmd_s * cmd;
@@ -233,14 +244,14 @@ static int check_new_acting(user_s * psu)
 		}
 		else{
 			global_log("Некоректная комманда от игрока %s : %d",psu->name,psu->fd);
-			del_user_list(psu->fd);
+			del_user_list(psu->fd,NOT_ACTING_DEL);
 			return SUCCESS;
 		}
 	}
 
 	if(rc == FAILURE){
 		global_log("Несмог отправить сообщение игроку %d на создание игры : %s",psu->fd,strerror(errno));
-		del_user_list(psu->fd);
+		del_user_list(psu->fd,NOT_ACTING_DEL);
 		return SUCCESS;
 	}
 	psu->package++;
@@ -254,8 +265,80 @@ static int check_new_acting(user_s * psu)
 
  	return SUCCESS;
 }
-int check_acting_server(acting_s * psa)
+/************************************/
+static int delete_acting(acting_s * psa,int cs)
 {
+	user_s * ptu;
+
+	ptu = psa->player[PLAYER_CREATOR];
+	if( cs == DELETE_ACTING_SERVER){ /*сервер является инициатором окончания игры*/
+		s_cmd_game_over(ptu->fd,ptu->package,psa->number);
+	}
+	del_user_list(ptu->fd,ACTING_DEl);
+
+	ptu = psa->player[PLAYER_LEFT];
+	if(ptu != NULL){
+		s_cmd_game_over(ptu->fd,ptu->package,psa->number);
+		del_user_list(ptu->fd,ACTING_DEl);
+	}
+
+	ptu = psa->player[PLAYER_RIGHT];
+	if(ptu != NULL){
+		s_cmd_game_over(ptu->fd,ptu->package,psa->number);
+		del_user_list(ptu->fd,ACTING_DEl);
+	}
+	global_log("Удаление игры под номером 0x%04x",psa->number);
+
+	return TRUE;
+}
+
+static int rand_dealer(void)
+{
+	int rc = g_rand_int_range(fortune,0,AMOUNT_PLAYER);
+	return rc;
+}
+
+static int check_begin_acting(acting_s * psa)
+{
+	if(psa->stroke == 0){
+		psa->dealer = rand_dealer();
+	}
+	return SUCCESS;
+}
+
+static int check_auction_acting(acting_s * pas)
+{
+	return SUCCESS;
+}
+
+static int check_play_acting(acting_s * psa)
+{
+	return SUCCESS;
+}
+
+static int check_end_acting(acting_s * psa)
+{
+	return SUCCESS;
+}
+
+static int check_acting_server(acting_s * psa)
+{
+	int rc;
+	uint32_t flag = psa->flag;
+
+	rc = check_bit_flag(flag,all_join_acting,1);
+	if(rc == NO){
+		return FAILURE;
+	}
+	
+	rc = check_bit_flag(flag,begin_acting,1);
+	if(rc == YES){
+		rc = check_begin_acting(psa);
+	}
+	check_auction_acting(psa);
+	check_play_acting(psa);
+	check_end_acting(psa);
+
 	return SUCCESS;
 }
 
@@ -274,82 +357,25 @@ static int check_acting_user(user_s * psu)
 	 		global_log( "проверка соединения от игрока : %s",psu->name);
 			break;
 		case CMD_GAME_OVER:
-	 		global_log(" Команда завершение игры от игрока : %s",psu->name);
+	 		global_log("Команда \'завершение игры\' от игрока : %s",psu->name);
 			rc = DELETE_ACTING_USER;
 			break;
 		default:
-			global_log("Н еизвестная команда %#x от игрока : %s",psu->name);
-			rc = DELETE_ACTING_SERVER;
+			global_log("Неизвестная команда %#x от игрока : %s",psu->name);
+			del_user_list(psu->fd,NOT_ACTING_DEL);
 			break;
 	}
 	del_message_list(psu,lm);
 	return rc;
 }
 
-int delete_acting(acting_s * psa,int cs)
-{
-	user_s * ptu;
-
-	ptu = psa->player[PLAYER_CREATOR];
-	if( cs == DELETE_ACTING_SERVER){ /*сервер является инициатором окончания игры*/
-		s_cmd_game_over(ptu->fd,ptu->package,psa->number);
-	}
-	del_user_list(ptu->fd);
-
-	ptu = psa->player[PLAYER_LEFT];
-	if(ptu != NULL){
-		s_cmd_game_over(ptu->fd,ptu->package,psa->number);
-		del_user_list(ptu->fd);
-	}
-
-	ptu = psa->player[PLAYER_RIGHT];
-	if(ptu != NULL){
-		s_cmd_game_over(ptu->fd,ptu->package,psa->number);
-		del_user_list(ptu->fd);
-	}
-	global_log("Удаление игры под номером 0x%04x",psa->number);
-
-	return TRUE;
-}
-
-gboolean check_acting(gpointer psa,gpointer dupsa,gpointer data)
-{
-	int rc;
-	int i;
-	acting_s * pta = (acting_s *)psa;
-	user_s * ptu;
-	uint32_t flag;
-
-	rc = check_acting_server(pta);
-	if(rc == DELETE_ACTING_SERVER){
-		return delete_acting(pta,rc);
-	}
-
-	for(i = 0;i < AMOUNT_PLAYER;i++){
-		ptu = pta->player[i];
-		flag = ptu->flag;
-		rc = check_bit_flag(flag,acting_user,1);
-		if(rc == NO){
-			continue;
-		}
-		rc = check_bit_flag(flag,message_user,1);
-		if(rc == NO){
-			continue;
-		}
-		rc = check_acting_user(ptu);
-		if((rc == DELETE_ACTING_USER) || (rc == DELETE_ACTING_SERVER)){
-			return delete_acting(pta,rc);
-		}
-	}
-
-	return FALSE;
-}
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
 int init_list_acting(void)
 {
 	all_acting = g_hash_table_new_full(acting_hash,acting_equal,acting_destroy,NULL);
+	fortune = g_rand_new();
 	global_log("Создал список игр!");
 	return SUCCESS;
 }
@@ -357,6 +383,7 @@ int init_list_acting(void)
 int deinit_list_acting(void)
 {
 	g_hash_table_destroy(all_acting);
+	g_rand_free(fortune);
 	global_log("Удалил список игр!");
 	return SUCCESS;
 }
@@ -391,10 +418,48 @@ int create_actings(int * success)
 	return SUCCESS;
 }
 
+gboolean check_acting(gpointer psa,gpointer dupsa,gpointer data)
+{
+	int rc;
+	int i;
+	acting_s * pta = (acting_s *)psa;
+	user_s * ptu;
+	uint32_t flag;
+
+	rc = check_acting_server(pta);
+	if(rc == DELETE_ACTING_SERVER){
+		return delete_acting(pta,rc);
+	}
+
+	for(i = 0;i < AMOUNT_PLAYER;i++){
+		ptu = pta->player[i];
+		if(ptu == NULL){
+			continue;
+		}
+		flag = ptu->flag;
+
+		rc = check_bit_flag(flag,acting_user,1);
+		if(rc == NO){
+			continue;
+		}
+		rc = check_bit_flag(flag,message_user,1);
+		if(rc == NO){
+			continue;
+		}
+		rc = check_acting_user(ptu);
+		if(rc == DELETE_ACTING_USER){
+			return delete_acting(pta,rc);
+		}
+	}
+
+	return FALSE;
+}
+
 int current_actings(void)
 {
 	int rc;
 
+	g_message("current acting : %p",all_acting);
 	rc = g_hash_table_foreach_remove(all_acting,check_acting,NULL);
 
 	global_log("Проверили текущие игры : %d",rc);
@@ -402,4 +467,42 @@ int current_actings(void)
  	return SUCCESS;
 }
 
+/*TODO Сделать более интелектуальное отсоединения игроков от игры */
+/*     в зависимости кто вышел и кто остался */
+/*     или перезапустить робота или удалить всю игру*/
+int delete_user_acting(user_s * psu)
+{
+	int rc;
+	acting_s ta;
+	acting_s * pta;
+	uint32_t flag;
+
+	if(psu->acting == 0){
+		return FAILURE;
+	}
+	ta.number = psu->acting;
+
+	rc = g_hash_table_lookup_extended(all_acting,(gpointer)&ta,(gpointer *)&pta,(gpointer*)&pta);
+	if(rc == FALSE){
+		global_log("Нет такой игры 0x%04x в списке",ta.number);
+		return FAILURE;
+	}
+
+	if(psu == pta->player[PLAYER_CENTR]){
+		pta->player[PLAYER_CENTR] = NULL;
+	}
+	if(psu == pta->player[PLAYER_LEFT]){
+		pta->player[PLAYER_LEFT] = NULL;
+	}
+	if(psu == pta->player[PLAYER_RIGHT]){
+		pta->player[PLAYER_RIGHT] = NULL;
+	}
+
+	flag = pta->flag;
+	unset_bit_flag(flag,all_join_acting,1);
+
+	global_log("Игрок %s вышел из игры 0x%04x!",psu->name,pta->number);
+
+	return SUCCESS;
+}
 /*****************************************************************************/

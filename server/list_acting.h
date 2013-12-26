@@ -32,6 +32,8 @@ int deinit_list_acting(void);
 
 int create_actings(int * success);
 int current_actings(void);
+int delete_user_acting(user_s * psu);
+
 #endif
 
 /*****************************************************************************/

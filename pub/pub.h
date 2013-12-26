@@ -26,27 +26,33 @@
 
 #ifndef PUB_H
 #define PUB_H
-
+/*************** RETURN *************/
 #define SUCCESS        0
 #define FAILURE        -1
 
 #define YES            1
 #define NO             0
 
+#define DELETE_ACTING_USER    2
+#define DELETE_ACTING_SERVER  3
+
+#define NOT_ACTING_DEL       NO
+#define ACTING_DEl           YES
+/************************************/
 #define BEGIN_TIME     1900
 
 #define SERVER_FLAG       0x01
 #define CLIENT_FLAG       0x02
 #define ROBOT_FLAG        0x03
-/*************************************/
+/************************************/
 /***** Длина сообщений ****/
 #define LEN_USER_NAME      64                  /*длина строки имени игрока*/
 #define LEN_MESSAGE        LEN_USER_NAME       /*длина максимального сообщения*/
-/*************************************/
+/************************************/
 
 #define WAITING_USER           100   /*Проверка подключения в секундах каждого пользователя на сервере*/
 
-/*************** ERROR ***************/
+/*************** ERROR **************/
 
 #define NOT_CONNECT_SERVER            -10
 #define NOT_CONNECT_CLIENT            -11

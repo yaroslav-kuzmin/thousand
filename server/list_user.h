@@ -33,7 +33,7 @@ int init_list_user(void);
 int deinit_list_user(void);
 
 int add_user_list(int fd);
-int del_user_list(int fd);
+int del_user_list(int fd,int del_acting);
 
 user_s * get_user_list(uint32_t number);
 user_s * get_first_user_list(void);

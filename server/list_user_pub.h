@@ -27,7 +27,6 @@
 #ifndef LIST_USER_PUB_H
 #define LIST_USER_PUB_H
 
-
 typedef enum _user_flag_e user_flag_e;
 
 enum _user_flag_e{

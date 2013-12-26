@@ -334,7 +334,7 @@ int access_users(int * success)
 				if( rc == NO){
 					rc = full_login(ptu);
 					if(rc == FAILURE){
-						del_user_list(ptu->fd);
+						del_user_list(ptu->fd,NOT_ACTING_DEL);
 	 		 			continue;
 	 		 		}
 			 	}
@@ -342,7 +342,7 @@ int access_users(int * success)
 				if(rc == NO){
 					rc = full_passwd(ptu);
 					if(rc == FAILURE){
-						del_user_list(ptu->fd);
+						del_user_list(ptu->fd,NOT_ACTING_DEL);
 						continue;
 	 				}
 				}

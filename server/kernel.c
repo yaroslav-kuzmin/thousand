@@ -101,7 +101,7 @@ int main_loop(void)
 	int fd;
 	int new_connect = NO;
 	int new_acting = 0;
-	uint16_t check_acting = 0;
+	/*uint16_t check_acting = 0;*/
 
 	g_message("main_loop");
 
@@ -131,7 +131,7 @@ g_message(" read fd : %d | rc : %d",fd,rc);
 						/* TODO проверка ошибки*/
 						global_log("Ошибка в соединении : %d : %s",fd,strerror(errno));
 						/*TODO удаляется игрок из списка и указатель списка переходит в начало (( */
-						del_user_list(fd);
+						del_user_list(fd,NOT_ACTING_DEL);
 						/*TODO Проверка сушествующих игр на корректность*/
 						continue;
 					}
@@ -145,7 +145,7 @@ check_timeout:
 						/*TODO корректное сохранение игры */
 						/*TODO проверка ошибки отправки сообщения*/
 						/*TODO удаляется игрок из списка и указатель списка переходит в начало (( */
-							del_user_list(fd);
+							del_user_list(fd,NOT_ACTING_DEL);
 							continue;
 						}
 						ptu->package ++;

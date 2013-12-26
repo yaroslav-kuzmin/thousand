@@ -132,12 +132,11 @@ int add_user_list(int fd)
 	return SUCCESS;
 }
 
-int del_user_list(int fd)
+int del_user_list(int fd,int del_acting)
 {
 	user_s * ptu;
 	GByteArray * tb;
 	uint32_t tf;
-	uint16_t acting;
 	user_s tu;
 
 	if(begin_user == NULL){
@@ -150,11 +149,15 @@ int del_user_list(int fd)
 	if(current_user == NULL){
 		global_log("Нет такого идентификатора игрока : %d!",fd);
 		current_user = begin_user;
-		return FAILURE;
+	 	return FAILURE;
 	}
 
 	ptu = current_user->data;
 	global_log("Удаление из списка игрока %s под номером %d!",ptu->name,ptu->fd);
+
+	if(del_acting == NOT_ACTING_DEL){/*Удаляется не игра*/
+		delete_user_acting(ptu);
+	}
 
 	close(fd);
 	close_access_user(ptu->name);
