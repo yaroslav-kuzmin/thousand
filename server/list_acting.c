@@ -60,10 +60,10 @@ typedef enum _acting_flag_e acting_flag_e;
 
 enum _acting_flag_e{
 	all_join_acting,
-	begin_acting,
-	auction_acting,
-	play_acting,
-	end_acting,
+	begin_round,
+	auction_round,
+	play_round,
+	end_round,
 	last_flag_acting
 };
 typedef struct _acting_s acting_s;
@@ -72,7 +72,7 @@ struct _acting_s
  	uint16_t number;
 	uint32_t flag;
  	user_s * player[AMOUNT_PLAYER];
-	uint32_t stroke;
+	uint32_t round;
 	uint16_t points[AMOUNT_PLAYER];
 	uint8_t dealer;
 };
@@ -298,25 +298,25 @@ static int rand_dealer(void)
 	return rc;
 }
 
-static int check_begin_acting(acting_s * psa)
+static int check_begin_round(acting_s * psa)
 {
-	if(psa->stroke == 0){
+	if(psa->round == 0){
 		psa->dealer = rand_dealer();
 	}
 	return SUCCESS;
 }
 
-static int check_auction_acting(acting_s * pas)
+static int check_auction_round(acting_s * pas)
 {
 	return SUCCESS;
 }
 
-static int check_play_acting(acting_s * psa)
+static int check_play_round(acting_s * psa)
 {
 	return SUCCESS;
 }
 
-static int check_end_acting(acting_s * psa)
+static int check_end_round(acting_s * psa)
 {
 	return SUCCESS;
 }
@@ -330,14 +330,14 @@ static int check_acting_server(acting_s * psa)
 	if(rc == NO){
 		return FAILURE;
 	}
-	
-	rc = check_bit_flag(flag,begin_acting,1);
+
+	rc = check_bit_flag(flag,begin_round,1);
 	if(rc == YES){
-		rc = check_begin_acting(psa);
+		rc = check_begin_round(psa);
 	}
-	check_auction_acting(psa);
-	check_play_acting(psa);
-	check_end_acting(psa);
+	check_auction_round(psa);
+	check_play_round(psa);
+	check_end_round(psa);
 
 	return SUCCESS;
 }
