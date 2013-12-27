@@ -49,15 +49,3 @@ include $(DEPEND)
 clean:
 	-rm -f $(LIB) *~ $(OBJ_CATALOG)*.o $(DEPEND_CATALOG)*.d 
 
-
-
-
-
-
-
-
-
-
-
-
-

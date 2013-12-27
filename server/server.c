@@ -41,6 +41,7 @@
 #include "log.h"
 #include "ini.h"
 #include "bit_flag.h"
+#include "cards.h"
 
 #include "kernel.h"
 #include "net_server.h"
@@ -49,6 +50,7 @@
 #include "access.h"
 #include "list_acting.h"
 #include "list_robot.h"
+#include "decks.h"
 
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
@@ -89,6 +91,7 @@ void print_version(FILE * stream)
 
 void close_server(int signal_num)
 {
+	deinit_decks();
 	deinit_list_robot();
 	deinit_list_acting();
 	deinit_access_user();
@@ -281,6 +284,11 @@ int main(int argc,char * argv[])
 	rc = init_list_robot();
 	if(rc == FAILURE){
 		global_warning("Несмог инициализировать список роботов!");
+		goto exit_server;
+	}
+	rc = init_decks();
+	if(r == FAILURE){
+		global_warning("Несмог инициализировать систему для работы с колодами!");
 		goto exit_server;
 	}
 	rc = set_timer();

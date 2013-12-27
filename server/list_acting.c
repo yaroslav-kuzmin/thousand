@@ -40,6 +40,7 @@
 #include "log.h"
 #include "warning.h"
 #include "bit_flag.h"
+#include "card.h"
 
 #include "list_user.h"
 #include "list_message.h"
@@ -75,6 +76,7 @@ struct _acting_s
 	uint32_t round;
 	uint16_t points[AMOUNT_PLAYER];
 	uint8_t dealer;
+	deck_cards_s * deck;
 };
 
 static GHashTable * all_acting = NULL;
@@ -99,9 +101,11 @@ int acting_equal(gconstpointer a,gconstpointer b)
 }
 void acting_destroy(gpointer psa)
 {
-	acting_s * tk = (acting_s*)psa;
-	uint32_t flag = tk->flag;
+	acting_s * pta = (acting_s*)psa;
+	uint32_t flag = pta->flag;
+	deck_cards_s * d = pta->deck;
 	deinit_bit_flag(flag);
+	g_slice_free1(sizeof(deck_cards_s),d);
  	g_slice_free1(sizeof(acting_s),psa);
 }
 /************************************/
@@ -145,6 +149,7 @@ static int create_acting(user_s * psu)
 	pta->number = number;
 	pta->player[PLAYER_CREATOR] = psu;
 	pta->flag = init_bit_flags(last_flag_acting);
+	pta->deck = g_slice_alloc(sizeof(deck_cards_s));
 	g_hash_table_add(all_acting,pta);
 
 	set_bit_flag(flag,acting_user,1);
