@@ -287,7 +287,7 @@ int main(int argc,char * argv[])
 		goto exit_server;
 	}
 	rc = init_decks();
-	if(r == FAILURE){
+	if(rc == FAILURE){
 		global_warning("Несмог инициализировать систему для работы с колодами!");
 		goto exit_server;
 	}

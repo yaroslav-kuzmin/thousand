@@ -27,6 +27,8 @@
 #ifndef DECKS_H
 #define DECKS_H
 
+#include "decks_pub.h"
+
 int generate_deck(deck_cards_s * psd);
 
 int init_decks(void);

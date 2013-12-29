@@ -40,12 +40,13 @@
 #include "log.h"
 #include "warning.h"
 #include "bit_flag.h"
-#include "card.h"
+#include "cards.h"
 
 #include "list_user.h"
 #include "list_message.h"
 #include "list_robot.h"
 
+#include "decks.h"
 #include "net_server.h"
 
 /*****************************************************************************/
@@ -271,27 +272,24 @@ static int check_new_acting(user_s * psu)
  	return SUCCESS;
 }
 /************************************/
-static int delete_acting(acting_s * psa,int cs)
+
+static int delete_acting(acting_s * psa,user_s * psu)
 {
+	int i;
 	user_s * ptu;
 
-	ptu = psa->player[PLAYER_CREATOR];
-	if( cs == DELETE_ACTING_SERVER){ /*сервер является инициатором окончания игры*/
-		s_cmd_game_over(ptu->fd,ptu->package,psa->number);
-	}
-	del_user_list(ptu->fd,ACTING_DEl);
 
-	ptu = psa->player[PLAYER_LEFT];
-	if(ptu != NULL){
-		s_cmd_game_over(ptu->fd,ptu->package,psa->number);
+	for(i = 0;i < AMOUNT_PLAYER;i++){
+		ptu = psa->player[i];
+		if(ptu == NULL){
+			continue;
+		}
+		if(ptu != psu){
+			s_cmd_game_over(ptu->fd,ptu->package,psa->number);
+		}
 		del_user_list(ptu->fd,ACTING_DEl);
 	}
 
-	ptu = psa->player[PLAYER_RIGHT];
-	if(ptu != NULL){
-		s_cmd_game_over(ptu->fd,ptu->package,psa->number);
-		del_user_list(ptu->fd,ACTING_DEl);
-	}
 	global_log("Удаление игры под номером 0x%04x",psa->number);
 
 	return TRUE;
@@ -374,6 +372,43 @@ static int check_acting_user(user_s * psu)
 	return rc;
 }
 
+static gboolean check_acting(gpointer psa,gpointer dupsa,gpointer data)
+{
+	int rc;
+	int i;
+	acting_s * pta = (acting_s *)psa;
+	user_s * ptu;
+	uint32_t flag;
+
+	rc = check_acting_server(pta);
+	if(rc == DELETE_ACTING_SERVER){
+		return delete_acting(pta,NULL);
+	}
+
+	for(i = 0;i < AMOUNT_PLAYER;i++){
+		ptu = pta->player[i];
+		if(ptu == NULL){
+			continue;
+		}
+		flag = ptu->flag;
+
+		rc = check_bit_flag(flag,acting_user,1);
+		if(rc == NO){
+			continue;
+		}
+		rc = check_bit_flag(flag,message_user,1);
+		if(rc == NO){
+			continue;
+		}
+		rc = check_acting_user(ptu);
+		if(rc == DELETE_ACTING_USER){
+			return delete_acting(pta,ptu);
+		}
+	}
+
+	return FALSE;
+}
+
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
@@ -399,7 +434,6 @@ int create_actings(int * success)
 	user_s * ptu;
 	uint16_t flag;
 
-
 	ptu = get_first_user_list();
 	for(;ptu != NULL;ptu = get_next_user_list()){
 		flag = ptu->flag;
@@ -421,43 +455,6 @@ int create_actings(int * success)
 		}
 	}
 	return SUCCESS;
-}
-
-gboolean check_acting(gpointer psa,gpointer dupsa,gpointer data)
-{
-	int rc;
-	int i;
-	acting_s * pta = (acting_s *)psa;
-	user_s * ptu;
-	uint32_t flag;
-
-	rc = check_acting_server(pta);
-	if(rc == DELETE_ACTING_SERVER){
-		return delete_acting(pta,rc);
-	}
-
-	for(i = 0;i < AMOUNT_PLAYER;i++){
-		ptu = pta->player[i];
-		if(ptu == NULL){
-			continue;
-		}
-		flag = ptu->flag;
-
-		rc = check_bit_flag(flag,acting_user,1);
-		if(rc == NO){
-			continue;
-		}
-		rc = check_bit_flag(flag,message_user,1);
-		if(rc == NO){
-			continue;
-		}
-		rc = check_acting_user(ptu);
-		if(rc == DELETE_ACTING_USER){
-			return delete_acting(pta,rc);
-		}
-	}
-
-	return FALSE;
 }
 
 int current_actings(void)

@@ -27,19 +27,23 @@
 #ifndef PUB_H
 #define PUB_H
 /*************** RETURN *************/
-#define SUCCESS        0
-#define FAILURE        -1
+#define SUCCESS                0
+#define FAILURE               -1
 
-#define YES            1
-#define NO             0
+#define YES                    1
+#define NO                     0
 
-#define DELETE_ACTING_USER    2
-#define DELETE_ACTING_SERVER  3
+#define DELETE_ACTING_USER     2
+#define DELETE_ACTING_SERVER   3
 
-#define NOT_ACTING_DEL       NO
-#define ACTING_DEl           YES
+#define NOT_ACTING_DEL         NO
+#define ACTING_DEl             YES
+
+#define COMPARE_LESS          -1
+#define COMPARE_MORE           1
+#define COMPARE_EQUALS         0
 /************************************/
-#define BEGIN_TIME     1900
+#define BEGIN_TIME        1900
 
 #define SERVER_FLAG       0x01
 #define CLIENT_FLAG       0x02

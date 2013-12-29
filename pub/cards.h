@@ -30,10 +30,10 @@
 #define UNKNOWN_CARD       0xC0
 
 #define AMOUNT_SUIT_CARD   4
-#define HEARTS             0x30    /*Черви  U+2662 | U+2666*/
-#define DIAMONDS           0x20    /*Бубны  U+2663 | U+2667*/
-#define CLUBS              0x10    /*Крести U+2661 | U+2665*/
-#define SPADES             0x00    /*Пики   U+2660 | U+2664*/
+#define HEARTS             0x30    /*Черви  U+2662 | U+2666 */
+#define DIAMONDS           0x20    /*Бубны  U+2663 | U+2667 */
+#define CLUBS              0x10    /*Крести U+2661 | U+2665 */
+#define SPADES             0x00    /*Пики   U+2660 | U+2664 */
 
 #define AMOUNT_VALUE_CARD  6
 #define ACE                0x0B
@@ -46,16 +46,6 @@
 #define CARD(suit,value)             (suit + value)
 #define SUIT_CARD(card)              (card & 0xF0)
 #define VALUE_CARD(card)             (card & 0x0F)
-
-#define AMOUNT_CARD_PLAYER     8
-#define AMOUNT_CARD_DEAL       3
-typedef struct _deck_cards_s  deck_cards_s;
-struct _deck_cards_s{
-	uint8_t player_center[AMOUNT_CARD_PLAYER];
-	uint8_t player_left[AMOUNT_CARD_PLAYER];
-	uint8_t player_right[AMOUNT_CARD_PLAYER];
-	uint8_t deal[AMOUNT_CARD_DEAL];
-};
 
 #endif
 
