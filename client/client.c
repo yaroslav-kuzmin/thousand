@@ -329,13 +329,13 @@ int main(int argc,char * argv[])
 /*************************************/
 	rc = access_server();
 	if(rc == FAILURE){
-		global_warning("Не корректный логин : %s или пароль : %s",user,passwd);
+		global_log("Не корректный логин : %s или пароль : %s",user,passwd);
 	 	goto exit_client;
 	}
 
 	rc = new_acting();
 	if(rc == FAILURE){
-		global_warning("Несмог создать игру");
+		global_log("Несмог создать игру");
 		goto exit_client;
 	}
 	main_loop();
