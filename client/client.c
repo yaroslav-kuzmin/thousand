@@ -135,21 +135,21 @@ int new_acting(void)
 	if_create_game(number_acting);
 
 	partner_left.name = partner_left.str_name;
-	rc = c_answer_name_partner(&partner_left.name);
+	rc = c_answer_name_partner(&partner_left.number,&partner_left.name);
   	if(rc == FAILURE){
 		global_log("Сервер неприсоединяет игроков!");
 		return rc;
 	}
-	global_log("К игре присоединился игрок %s !",partner_left.name);
+	global_log("К игре присоединился игрок %s : %d!",partner_left.name,partner_left.number);
 	if_partner_left(partner_left.name);
 
 	partner_right.name = partner_right.str_name;
-	rc = c_answer_name_partner(&partner_right.name);
+	rc = c_answer_name_partner(&partner_right.number,&partner_right.name);
   	if(rc == FAILURE){
 		global_log("Сервер неприсоединяет игроков!");
 		return rc;
 	}
-	global_log("К игре присоединился игрок %s !",partner_right.name);
+	global_log("К игре присоединился игрок %s : %d!",partner_right.name,partner_right.number);
 	if_partner_right(partner_right.name);
 
 	return rc;

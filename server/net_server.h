@@ -37,7 +37,7 @@ int s_cmd_access_denied_passwd(user_s * psu);
 int s_cmd_access_allowed(user_s * psu);
 int s_cmd_new_acting(user_s * psu,uint16_t acting);
 int s_cmd_join_acting(user_s * psu,uint16_t acting);
-int s_cmd_join_player(user_s * psu,char * name);
+int s_cmd_join_player(user_s * psu,uint8_t number,char * name);
 int s_cmd_game_over(user_s * psu,uint16_t acting);
 int s_cmd_number_round(user_s * psu,uint16_t round);
 int s_cmd_amount_point_player(user_s * psu,uint8_t player,int16_t point);

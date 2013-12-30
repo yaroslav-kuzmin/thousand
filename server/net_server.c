@@ -325,25 +325,26 @@ int s_cmd_join_acting(user_s * psu,uint16_t acting)
 	}
 	return rc;
 }
-int s_cmd_join_player(user_s * psu,char * name)
+int s_cmd_join_player(user_s * psu,uint8_t number,char * name)
 {
 	int rc;
 	uint8_t * dest_data;
 	int fd = psu->fd;
-	message_login_s msg;
-	size_t len = strlen(name);
+	message_player_s msg;
+	size_t len = sizeof(uint8_t) + strlen(name);
 	int full_len = sizeof(message_cmd_s) + len;
 
-	if(len > LEN_NAME_PLAYER){
+	if(len > LEN_MAX_MESSAGE){
 		global_warning("Длина данных больши размера буфера %d > %d!"
-		              ,len,LEN_NAME_PLAYER);
+		              ,len,LEN_MAX_MESSAGE);
 		return LONG_DATA;
 	}
 
 	msg.number = psu->package;
 	msg.type = MESSAGE_JOIN_PLAYER;
 	msg.len = len;
-	dest_data = msg.login;
+	msg.number_player = number;
+	dest_data = msg.name_player;
 	memcpy(dest_data,name,len);
 
 	rc = send(fd,(uint8_t *)&msg,full_len,0);

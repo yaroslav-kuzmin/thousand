@@ -334,15 +334,15 @@ int c_answer_join_acting(uint16_t * number)
 	return SUCCESS;
 }
 
-int c_answer_name_partner(char ** name)
+int c_answer_name_partner(uint8_t * number,char ** name)
 {
 	int rc;
-	message_login_s * msg = (message_login_s*)&pub_message;
+	message_player_s * msg = (message_player_s*)&pub_message;
 	char * dname = *name;
-	char * sname = (char *)msg->login;
+	char * sname = (char *)msg->name_player;
 	int len;
 
-	rc = read_socket((uint8_t**)&msg,sizeof(message_login_s));
+	rc = read_socket((uint8_t**)&msg,sizeof(message_player_s));
 	if(rc == FAILURE){
 		global_log("Нет связи с сервером!");
 		rc = NOT_CONNECT_SERVER;
@@ -355,6 +355,7 @@ int c_answer_name_partner(char ** name)
 	}
 	len = msg->len;
 	memcpy(dname,sname,len);
+	*number = msg->number_player;
 	return SUCCESS;
 }
 

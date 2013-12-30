@@ -186,6 +186,7 @@ static int join_acting(user_s * psu,uint16_t number)
 	uint32_t flag = psu->flag;
 	acting_s ta;
 	acting_s * pta;
+	uint8_t number_player;
 
 	ta.number = number;
 	rc = g_hash_table_lookup_extended(all_acting,(gpointer)&ta,(gpointer *)&pta,(gpointer*)&pta);
@@ -197,10 +198,12 @@ static int join_acting(user_s * psu,uint16_t number)
 
 	if(pta->player[PLAYER_LEFT] == NULL){
 		pta->player[PLAYER_LEFT] = psu;
+		number_player = PLAYER_LEFT;
 	}
 	else{
 		if(pta->player[PLAYER_RIGHT] == NULL){
 			pta->player[PLAYER_RIGHT] = psu;
+			number_player = PLAYER_RIGHT;
 		}
 		else{
 			global_log("Игра 0x%04x занята");
@@ -208,6 +211,7 @@ static int join_acting(user_s * psu,uint16_t number)
 	 		return FAILURE;
 	 	}
 	}
+
 	set_bit_flag(flag,acting_user,1);
 	psu->acting = pta->number;
 
@@ -225,7 +229,7 @@ static int join_acting(user_s * psu,uint16_t number)
 		if(rc == YES){
 			continue;
 		}
-		rc = s_cmd_join_player(opsu,psu->name);
+		rc = s_cmd_join_player(opsu,number_player,psu->name);
 		if(rc == FAILURE){
 			del_user_list(opsu->fd,NOT_ACTING_DEL);
 			c--;
