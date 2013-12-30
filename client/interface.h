@@ -27,8 +27,8 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-int if_get_name_user(char ** user,int len);
-int if_set_name_user(char *user);
+int if_get_name_player(char ** player,int len);
+int if_set_name_player(char *player);
 int if_get_passwd(char ** passwd,int len);
 int if_set_passwd(char * passwd);
 int if_set_connect(void);

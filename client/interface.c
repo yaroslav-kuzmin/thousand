@@ -107,37 +107,37 @@ static int create_main_win(void)
 
 static char * PLAYER = "player : ";
 static char * PLAYER_FIELD = "__________";
-object_s o_label_user;
-object_s o_field_user;
+object_s o_label_player;
+object_s o_field_player;
 
-int init_o_user(void)
+int init_o_player(void)
 {
-	o_label_user.y = 1;
-	o_label_user.x = 1;
-	o_label_user.h = 1;
-	o_label_user.w = strlen(PLAYER);
-	o_label_user.data = PLAYER;
+	o_label_player.y = 1;
+	o_label_player.x = 1;
+	o_label_player.h = 1;
+	o_label_player.w = strlen(PLAYER);
+	o_label_player.data = PLAYER;
 
-	o_field_user.y = 1;
-	o_field_user.x = o_label_user.w + 1;
-	o_field_user.h = 1;
-	o_field_user.w = strlen(PLAYER_FIELD);
-	o_field_user.data = PLAYER_FIELD;
+	o_field_player.y = 1;
+	o_field_player.x = o_label_player.w + 1;
+	o_field_player.h = 1;
+	o_field_player.w = strlen(PLAYER_FIELD);
+	o_field_player.data = PLAYER_FIELD;
 
-	wmove(main_win,o_label_user.y,o_label_user.x);
-	wprintw(main_win,o_label_user.data);
-	wprintw(main_win,o_field_user.data);
+	wmove(main_win,o_label_player.y,o_label_player.x);
+	wprintw(main_win,o_label_player.data);
+	wprintw(main_win,o_field_player.data);
 	draw_main_win();
 
 	return SUCCESS;
 }
-int if_get_name_user(char ** user,int len)
+int if_get_name_player(char ** player,int len)
 {
 	int i,x,y;
-	char *str = *user;
+	char *str = *player;
 	chtype ch;
 
-	wmove(main_win,o_field_user.y,o_field_user.x);
+	wmove(main_win,o_field_player.y,o_field_player.x);
 	for(i = 0;i < (len - 1);){
 		ch = wgetch(main_win);
 		if(  (ch == KEY_ENTER)
@@ -150,7 +150,7 @@ int if_get_name_user(char ** user,int len)
 			i--;
 			*(str+i) = 0;
 			ch = '_';
-			if(i < o_field_user.w){
+			if(i < o_field_player.w){
 				getyx(main_win,y,x);
 				wmove(main_win,y,x-1);
 				waddch(main_win,ch);
@@ -161,7 +161,7 @@ int if_get_name_user(char ** user,int len)
 		if(isalnum(ch)){
 			*(str+i) = (char)ch;
 			i++;
-			if(i < o_field_user.w){
+			if(i < o_field_player.w){
 				waddch(main_win,ch);
 			}
 		}
@@ -172,13 +172,13 @@ int if_get_name_user(char ** user,int len)
 
 	return SUCCESS;
 }
-int if_set_name_user(char *user)
+int if_set_name_player(char *player)
 {
 	int i;
-	int len = strlen(user);
-	wmove(main_win,o_field_user.y,o_field_user.x);
+	int len = strlen(player);
+	wmove(main_win,o_field_player.y,o_field_player.x);
 	for(i = 0;i< len;i++){
-		waddch(main_win,user[i]);
+		waddch(main_win,player[i]);
 	}
 	draw_main_win();
 	return SUCCESS;
@@ -193,7 +193,7 @@ object_s o_field_passwd;
 int init_o_passwd(void)
 {
 	o_label_passwd.y = 1;
-	o_label_passwd.x = o_field_user.x + o_field_user.w + 2;
+	o_label_passwd.x = o_field_player.x + o_field_player.w + 2;
 	o_label_passwd.h = 1;
 	o_label_passwd.w = strlen(PASSWD);
 	o_label_passwd.data = PASSWD;
@@ -529,7 +529,7 @@ int init_interface(void)
 
 	create_main_win();
 
-	init_o_user();
+	init_o_player();
 	init_o_passwd();
 	init_o_connect();
 	init_o_new_game();

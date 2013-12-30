@@ -51,16 +51,26 @@
 /*****************************************************************************/
 
 const char * programm_name = NULL;
-char * user = NULL;
-char str_user[LEN_NAME_PLAYER] = {0};
-char str_partner_left[LEN_NAME_PLAYER] = {0};
-char * partner_left = str_partner_left;
-char str_partner_right[LEN_NAME_PLAYER] = {0};
-char * partner_right = str_partner_right;
+
+#define LEN_STR_PASSWD       LEN_NAME_PLAYER
+
+typedef struct _player_s player_s;
+struct _player_s
+{
+	uint8_t number;
+	char * name;
+	char str_name[LEN_NAME_PLAYER];
+	int16_t point;
+	uint8_t bolt;
+};
+
+player_s player;
+player_s partner_left;
+player_s partner_right;
+
 char * passwd = NULL;
 char str_passwd[LEN_NAME_PLAYER] = {0};
 uint16_t number_acting = 0;
-
 uint8_t passwd_md5[MD5_DIGEST_LENGTH] = {0};
 
 const char * const short_options = "u:p:hVl";
@@ -124,21 +134,23 @@ int new_acting(void)
 
 	if_create_game(number_acting);
 
-	rc = c_answer_name_partner(&partner_left);
+	partner_left.name = partner_left.str_name;
+	rc = c_answer_name_partner(&partner_left.name);
   	if(rc == FAILURE){
 		global_log("Сервер неприсоединяет игроков!");
 		return rc;
 	}
-	global_log("К игре присоединился игрок %s !",partner_left);
-	if_partner_left(partner_left);
+	global_log("К игре присоединился игрок %s !",partner_left.name);
+	if_partner_left(partner_left.name);
 
-	rc = c_answer_name_partner(&partner_right);
+	partner_right.name = partner_right.str_name;
+	rc = c_answer_name_partner(&partner_right.name);
   	if(rc == FAILURE){
 		global_log("Сервер неприсоединяет игроков!");
 		return rc;
 	}
-	global_log("К игре присоединился игрок %s !",partner_right);
-	if_partner_right(partner_right);
+	global_log("К игре присоединился игрок %s !",partner_right.name);
+	if_partner_right(partner_right.name);
 
 	return rc;
 }
@@ -147,14 +159,14 @@ int access_server(void)
 {
 	int rc;
 
-	if(user == NULL){
-		user = str_user;
-		rc = if_get_name_user((char **)&user,LEN_NAME_PLAYER);
+	if(player.name == NULL){
+		player.name = player.str_name;
+		rc = if_get_name_player((char **)&player.name,LEN_NAME_PLAYER);
 	}
 	else{
-		rc = if_set_name_user(user);
+		rc = if_set_name_player(player.name);
 	}
-	global_log("Игрок : %s",user);
+	global_log("Игрок : %s",player);
 
 
 	if(passwd == NULL){
@@ -174,7 +186,7 @@ int access_server(void)
 	global_log("Пароль : %s",passwd);
 	MD5((uint8_t*)passwd,rc,passwd_md5);
 
-	rc = c_cmd_login(user);
+	rc = c_cmd_login(player.name);
 	if(rc == FAILURE){
 		return rc;
 	}
@@ -259,11 +271,16 @@ int main(int argc,char * argv[])
   	int rc = 0;
 	int next_option = 0;
 	programm_name = argv[0];
+
+	memset(&player,0,sizeof(player_s));
+	memset(&partner_left,0,sizeof(player_s));
+	memset(&partner_right,0,sizeof(player_s));
+
 	for(;next_option != -1;){
  		next_option = getopt_long(argc,argv,short_options,long_options,NULL);
 		switch(next_option){
 			case 'u':
-				user = optarg;
+				player.name = optarg;
 				break;
 			case 'p':
 				passwd = optarg;
@@ -329,7 +346,7 @@ int main(int argc,char * argv[])
 /*************************************/
 	rc = access_server();
 	if(rc == FAILURE){
-		global_log("Не корректный логин : %s или пароль : %s",user,passwd);
+		global_log("Не корректный логин : %s или пароль : %s",player,passwd);
 	 	goto exit_client;
 	}
 
