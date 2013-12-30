@@ -162,28 +162,28 @@ static int check_access(user_s * psu)
 			if(key != NULL){
 				/*Такой пользователь есть доступ закрыт*/
 				global_log("Такой пользователь %s уже играет на сервере",psu->name);
-				rc = s_cmd_access_denied_login(psu->fd,psu->package);
-				if(rc == SUCCESS){
-					psu->package ++;
+				rc = s_cmd_access_denied_login(psu);
+				if(rc == FAILURE){
+					del_user_list(psu->fd,NOT_ACTING_DEL);
 				}
 				g_free(check_passwd);
 				return FAILURE;
 			}
 			g_hash_table_insert(who_plays,n,p);
 			set_bit_flag(flag,access_server_user,1);
-			rc = s_cmd_access_allowed(psu->fd,psu->package);
-			if(rc == SUCCESS){
-				psu->package ++;
-				global_log("Доступ разрешен на сервер игроку %s : %d",psu->name,psu->fd);
+			global_log("Доступ разрешен на сервер игроку %s : %d",psu->name,psu->fd);
+			rc = s_cmd_access_allowed(psu);
+			if(rc == FAILURE){
+				del_user_list(psu->fd,NOT_ACTING_DEL);
 			}
 			g_free(check_passwd);
 			return SUCCESS;
 		}
 		else{
 			global_log("Некоректный пароль %s : %d",psu->name,psu->fd);
-			rc = s_cmd_access_denied_passwd(psu->fd,psu->package);
-			if(rc == SUCCESS){
-				psu->package ++;
+			rc = s_cmd_access_denied_passwd(psu);
+			if(rc == FAILURE){
+				del_user_list(psu->fd,NOT_ACTING_DEL);
 			}
 			g_free(check_passwd);
 			return FAILURE;
@@ -198,19 +198,19 @@ static int check_access(user_s * psu)
 			if(rc == 0){
 				set_bit_flag(flag,access_server_user,1);
 				set_bit_flag(flag,robot_user,1);
-				rc = s_cmd_access_allowed(psu->fd,psu->package);
-				if(rc == SUCCESS){
-					psu->package ++;
-					global_log("Доступ разрешен на сервер роботу %s : %d",psu->name,psu->fd);
+				global_log("Доступ разрешен на сервер роботу %s : %d",psu->name,psu->fd);
+				rc = s_cmd_access_allowed(psu);
+				if(rc == FAILURE){
+					del_user_list(psu->fd,NOT_ACTING_DEL);
 				}
 				g_free(check_passwd);
 				return SUCCESS;
 			}
 			else{
 				global_log("Такой пользователь %s уже играет на сервере",psu->name);
-				rc = s_cmd_access_denied_login(psu->fd,psu->package);
-				if(rc == SUCCESS){
-					psu->package ++;
+				rc = s_cmd_access_denied_login(psu);
+				if(rc == FAILURE){
+					del_user_list(psu->fd,NOT_ACTING_DEL);
 				}
 				g_free(check_passwd);
 				return FAILURE;
@@ -221,9 +221,9 @@ static int check_access(user_s * psu)
 			rc = strncmp(get_passwd,bad_passwd,(MD5_DIGEST_LENGTH *2));
 			if(rc == 0){
 				global_log("Некоректный пароль %s : %d",psu->name,psu->fd);
-				rc = s_cmd_access_denied_passwd(psu->fd,psu->package);
-				if(rc == SUCCESS){
-					psu->package ++;
+				rc = s_cmd_access_denied_passwd(psu);
+				if(rc == FAILURE){
+					del_user_list(psu->fd,NOT_ACTING_DEL);
 				}
 				return FAILURE;
 			}
@@ -232,10 +232,10 @@ static int check_access(user_s * psu)
 			global_log("Новый игрок на сервере : %s",n);
 			g_hash_table_insert(who_plays,n,p);
 			set_bit_flag(flag,access_server_user,1);
-			rc = s_cmd_access_allowed(psu->fd,psu->package);
-			if(rc == SUCCESS){
-				psu->package ++;
-				global_log("Доступ разрешен на сервер игроку %s : %d",psu->name,psu->fd);
+			global_log("Доступ разрешен на сервер игроку %s : %d",psu->name,psu->fd);
+			rc = s_cmd_access_allowed(psu);
+			if(rc == FAILURE){
+				del_user_list(psu->fd,NOT_ACTING_DEL);
 			}
 			return SUCCESS;
 		}

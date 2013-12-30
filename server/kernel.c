@@ -42,8 +42,8 @@
 #include "log.h"
 #include "protocol.h"
 
-#include "net_server.h"
 #include "list_user.h"
+#include "net_server.h"
 #include "list_message.h"
 #include "access.h"
 #include "list_acting.h"
@@ -140,7 +140,7 @@ g_message(" read fd : %d | rc : %d",fd,rc);
 					/*Если канал был закрыт но непришло сообщение о прекрашении работы*/
 check_timeout:
 					if(ptu->timeout <= time(NULL)){
-						rc = s_cmd_check_connect(ptu->fd,ptu->package);
+						rc = s_cmd_check_connect(ptu);
 						if(rc == FAILURE){
 						/*TODO корректное сохранение игры */
 						/*TODO проверка ошибки отправки сообщения*/
@@ -148,7 +148,6 @@ check_timeout:
 							del_user_list(fd,NOT_ACTING_DEL);
 							continue;
 						}
-						ptu->package ++;
 						ptu->timeout = time(NULL) + WAITING_USER;
 					}
 				}

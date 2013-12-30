@@ -44,9 +44,9 @@
 #include "cards.h"
 
 #include "kernel.h"
+#include "list_user.h"
 #include "net_server.h"
 #include "protocol.h"
-#include "list_user.h"
 #include "access.h"
 #include "list_acting.h"
 #include "list_robot.h"

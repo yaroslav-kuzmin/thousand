@@ -67,7 +67,6 @@ struct _message_data_s
 	uint8_t data[LEN_MESSAGE];
 }__attribute__((packed));
 
-
 typedef struct _message_point_s message_point_s;
 struct _message_point_s
 {

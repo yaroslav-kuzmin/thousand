@@ -225,10 +225,15 @@ static int join_acting(user_s * psu,uint16_t number)
 		if(rc == YES){
 			continue;
 		}
-		rc = s_cmd_join_player(opsu->fd,opsu->package,psu->name);
-		opsu->package ++;
-		global_log("Отправил игроку %s сообщение о присоединени игрока %s в игру 0x%04x"
-		          ,opsu->name,psu->name,pta->number);
+		rc = s_cmd_join_player(opsu,psu->name);
+		if(rc == FAILURE){
+			del_user_list(opsu->fd,NOT_ACTING_DEL);
+			c--;
+		}
+		else{
+			global_log("Отправил игроку %s сообщение о присоединени игрока %s в игру 0x%04x"
+			          ,opsu->name,psu->name,pta->number);
+		}
 	}
 
 	if(c == i){
@@ -250,9 +255,14 @@ static int check_new_acting(user_s * psu)
 	if(cmd->type == CMD_NEW_ACTING){
 		rc = create_acting(psu);
 		del_message_list(psu,sizeof(message_cmd_s));
-		rc = s_cmd_new_acting(psu->fd,psu->package,psu->acting);
-		run_robot(psu->acting);
-		run_robot(psu->acting);
+		rc = s_cmd_new_acting(psu,psu->acting);
+		if(rc == FAILURE){
+			del_user_list(psu->fd,NOT_ACTING_DEL);
+		}
+		else{
+			run_robot(psu->acting);
+			run_robot(psu->acting);
+		}
 	}
 	else{
 		if(cmd->type == CMD_JOIN_ACTING){
@@ -266,7 +276,10 @@ static int check_new_acting(user_s * psu)
 				del_message_list(psu,sizeof(message_cmd_s));
 				psu->acting = 0;
 			}
-			rc = s_cmd_join_acting(psu->fd,psu->package,psu->acting);
+			rc = s_cmd_join_acting(psu,psu->acting);
+			if(rc == FAILURE){
+				del_user_list(psu->fd,NOT_ACTING_DEL);
+			}
 		}
 		else{
 			global_log("Некоректная комманда от игрока %s : %d",psu->name,psu->fd);
@@ -305,7 +318,7 @@ static int delete_acting(acting_s * psa,user_s * psu)
 			continue;
 		}
 		if(ptu != psu){
-			s_cmd_game_over(ptu->fd,ptu->package,psa->number);
+			s_cmd_game_over(ptu,psa->number);
 		}
 		del_user_list(ptu->fd,ACTING_DEl);
 	}

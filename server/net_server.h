@@ -31,16 +31,16 @@ int init_socket(void);
 int close_soket(void);
 int check_new_connect(void);
 
-int s_cmd_check_connect(int fd,uint16_t number);
-int s_cmd_access_denied_login(int fd,uint16_t number);
-int s_cmd_access_denied_passwd(int fd,uint16_t number);
-int s_cmd_access_allowed(int fd,uint16_t number);
-int s_cmd_new_acting(int fd,uint16_t number,uint16_t number_acting);
-int s_cmd_join_acting(int fd,uint16_t number,uint16_t number_acting);
-int s_cmd_join_player(int fd,uint16_t number,char * name);
-int s_cmd_game_over(int fd,uint16_t number,uint16_t number_acting);
-int s_cmd_number_round(int fd,uint16_t number,uint16_t round);
-int s_cmd_amount_point_player(int fd,uint16_t number,uint8_t player,int16_t point);
+int s_cmd_check_connect(user_s * psu);
+int s_cmd_access_denied_login(user_s * psu);
+int s_cmd_access_denied_passwd(user_s * psu);
+int s_cmd_access_allowed(user_s * psu);
+int s_cmd_new_acting(user_s * psu,uint16_t acting);
+int s_cmd_join_acting(user_s * psu,uint16_t acting);
+int s_cmd_join_player(user_s * psu,char * name);
+int s_cmd_game_over(user_s * psu,uint16_t acting);
+int s_cmd_number_round(user_s * psu,uint16_t round);
+int s_cmd_amount_point_player(user_s * psu,uint8_t player,int16_t point);
 
 #endif
 

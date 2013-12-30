@@ -55,57 +55,6 @@ static int fd_local_socket = 0;
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
 
-static int total_message(int fd,uint16_t number,uint16_t type,char * data,int len)
-{
-	int rc = FAILURE;
-	message_data_s msg;
-	uint8_t * dest_data;
-	int full_len = sizeof(message_cmd_s) + len;
-
-g_message("total_message : %d",fd);
-
-	if(len > LEN_MESSAGE){
-		global_warning("Длина пакета больши размера буфера %d > %d!",len,LEN_MESSAGE);
-		return LONG_DATA;
-	}
-	msg.number = number;
-	msg.type = type;
-	msg.len = len;
-	dest_data = msg.data;
-	memcpy(dest_data,data,len);
-
-	rc = send(fd,(uint8_t *)&msg,full_len,0);
-	return rc;
-}
-static int full_cmd(int fd,uint16_t number,uint16_t type,uint16_t msg)
-{
-	int rc;
-	message_cmd_s cmd;
-
-	g_message("full_cmd : %d",fd);
-
-	cmd.type = type;
-	cmd.msg = msg;
-	cmd.number = number;
-	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
-
-	return rc;
-}
-
-static int total_cmd(int fd, uint16_t number,uint16_t type)
-{
-	int rc;
-	message_cmd_s cmd;
-
-	g_message("total_cmd : fd %d : type %d",fd,type);
-
-	cmd.type = type;
-	cmd.len = 0;
-	cmd.number = number;
-	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
-
-	return rc;
-}
 /*****************************************************************************/
 /* Основные функции                                                          */
 /*****************************************************************************/
@@ -256,147 +205,217 @@ int check_new_connect(void)
 }
 
 /**************************************/
-int s_cmd_check_connect(int fd,uint16_t number)
+int s_cmd_check_connect(user_s * psu)
 {
 	int rc;
-	rc = total_cmd(fd,number,CMD_CHECK_CONNECT);
+	int fd = psu->fd;
+	message_cmd_s cmd;
+
+	cmd.number = psu->package;
+	cmd.type = CMD_CHECK_CONNECT;
+	cmd.len = 0;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
 	if(rc == -1){
-		global_log("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
 		rc = FAILURE;
 	}
 	else{
-		g_message("check conect : %d - %d",fd,number);
+		psu->package ++;
 		rc = SUCCESS;
 	}
 	return rc;
 }
-int s_cmd_access_denied_login(int fd,uint16_t number)
+int s_cmd_access_denied_login(user_s * psu)
 {
 	int rc;
-	rc = total_cmd(fd,number,CMD_ACCESS_DENIED_LOGIN);
+	int fd = psu->fd;
+	message_cmd_s cmd;
+
+	cmd.number = psu->package;
+	cmd.type = CMD_ACCESS_DENIED_LOGIN;
+	cmd.len = 0;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
 	if(rc == -1){
-		global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
 		rc = FAILURE;
 	}
 	else{
+		psu->package ++;
 		rc = SUCCESS;
 	}
 	return rc;
 }
-int s_cmd_access_denied_passwd(int fd,uint16_t number)
+int s_cmd_access_denied_passwd(user_s * psu)
 {
 	int rc;
-	rc = total_cmd(fd,number,CMD_ACCESS_DENIED_PASSWD);
+	int fd = psu->fd;
+	message_cmd_s cmd;
+
+	cmd.number = psu->package;
+	cmd.type = CMD_ACCESS_DENIED_PASSWD;
+	cmd.len = 0;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
 	if(rc == -1){
-		global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
 		rc = FAILURE;
 	}
 	else{
+		psu->package ++;
 		rc = SUCCESS;
 	}
 	return rc;
 }
-int s_cmd_access_allowed(int fd,uint16_t number)
+int s_cmd_access_allowed(user_s * psu)
 {
 	int rc;
-	rc = total_cmd(fd,number,CMD_ACCESS_ALLOWED);
+	int fd = psu->fd;
+	message_cmd_s cmd;
+
+	cmd.number = psu->package;
+	cmd.type = CMD_ACCESS_ALLOWED;
+	cmd.len = 0;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
 	if(rc == -1){
-	 	global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
 		rc = FAILURE;
 	}
 	else{
+		psu->package ++;
 		rc = SUCCESS;
 	}
 	return rc;
 }
-int s_cmd_new_acting(int fd,uint16_t number,uint16_t number_acting)
+int s_cmd_new_acting(user_s * psu,uint16_t acting)
 {
 	int rc;
-	rc = full_cmd(fd,number,CMD_NEW_ACTING,number_acting);
+	int fd = psu->fd;
+	message_cmd_s cmd;
+
+	cmd.number = psu->package;
+	cmd.type = CMD_NEW_ACTING;
+	cmd.msg = acting;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
 	if(rc == -1){
-	 	global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
 		rc = FAILURE;
 	}
 	else{
+		psu->package ++;
 		rc = SUCCESS;
 	}
 	return rc;
 }
-int s_cmd_join_acting(int fd,uint16_t number,uint16_t number_acting)
+int s_cmd_join_acting(user_s * psu,uint16_t acting)
 {
 	int rc;
-	rc = full_cmd(fd,number,CMD_JOIN_ACTING,number_acting);
+	int fd = psu->fd;
+	message_cmd_s cmd;
+
+	cmd.number = psu->package;
+	cmd.type = CMD_JOIN_ACTING;
+	cmd.msg = acting;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
 	if(rc == -1){
-	 	global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
 		rc = FAILURE;
 	}
 	else{
+		psu->package ++;
 		rc = SUCCESS;
 	}
 	return rc;
 }
-int s_cmd_join_player(int fd,uint16_t number,char * name)
+int s_cmd_join_player(user_s * psu,char * name)
 {
 	int rc;
+	uint8_t * dest_data;
+	int fd = psu->fd;
+	message_login_s msg;
 	size_t len = strlen(name);
+	int full_len = sizeof(message_cmd_s) + len;
+
 	if(len > LEN_USER_NAME){
+		global_warning("Длина данных больши размера буфера %d > %d!",len,LEN_MESSAGE);
 		return LONG_DATA;
 	}
-	rc = total_message(fd,number,MESSAGE_JOIN_PLAYER,name,len);
+
+	msg.number = psu->package;
+	msg.type = MESSAGE_JOIN_PLAYER;
+	msg.len = len;
+	dest_data = msg.login;
+	memcpy(dest_data,name,len);
+
+	rc = send(fd,(uint8_t *)&msg,full_len,0);
 	if(rc == -1){
-	 	global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
 		rc = FAILURE;
 	}
 	else{
+		psu->package ++;
 		rc = SUCCESS;
 	}
 
 	return rc;
 }
-int s_cmd_game_over(int fd,uint16_t number,uint16_t number_acting)
+int s_cmd_game_over(user_s * psu,uint16_t acting)
 {
 	int rc;
-	rc = full_cmd(fd,number,CMD_GAME_OVER,number_acting);
+	int fd = psu->fd;
+	message_cmd_s cmd;
+
+	cmd.number = psu->package;
+	cmd.type = CMD_GAME_OVER;
+	cmd.msg = acting;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
 	if(rc == -1){
-	 	global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
 		rc = FAILURE;
 	}
 	else{
+		psu->package ++;
 		rc = SUCCESS;
 	}
 	return rc;
 }
-int s_cmd_number_round(int fd,uint16_t number,uint16_t round)
+int s_cmd_number_round(user_s * psu,uint16_t round)
 {
 	int rc;
-	rc = full_cmd(fd,number,CMD_NUMBER_ROUND,round);
+	int fd = psu->fd;
+	message_cmd_s cmd;
+
+	cmd.number = psu->package;
+	cmd.type = CMD_NUMBER_ROUND;
+	cmd.msg = round;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
 	if(rc == -1){
-	 	global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
 		rc = FAILURE;
 	}
 	else{
+		psu->package ++;
 		rc = SUCCESS;
 	}
 	return rc;
 }
 
-int s_cmd_amount_point_player(int fd,uint16_t number,uint8_t player,int16_t point)
+int s_cmd_amount_point_player(user_s * psu,uint8_t player,int16_t point)
 {
 	int rc;
-	message_point_s msg;
+	int fd = psu->fd;
+	message_point_s cmd;
 
-	msg.type = CMD_POINT;
-	msg.number = number;
-	msg.len = LEN_MESSAGE_POINT;
-	msg.player = player;
-	msg.point = point;
-
-	rc = send(fd,(uint8_t *)&msg,(sizeof(message_point_s)),0);
+	cmd.type = CMD_POINT;
+	cmd.number = psu->package;
+	cmd.len = LEN_MESSAGE_POINT;
+	cmd.player = player;
+	cmd.point = point;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_point_s)),0);
 	if(rc == -1){
-	 	global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
 		rc = FAILURE;
 	}
 	else{
+		psu->package ++;
 		rc = SUCCESS;
 	}
 	return rc;
