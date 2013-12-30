@@ -26,7 +26,7 @@ LIB_CATALOG=../lib/
 OBJ_CATALOG=obj/
 DEPEND_CATALOG=depend/
 
-EXEC=../bin/thc
+EXEC=../bin/thcn
 SOURCE=$(wildcard *.c)
 OBJS=$(patsubst %.c,$(OBJ_CATALOG)%.o,$(SOURCE))
 DEPEND=$(patsubst %.c,$(DEPEND_CATALOG)%.d,$(SOURCE))
