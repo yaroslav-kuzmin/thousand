@@ -74,7 +74,7 @@ struct _acting_s
  	uint16_t number;
 	uint32_t flag;
  	user_s * player[AMOUNT_PLAYER];
-	uint32_t round;
+	uint16_t round;
 	uint16_t points[AMOUNT_PLAYER];
 	uint8_t dealer;
 	deck_cards_s * deck;
@@ -159,6 +159,27 @@ static int create_acting(user_s * psu)
 	global_log("Создал новою игру : 0x%04x!",pta->number);
 	 return  SUCCESS;
 }
+
+static int rand_dealer(void)
+{
+	int rc = g_rand_int_range(fortune,0,AMOUNT_PLAYER);
+	return rc;
+}
+
+#define FIRST_ROUND    1
+static int init_round(acting_s * psa)
+{
+	uint32_t flag = psa->flag;
+
+	set_bit_flag(flag,all_join_acting,1);
+	set_bit_flag(flag,begin_round,1);
+
+	psa->dealer = rand_dealer();
+	psa->round = FIRST_ROUND;
+
+	return SUCCESS;
+}
+
 static int join_acting(user_s * psu,uint16_t number)
 {
 	int rc,i,c;
@@ -211,8 +232,7 @@ static int join_acting(user_s * psu,uint16_t number)
 	}
 
 	if(c == i){
-		flag = pta->flag;
-		set_bit_flag(flag,all_join_acting,1);
+		init_round(pta);
 	}
 
 	return SUCCESS;
@@ -295,17 +315,25 @@ static int delete_acting(acting_s * psa,user_s * psu)
 	return TRUE;
 }
 
-static int rand_dealer(void)
-{
-	int rc = g_rand_int_range(fortune,0,AMOUNT_PLAYER);
-	return rc;
-}
-
 static int check_begin_round(acting_s * psa)
 {
-	if(psa->round == 0){
-		psa->dealer = rand_dealer();
+#if 0
+	int i;
+	int rc;
+	user_s * ptu;
+	uint32_t flag;
+
+	for(i = 0;i < AMOUNT_PLAYER;i++){
+		ptu = psa->player[i];
+		rc = s_cmd_number_round(ptu->fd,ptu->package,psa->round);
+		if(rc == FAILURE){
+			del_user_list(ptu,NOT_ACTING_DEL);
+			return SUCCESS;
+		}
+		ptu->package++;
+		flag = ptu->flag;
 	}
+#endif
 	return SUCCESS;
 }
 
@@ -337,6 +365,10 @@ static int check_acting_server(acting_s * psa)
 	rc = check_bit_flag(flag,begin_round,1);
 	if(rc == YES){
 		rc = check_begin_round(psa);
+		if(rc == SUCCESS){
+			unset_bit_flag(flag,begin_round,1);
+			set_bit_flag(flag,auction_round,1);
+		}
 	}
 	check_auction_round(psa);
 	check_play_round(psa);

@@ -50,8 +50,9 @@
 #define ROBOT_FLAG        0x03
 /************************************/
 /***** Длина сообщений ****/
-#define LEN_USER_NAME      64                  /*длина строки имени игрока*/
-#define LEN_MESSAGE        LEN_USER_NAME       /*длина максимального сообщения*/
+#define LEN_MESSAGE_POINT      3
+#define LEN_USER_NAME          64                  /*длина строки имени игрока*/
+#define LEN_MESSAGE            LEN_USER_NAME       /*длина максимального сообщения*/
 /************************************/
 
 #define WAITING_USER           100   /*Проверка подключения в секундах каждого пользователя на сервере*/

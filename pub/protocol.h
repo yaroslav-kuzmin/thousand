@@ -67,6 +67,17 @@ struct _message_data_s
 	uint8_t data[LEN_MESSAGE];
 }__attribute__((packed));
 
+
+typedef struct _message_point_s message_point_s;
+struct _message_point_s
+{
+	uint16_t number;
+	uint16_t type;
+	uint16_t len;
+
+	uint8_t player;
+	int16_t point;
+}__attribute__((packed));
 typedef union _all_message_u all_message_u;
 union _all_message_u
 {
@@ -86,6 +97,8 @@ union _all_message_u
 #define CMD_JOIN_ACTING             0x000A
 #define MESSAGE_JOIN_PLAYER         0x000B
 #define CMD_GAME_OVER               0x000C
+#define CMD_NUMBER_ROUND            0x000D
+#define CMD_POINT                   0x000E
 
 #endif
 

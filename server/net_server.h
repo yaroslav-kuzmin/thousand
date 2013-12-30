@@ -39,6 +39,8 @@ int s_cmd_new_acting(int fd,uint16_t number,uint16_t number_acting);
 int s_cmd_join_acting(int fd,uint16_t number,uint16_t number_acting);
 int s_cmd_join_player(int fd,uint16_t number,char * name);
 int s_cmd_game_over(int fd,uint16_t number,uint16_t number_acting);
+int s_cmd_number_round(int fd,uint16_t number,uint16_t round);
+int s_cmd_amount_point_player(int fd,uint16_t number,uint8_t player,int16_t point);
 
 #endif
 

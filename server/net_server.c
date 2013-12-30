@@ -366,4 +366,39 @@ int s_cmd_game_over(int fd,uint16_t number,uint16_t number_acting)
 	}
 	return rc;
 }
+int s_cmd_number_round(int fd,uint16_t number,uint16_t round)
+{
+	int rc;
+	rc = full_cmd(fd,number,CMD_NUMBER_ROUND,round);
+	if(rc == -1){
+	 	global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		rc = SUCCESS;
+	}
+	return rc;
+}
+
+int s_cmd_amount_point_player(int fd,uint16_t number,uint8_t player,int16_t point)
+{
+	int rc;
+	message_point_s msg;
+
+	msg.type = CMD_POINT;
+	msg.number = number;
+	msg.len = LEN_MESSAGE_POINT;
+	msg.player = player;
+	msg.point = point;
+
+	rc = send(fd,(uint8_t *)&msg,(sizeof(message_point_s)),0);
+	if(rc == -1){
+	 	global_warning("несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		rc = SUCCESS;
+	}
+	return rc;
+}
 /*****************************************************************************/
