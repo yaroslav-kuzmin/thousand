@@ -33,6 +33,7 @@ struct _message_cmd_s
 {
 	uint16_t number;
 	uint16_t type;
+
 	union
 	{
 	uint16_t len;
@@ -46,7 +47,8 @@ struct _message_login_s
 	uint16_t number;
 	uint16_t type;
 	uint16_t len;
-	uint8_t login[LEN_USER_NAME];
+
+	uint8_t login[LEN_NAME_PLAYER];
 }__attribute__((packed));
 
 typedef struct _message_passwd_s message_passwd_s;
@@ -55,16 +57,19 @@ struct _message_passwd_s
 	uint16_t number;
 	uint16_t type;
 	uint16_t len;
+
 	uint8_t passwd[MD5_DIGEST_LENGTH];
 }__attribute__((packed));
 
-typedef struct _message_data_s message_data_s;
-struct _message_data_s
+typedef struct _message_player_s message_player_s;
+struct _message_player_s
 {
 	uint16_t number;
 	uint16_t type;
 	uint16_t len;
-	uint8_t data[LEN_MESSAGE];
+
+	uint8_t number_player;
+	uint8_t name_player[LEN_NAME_PLAYER];
 }__attribute__((packed));
 
 typedef struct _message_point_s message_point_s;
@@ -83,7 +88,8 @@ union _all_message_u
 	message_cmd_s    cmd;
 	message_login_s  login;
 	message_passwd_s passwd;
-	message_data_s   data;
+	message_player_s player;
+	message_point_s point;
 };
 
 #define CMD_CHECK_CONNECT           0x0001

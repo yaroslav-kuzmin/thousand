@@ -334,8 +334,9 @@ int s_cmd_join_player(user_s * psu,char * name)
 	size_t len = strlen(name);
 	int full_len = sizeof(message_cmd_s) + len;
 
-	if(len > LEN_USER_NAME){
-		global_warning("Длина данных больши размера буфера %d > %d!",len,LEN_MESSAGE);
+	if(len > LEN_NAME_PLAYER){
+		global_warning("Длина данных больши размера буфера %d > %d!"
+		              ,len,LEN_NAME_PLAYER);
 		return LONG_DATA;
 	}
 

@@ -52,13 +52,13 @@
 
 const char * programm_name = NULL;
 char * user = NULL;
-char str_user[LEN_USER_NAME] = {0};
-char str_partner_left[LEN_USER_NAME] = {0};
+char str_user[LEN_NAME_PLAYER] = {0};
+char str_partner_left[LEN_NAME_PLAYER] = {0};
 char * partner_left = str_partner_left;
-char str_partner_right[LEN_USER_NAME] = {0};
+char str_partner_right[LEN_NAME_PLAYER] = {0};
 char * partner_right = str_partner_right;
 char * passwd = NULL;
-char str_passwd[LEN_USER_NAME] = {0};
+char str_passwd[LEN_NAME_PLAYER] = {0};
 uint16_t number_acting = 0;
 
 uint8_t passwd_md5[MD5_DIGEST_LENGTH] = {0};
@@ -149,7 +149,7 @@ int access_server(void)
 
 	if(user == NULL){
 		user = str_user;
-		rc = if_get_name_user((char **)&user,LEN_USER_NAME);
+		rc = if_get_name_user((char **)&user,LEN_NAME_PLAYER);
 	}
 	else{
 		rc = if_set_name_user(user);
@@ -159,7 +159,7 @@ int access_server(void)
 
 	if(passwd == NULL){
 		passwd = str_passwd;
-		rc = if_get_passwd((char **)&passwd,LEN_USER_NAME);
+		rc = if_get_passwd((char **)&passwd,LEN_NAME_PLAYER);
 	}
 	else{
 		rc = if_set_passwd(passwd);

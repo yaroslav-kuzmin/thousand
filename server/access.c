@@ -78,9 +78,9 @@ static int full_login(user_s * psu)
 		global_log("Ожидается имя игрока : %d!",psu->fd);
 		return FAILURE;
 	}
-	if(msg->len > LEN_USER_NAME){
+	if(msg->len > LEN_NAME_PLAYER){
 		del_message_list(psu,rc);
-		global_log("Длина Имени игрока превышена %d : (%d < %d)",psu->fd,LEN_USER_NAME,msg->len);
+		global_log("Длина Имени игрока превышена %d : (%d < %d)",psu->fd,LEN_NAME_PLAYER,msg->len);
 		return FAILURE;
 	}
 	/*TODO проверить на символы*/

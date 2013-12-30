@@ -45,7 +45,7 @@ struct _user_s
 {
 	int fd;
 	uint32_t flag;
-	char name[LEN_USER_NAME];
+	char name[LEN_NAME_PLAYER];
 	uint8_t passwd[MD5_DIGEST_LENGTH];
 	time_t timeout;
 	uint16_t package;

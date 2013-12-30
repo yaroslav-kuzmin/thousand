@@ -191,9 +191,9 @@ int c_cmd_login(char * user)
 
 	msg.number = number_packed;
 	msg.type = MESSAGE_LOGIN;
-	memset(str_msg,0,LEN_USER_NAME);
-	if(len > LEN_USER_NAME ){
-		len = LEN_USER_NAME;
+	memset(str_msg,0,LEN_NAME_PLAYER);
+	if(len > LEN_NAME_PLAYER ){
+		len = LEN_NAME_PLAYER;
 	}
 	msg.len = len;
 	memcpy(str_msg,str,len);
