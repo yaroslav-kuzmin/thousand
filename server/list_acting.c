@@ -152,12 +152,17 @@ static int create_acting(user_s * psu)
 	pta->flag = init_bit_flags(last_flag_acting);
 	pta->deck = g_slice_alloc(sizeof(deck_cards_s));
 	g_hash_table_add(all_acting,pta);
+	rc = s_cmd_number_player(psu,PLAYER_CREATOR);
+	if(rc == FAILURE){
+		del_user_list(psu->fd,NOT_ACTING_DEL);
+		return FAILURE;
+	}
 
 	set_bit_flag(flag,acting_user,1);
 	psu->acting = number;
 
 	global_log("Создал новою игру : 0x%04x!",pta->number);
-	 return  SUCCESS;
+	return  SUCCESS;
 }
 
 static int rand_dealer(void)
@@ -222,6 +227,7 @@ static int join_acting(user_s * psu,uint16_t number)
 		}
 		c++;
 		if( opsu == psu){/*это текущий игрок*/
+			rc = s_cmd_number_player(psu,number_player);
 			continue;
 		}
 		flag = opsu->flag;
@@ -258,6 +264,9 @@ static int check_new_acting(user_s * psu)
 
 	if(cmd->type == CMD_NEW_ACTING){
 		rc = create_acting(psu);
+		if(rc == FAILURE){
+			return FAILURE;
+		}
 		del_message_list(psu,sizeof(message_cmd_s));
 		rc = s_cmd_new_acting(psu,psu->acting);
 		if(rc == FAILURE){

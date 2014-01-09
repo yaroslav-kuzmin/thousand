@@ -36,6 +36,7 @@ int s_cmd_access_denied_login(user_s * psu);
 int s_cmd_access_denied_passwd(user_s * psu);
 int s_cmd_access_allowed(user_s * psu);
 int s_cmd_new_acting(user_s * psu,uint16_t acting);
+int s_cmd_number_player(user_s * psu,uint16_t player);
 int s_cmd_join_acting(user_s * psu,uint16_t acting);
 int s_cmd_join_player(user_s * psu,uint8_t number,char * name);
 int s_cmd_game_over(user_s * psu,uint16_t acting);

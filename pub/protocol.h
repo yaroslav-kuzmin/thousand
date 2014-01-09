@@ -95,15 +95,16 @@ union _all_message_u
 #define CMD_CHECK_CONNECT           0x0001
 #define MESSAGE_LOGIN               0x0002
 #define MESSAGE_PASSWD              0x0003
-#define CMD_ACCESS_DENIED_PASSWD    0x0006
-#define CMD_ACCESS_DENIED_LOGIN     0x0007
-#define CMD_ACCESS_ALLOWED          0x0008
-#define CMD_NEW_ACTING              0x0009
-#define CMD_JOIN_ACTING             0x000A
-#define MESSAGE_JOIN_PLAYER         0x000B
-#define CMD_GAME_OVER               0x000C
-#define CMD_NUMBER_ROUND            0x000D
-#define CMD_POINT                   0x000E
+#define CMD_ACCESS_DENIED_PASSWD    0x0004
+#define CMD_ACCESS_DENIED_LOGIN     0x0005
+#define CMD_ACCESS_ALLOWED          0x0006
+#define CMD_NEW_ACTING              0x0007
+#define CMD_NUMBER_PLAYER           0x0008
+#define CMD_JOIN_ACTING             0x0009
+#define MESSAGE_JOIN_PLAYER         0x000A
+#define CMD_GAME_OVER               0x000B
+#define CMD_NUMBER_ROUND            0x000C
+#define CMD_POINT                   0x000D
 
 #endif
 

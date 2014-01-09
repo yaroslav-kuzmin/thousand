@@ -38,6 +38,7 @@ int c_cmd_new_acting(void);
 int c_cmd_join_acting(uint16_t number);
 int c_answer_access_server(void);
 int c_answer_new_acting(uint16_t * number);
+int c_answer_number_player(uint16_t * number);
 int c_answer_join_acting(uint16_t * number);
 int c_answer_name_partner(uint8_t * number,char ** name);
 int c_cmd_game_over(uint16_t acting);

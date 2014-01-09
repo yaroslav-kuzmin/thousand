@@ -305,6 +305,26 @@ int s_cmd_new_acting(user_s * psu,uint16_t acting)
 	}
 	return rc;
 }
+int s_cmd_number_player(user_s * psu,uint16_t player)
+{
+	int rc;
+	int fd = psu->fd;
+	message_cmd_s cmd;
+
+	cmd.number = psu->package;
+	cmd.type = CMD_NUMBER_PLAYER;
+	cmd.msg = player;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
+	if(rc == -1){
+	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		psu->package ++;
+		rc = SUCCESS;
+	}
+	return rc;
+}
 int s_cmd_join_acting(user_s * psu,uint16_t acting)
 {
 	int rc;
@@ -399,7 +419,6 @@ int s_cmd_number_round(user_s * psu,uint16_t round)
 	}
 	return rc;
 }
-
 int s_cmd_amount_point_player(user_s * psu,uint8_t player,int16_t point)
 {
 	int rc;
