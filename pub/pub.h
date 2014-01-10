@@ -51,6 +51,7 @@
 /************************************/
 /***** Длина сообщений ****/
 #define LEN_MESSAGE_POINT        3
+#define LEN_MESSAGE_ACTING       3
 #define LEN_NAME_PLAYER          64                        /*длина строки имени игрока*/
 #define LEN_MAX_MESSAGE          LEN_NAME_PLAYER + 1       /*длина максимального сообщения*/
 /************************************/
@@ -68,6 +69,7 @@
 #define ROBOT_CAN_NOT_CREATE_ACTING   -16
 #define LIMIT_ACTING                  -17
 #define LONG_DATA                     -18
+#define INCORRECT_SIZE                -19
 #endif
 
 

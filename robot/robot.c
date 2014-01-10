@@ -48,6 +48,7 @@
 
 const char * programm_name;
 char * robot = NULL;
+uint8_t number_robot = 0;
 uint8_t str_passwd[MD5_DIGEST_LENGTH] = {0};
 uint8_t * passwd = str_passwd;
 uint16_t acting = 0;
@@ -178,10 +179,10 @@ g_message("answer");
 	if(rc == SUCCESS){
 		rc = c_cmd_join_acting(acting);
 		if(rc == SUCCESS){
-			rc = c_answer_join_acting(&acting_check);
+			rc = c_answer_join_acting(&acting_check,&number_robot);
 			if(rc == SUCCESS){
 				if(acting_check == acting){
-					global_log("Присоединился к игре %#x",acting);
+					global_log("Присоединился к игре %#x, (%d)",acting,number_robot);
 					rc = SUCCESS;
 				}
 				else{
@@ -199,7 +200,7 @@ g_message("answer");
 			rc = FAILURE;
  		}
 	}
-g_message("SUCCESS");
+g_message("access server : SUCCESS");
  	return rc;
 }
 

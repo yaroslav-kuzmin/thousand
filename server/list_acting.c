@@ -124,7 +124,7 @@ static uint16_t check_number_acting(void)
 		}
 	}
 
-	return 0;
+	return END_NUMBER_ACTING;
 }
 static int create_acting(user_s * psu)
 {
@@ -140,7 +140,7 @@ static int create_acting(user_s * psu)
 	}
 
 	number = check_number_acting();
-	if(number == 0){
+	if(number == END_NUMBER_ACTING){
 		psu->acting = 0;
 		global_log("Создано максимально возможное колличество игр!");
 		return LIMIT_ACTING;
@@ -152,11 +152,6 @@ static int create_acting(user_s * psu)
 	pta->flag = init_bit_flags(last_flag_acting);
 	pta->deck = g_slice_alloc(sizeof(deck_cards_s));
 	g_hash_table_add(all_acting,pta);
-	rc = s_cmd_number_player(psu,PLAYER_CREATOR);
-	if(rc == FAILURE){
-		del_user_list(psu->fd,NOT_ACTING_DEL);
-		return FAILURE;
-	}
 
 	set_bit_flag(flag,acting_user,1);
 	psu->acting = number;
@@ -227,7 +222,6 @@ static int join_acting(user_s * psu,uint16_t number)
 		}
 		c++;
 		if( opsu == psu){/*это текущий игрок*/
-			rc = s_cmd_number_player(psu,number_player);
 			continue;
 		}
 		flag = opsu->flag;
@@ -250,7 +244,7 @@ static int join_acting(user_s * psu,uint16_t number)
 		init_round(pta);
 	}
 
-	return SUCCESS;
+	return number_player;
 }
 static int check_new_acting(user_s * psu)
 {
@@ -264,34 +258,35 @@ static int check_new_acting(user_s * psu)
 
 	if(cmd->type == CMD_NEW_ACTING){
 		rc = create_acting(psu);
-		if(rc == FAILURE){
+		if(rc != SUCCESS){
 			return FAILURE;
 		}
 		del_message_list(psu,sizeof(message_cmd_s));
-		rc = s_cmd_new_acting(psu,psu->acting);
-		if(rc == FAILURE){
-			del_user_list(psu->fd,NOT_ACTING_DEL);
-		}
-		else{
+		rc = s_answer_new_acting(psu,psu->acting,PLAYER_CREATOR);
+		if(rc != FAILURE){
 			run_robot(psu->acting);
 			run_robot(psu->acting);
 		}
 	}
 	else{
 		if(cmd->type == CMD_JOIN_ACTING){
-			if(cmd->msg != 0){
+			if(cmd->msg != END_NUMBER_ACTING){
 				rc = join_acting(psu,cmd->msg);
 				del_message_list(psu,sizeof(message_cmd_s));
 			}
-			else{
+			else{/*0 игры нет*/
 				/* TODO вернуть список игр */
 				global_log("Пока не возврашаем список игр");
 				del_message_list(psu,sizeof(message_cmd_s));
-				psu->acting = 0;
-			}
-			rc = s_cmd_join_acting(psu,psu->acting);
-			if(rc == FAILURE){
+				psu->acting = END_NUMBER_ACTING;
 				del_user_list(psu->fd,NOT_ACTING_DEL);
+				return SUCCESS;
+			}
+			if(rc != FAILURE){/*присоеденил к запрошеной игре*/
+				rc = s_answer_join_acting(psu,psu->acting,rc);
+			}
+			else{/*несмог присоеденить к запрошеной игре*/
+				rc = s_answer_join_acting(psu,END_NUMBER_ACTING,PLAYER_CENTR);
 			}
 		}
 		else{
@@ -306,7 +301,6 @@ static int check_new_acting(user_s * psu)
 		del_user_list(psu->fd,NOT_ACTING_DEL);
 		return SUCCESS;
 	}
-	psu->package++;
 
 	if(psu->acting == 0){
 		global_log("Несмог присоединить игрока %s : %d к игре",psu->name,psu->fd);

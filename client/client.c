@@ -121,7 +121,7 @@ int new_acting(void)
 	if(rc == FAILURE){
 		return rc;
 	}
-	rc = c_answer_new_acting(&number_acting);
+	rc = c_answer_new_acting(&number_acting,&player.number);
 	if(number_acting == 0){
 		rc = FAILURE;
   		global_log("Сервер не создал игру %#x",number_acting);
@@ -129,7 +129,7 @@ int new_acting(void)
 	}
 	else{
  		rc = SUCCESS;
- 		global_log("Сервер создал игру %#x",number_acting);
+ 		global_log("Сервер создал игру %#x, (%d)",number_acting,player.number);
 	}
 
 	if_create_game(number_acting);
@@ -166,7 +166,7 @@ int access_server(void)
 	else{
 		rc = if_set_name_player(player.name);
 	}
-	global_log("Игрок : %s",player);
+	global_log("Игрок : %s",player.name);
 
 
 	if(passwd == NULL){

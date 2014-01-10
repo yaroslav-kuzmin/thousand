@@ -124,12 +124,12 @@ static int record_buff(uint8_t ** buff,int max_len)
 
 	cmd = (message_cmd_s *)buff_save->data;
 	switch(cmd->type){
-		case CMD_NEW_ACTING:
-		case CMD_JOIN_ACTING:
 		case CMD_CHECK_CONNECT:
 		case CMD_ACCESS_DENIED_LOGIN:
 		case CMD_ACCESS_DENIED_PASSWD:
 		case CMD_ACCESS_ALLOWED:
+		case CMD_GAME_OVER:
+		case CMD_NUMBER_ROUND:
 			break;
 		default:
 			len += cmd->len;
@@ -290,13 +290,14 @@ int c_cmd_new_acting(void)
 	return rc;
 }
 
-int c_answer_new_acting(uint16_t * number)
+int c_answer_new_acting(uint16_t * acting,uint8_t * player)
 {
 	int rc;
-	message_cmd_s * cmd = (message_cmd_s*)&pub_message;
-	*number = 0;
+	message_acting_s * cmd = (message_acting_s*)&pub_message;
+	*acting = END_NUMBER_ACTING;
+	*player = 0;
 
-	rc = read_socket((uint8_t**)&cmd,sizeof(message_cmd_s));
+	rc = read_socket((uint8_t**)&cmd,sizeof(message_acting_s));
 	if(rc == FAILURE){
 		global_log("Нет связи с сервером!");
 		rc = NOT_CONNECT_SERVER;
@@ -304,44 +305,30 @@ int c_answer_new_acting(uint16_t * number)
 	}
 
 	if(cmd->type != CMD_NEW_ACTING){
-		rc =  INCORRECT_CMD;
+		global_log("некорректная команда : %d",cmd->type);
+		rc = INCORRECT_CMD;
+		return rc;
+	}
+	if(cmd->len != LEN_MESSAGE_ACTING){
+		global_log("некорректная длина : %d",cmd->len);
+		rc = INCORRECT_SIZE;
 		return rc;
 	}
 
-	*number = cmd->msg;
+	*acting = cmd->acting;
+	*player = cmd->player;
 
-	return rc;
+	return SUCCESS;
 }
 
-int c_answer_number_player(uint16_t * number)
+int c_answer_join_acting(uint16_t * acting,uint8_t * player)
 {
 	int rc;
-	message_cmd_s * cmd = (message_cmd_s*)&pub_message;
-	*number = 0;
+	message_acting_s * cmd = (message_acting_s*)&pub_message;
+	*acting = END_NUMBER_ACTING;
+	*player = 0;
 
-	rc = read_socket((uint8_t**)&cmd,sizeof(message_cmd_s));
-	if(rc == FAILURE){
-		global_log("Нет связи с сервером!");
-		rc = NOT_CONNECT_SERVER;
-		return rc;
-	}
-
-	if(cmd->type != CMD_NUMBER_PLAYER){
-		rc =  INCORRECT_CMD;
-		return rc;
-	}
-
-	*number = cmd->msg;
-
-	return rc;
-}
-
-int c_answer_join_acting(uint16_t * number)
-{
-	int rc;
-	message_cmd_s * cmd = (message_cmd_s*)&pub_message;
-
-	rc = read_socket((uint8_t**)&cmd,sizeof(message_cmd_s));
+	rc = read_socket((uint8_t**)&cmd,sizeof(message_acting_s));
 	if(rc == FAILURE){
 		global_log("Нет связи с сервером!");
 		rc = NOT_CONNECT_SERVER;
@@ -351,8 +338,13 @@ int c_answer_join_acting(uint16_t * number)
 		rc =  INCORRECT_CMD;
 		return rc;
 	}
+	if(cmd->len != LEN_MESSAGE_ACTING){
+		rc = INCORRECT_SIZE;
+		return rc;
+	}
 
-	*number = cmd->msg;
+	*acting = cmd->acting;
+	*player = cmd->player;
 
 	return SUCCESS;
 }

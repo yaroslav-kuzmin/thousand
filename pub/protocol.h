@@ -82,6 +82,18 @@ struct _message_point_s
 	uint8_t player;
 	int16_t point;
 }__attribute__((packed));
+
+typedef struct _message_acting_s message_acting_s;
+struct _message_acting_s
+{
+	uint16_t number;
+	uint16_t type;
+	uint16_t len;
+
+	uint16_t acting;
+	uint8_t player;
+}__attribute__((packed));
+
 typedef union _all_message_u all_message_u;
 union _all_message_u
 {
@@ -90,8 +102,9 @@ union _all_message_u
 	message_passwd_s passwd;
 	message_player_s player;
 	message_point_s point;
+	message_acting_s acting;
 };
-
+/**************** type message **********************************************/
 #define CMD_CHECK_CONNECT           0x0001
 #define MESSAGE_LOGIN               0x0002
 #define MESSAGE_PASSWD              0x0003
@@ -99,12 +112,14 @@ union _all_message_u
 #define CMD_ACCESS_DENIED_LOGIN     0x0005
 #define CMD_ACCESS_ALLOWED          0x0006
 #define CMD_NEW_ACTING              0x0007
-#define CMD_NUMBER_PLAYER           0x0008
-#define CMD_JOIN_ACTING             0x0009
-#define MESSAGE_JOIN_PLAYER         0x000A
-#define CMD_GAME_OVER               0x000B
-#define CMD_NUMBER_ROUND            0x000C
-#define CMD_POINT                   0x000D
+#define CMD_JOIN_ACTING             0x0008
+#define MESSAGE_JOIN_PLAYER         0x0009
+#define CMD_GAME_OVER               0x000A
+#define CMD_NUMBER_ROUND            0x000B
+#define CMD_POINT                   0x000C
+
+/********************* message **********************************************/
+#define END_NUMBER_ACTING   0
 
 #endif
 

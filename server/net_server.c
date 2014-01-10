@@ -225,7 +225,7 @@ int s_cmd_check_connect(user_s * psu)
 	}
 	return rc;
 }
-int s_cmd_access_denied_login(user_s * psu)
+int s_answer_access_denied_login(user_s * psu)
 {
 	int rc;
 	int fd = psu->fd;
@@ -245,7 +245,7 @@ int s_cmd_access_denied_login(user_s * psu)
 	}
 	return rc;
 }
-int s_cmd_access_denied_passwd(user_s * psu)
+int s_answer_access_denied_passwd(user_s * psu)
 {
 	int rc;
 	int fd = psu->fd;
@@ -265,7 +265,7 @@ int s_cmd_access_denied_passwd(user_s * psu)
 	}
 	return rc;
 }
-int s_cmd_access_allowed(user_s * psu)
+int s_answer_access_allowed(user_s * psu)
 {
 	int rc;
 	int fd = psu->fd;
@@ -285,16 +285,19 @@ int s_cmd_access_allowed(user_s * psu)
 	}
 	return rc;
 }
-int s_cmd_new_acting(user_s * psu,uint16_t acting)
+/*ответ сервера , просяшему игроку о создании игры, возврашает номер игры и номер играка в игре*/
+int s_answer_new_acting(user_s * psu,uint16_t acting,uint8_t player)
 {
 	int rc;
 	int fd = psu->fd;
-	message_cmd_s cmd;
+	message_acting_s cmd;
 
 	cmd.number = psu->package;
 	cmd.type = CMD_NEW_ACTING;
-	cmd.msg = acting;
-	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
+	cmd.len = LEN_MESSAGE_ACTING;
+	cmd.acting = acting;
+	cmd.player = player;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_acting_s)),0);
 	if(rc == -1){
 	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
 		rc = FAILURE;
@@ -305,36 +308,19 @@ int s_cmd_new_acting(user_s * psu,uint16_t acting)
 	}
 	return rc;
 }
-int s_cmd_number_player(user_s * psu,uint16_t player)
+/*ответ сервера , просяшему игроку если пресоеденил его к игре*/
+int s_answer_join_acting(user_s * psu,uint16_t acting,uint8_t player)
 {
 	int rc;
 	int fd = psu->fd;
-	message_cmd_s cmd;
-
-	cmd.number = psu->package;
-	cmd.type = CMD_NUMBER_PLAYER;
-	cmd.msg = player;
-	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
-	if(rc == -1){
-	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
-		rc = FAILURE;
-	}
-	else{
-		psu->package ++;
-		rc = SUCCESS;
-	}
-	return rc;
-}
-int s_cmd_join_acting(user_s * psu,uint16_t acting)
-{
-	int rc;
-	int fd = psu->fd;
-	message_cmd_s cmd;
+	message_acting_s cmd;
 
 	cmd.number = psu->package;
 	cmd.type = CMD_JOIN_ACTING;
-	cmd.msg = acting;
-	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
+	cmd.len = LEN_MESSAGE_ACTING;
+	cmd.acting = acting;
+	cmd.player = player;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_acting_s)),0);
 	if(rc == -1){
 	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
 		rc = FAILURE;
