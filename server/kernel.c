@@ -101,9 +101,6 @@ int main_loop(void)
 	int fd;
 	int new_connect = NO;
 	int new_acting = 0;
-	/*uint16_t check_acting = 0;*/
-
-	g_message("main_loop");
 
 	for(;;){
 g_message("New check !");

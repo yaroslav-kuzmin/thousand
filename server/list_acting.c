@@ -337,23 +337,20 @@ static int delete_acting(acting_s * psa,user_s * psu)
 
 static int check_begin_round(acting_s * psa)
 {
-#if 0
 	int i;
 	int rc;
 	user_s * ptu;
-	uint32_t flag;
+	/*uint32_t flag;*/
 
 	for(i = 0;i < AMOUNT_PLAYER;i++){
 		ptu = psa->player[i];
-		rc = s_cmd_number_round(ptu->fd,ptu->package,psa->round);
+		rc = s_cmd_number_round(ptu,psa->round);
 		if(rc == FAILURE){
-			del_user_list(ptu,NOT_ACTING_DEL);
+			del_user_list(ptu->fd,NOT_ACTING_DEL);
 			return SUCCESS;
 		}
-		ptu->package++;
-		flag = ptu->flag;
+		/*flag = ptu->flag;*/
 	}
-#endif
 	return SUCCESS;
 }
 
@@ -514,6 +511,7 @@ int current_actings(void)
 	int rc;
 
 	g_message("current acting : %p",all_acting);
+
 	rc = g_hash_table_foreach_remove(all_acting,check_acting,NULL);
 
 	global_log("Проверили текущие игры : %d",rc);

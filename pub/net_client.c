@@ -140,10 +140,10 @@ static int record_buff(uint8_t ** buff,int max_len)
 	}
 
 	if(len > max_len){
-		/*TODO проверка на последовательность пакетов*/
 		global_warning("Привышен размер данных %d > %d!",len,max_len);
 		exit(EXIT_SUCCESS);
 	}
+	/*TODO проверка на последовательность пакетов*/
 	sbuff = buff_save->data;
 
 	memcpy(dbuff,sbuff,len);

@@ -140,7 +140,7 @@ int new_acting(void)
 		global_log("Сервер неприсоединяет игроков!");
 		return rc;
 	}
-	global_log("К игре присоединился игрок %s : %d!",partner_left.name,partner_left.number);
+	global_log("К игре присоединился игрок %s : (%d)!",partner_left.name,partner_left.number);
 	if_partner_left(partner_left.name);
 
 	partner_right.name = partner_right.str_name;
@@ -149,7 +149,7 @@ int new_acting(void)
 		global_log("Сервер неприсоединяет игроков!");
 		return rc;
 	}
-	global_log("К игре присоединился игрок %s : %d!",partner_right.name,partner_right.number);
+	global_log("К игре присоединился игрок %s : (%d)!",partner_right.name,partner_right.number);
 	if_partner_right(partner_right.name);
 
 	return rc;
@@ -213,6 +213,7 @@ int main_loop(void)
 	interface_cmd_e  cmd;
 
 	for(;;){
+
 	 	cmd = if_cmd();
 		if (cmd == exit_client){
 			c_cmd_game_over(number_acting);
