@@ -479,6 +479,19 @@ interface_cmd_e if_cmd(void)
 	return cmd;
 }
 
+int if_nonblock(int non)
+{
+	int rc = SUCCESS;
+	/*rc = nodelay(main_win,bf);*/
+	if(non == TRUE){
+		wtimeout(main_win,1000);/*ожидание нажатия клавиши 1000 милисекунд*/
+	}
+	else{
+		wtimeout(main_win,-1); /*Ожидать нажатие клавиши*/
+	}
+	return rc;
+}
+
 int init_interface(void)
 {
 	str_locale = setlocale(LC_CTYPE,LOCALE);

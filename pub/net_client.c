@@ -77,6 +77,15 @@ int init_socket(void)
 		close(fd_local_socket);
 		return FAILURE;
 	}
+
+	/*Установить флаги работа в неблокируюшем и асинхроным режиме*/
+	rc = fcntl(fd_local_socket,F_SETFL,O_NONBLOCK|O_ASYNC);
+	if(rc == -1){
+		global_warning("Несмог установить неблокирующий режим локального сокета : %s"
+		              ,strerror(errno));
+		close(fd_local_socket);
+		return FAILURE;
+	}
 	memset(&pub_message,0,sizeof(all_message_u));
 	global_log("Соединились с сервером!");
 	buff_save = g_byte_array_new();
@@ -101,12 +110,14 @@ static int wait_read_socket(void)
 	int rc;
 	rc = recv(fd_local_socket,read_buff,SIZE_READ_BUFF,0);
 	if(rc == -1){
- 		global_warning("Несмог прочитать сообшение : %d : %s",fd_local_socket,strerror(errno));
-		rc = FAILURE;
+		if(errno != EAGAIN){
+	 		global_warning("Несмог прочитать сообшение : %d : %s",fd_local_socket,strerror(errno));
+			rc = FAILURE;
+		}
+		rc = SUCCESS;
 	}
 	else{
 		buff_save = g_byte_array_append(buff_save,read_buff,rc);
-		rc = SUCCESS;
 	}
 
 	return rc;
@@ -152,7 +163,7 @@ static int record_buff(uint8_t ** buff,int max_len)
 	return SUCCESS;
 }
 
-int read_socket(uint8_t ** buff,int max_len)
+int read_socket(uint8_t ** buff,int max_len,)
 {
 	int rc;
 
@@ -164,6 +175,7 @@ int read_socket(uint8_t ** buff,int max_len)
 			}
 		}
 		rc = wait_read_socket();
+
 		if(rc == FAILURE){
 			goto exit_read_socket;
 		}

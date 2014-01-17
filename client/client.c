@@ -210,9 +210,16 @@ int access_server(void)
 
 int main_loop(void)
 {
+	int rc = 0;
+	all_message_u msg;
 	interface_cmd_e  cmd;
 
+	if_nonblock(TRUE);
+
 	for(;;){
+
+		rc = c_answer_message(&msg);
+		global_log("check socket : %d",rc);
 
 	 	cmd = if_cmd();
 		if (cmd == exit_client){

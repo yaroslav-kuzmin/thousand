@@ -215,6 +215,12 @@ static int check_message(void)
 		case CMD_CHECK_CONNECT:
 			global_log("Проверка соединения!");
 			break;
+		case CMD_NUMBER_ROUND:
+			global_log("Номер раунда : %d",cmd->msg);
+			break;
+		case CMD_POINT:
+			global_log("Очки игроков!");
+			break;
 		case CMD_GAME_OVER:
 			global_log("Пришла команда \'игра окончена\'!");
 			rc = FAILURE;

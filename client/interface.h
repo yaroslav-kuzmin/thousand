@@ -39,6 +39,7 @@ int if_partner_left(char * name);
 int if_partner_right(char * name);
 
 interface_cmd_e if_cmd(void);
+int if_nonblock(int non);
 
 int init_interface(void);
 int close_interface(void);
