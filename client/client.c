@@ -108,8 +108,11 @@ static void print_version(FILE * stream)
 	fprintf(stream,"\n  Version  %s : Data \'%s\' : Autor \'%s\' : Email \'%s\'\n\n",VERSION,DATA_COM,AUTOR,EMAIL);
 }
 /*************************************/
+#define WAITING_ANSWER       5
+#define WAITING_SECONDS      1
 int new_acting(void)
 {
+	int i;
 	int rc;
 
 	rc = if_new_game();
@@ -121,42 +124,84 @@ int new_acting(void)
 	if(rc == FAILURE){
 		return rc;
 	}
-	rc = c_answer_new_acting(&number_acting,&player.number);
-	if(number_acting == 0){
-		rc = FAILURE;
-  		global_log("Сервер не создал игру %#x",number_acting);
-		return rc;
+	for(i = 0; i < WAITING_ANSWER;i++){
+		rc = c_answer_new_acting(&number_acting,&player.number);
+		if(rc == NOT_DATA_OBTAIN){
+			/*TODO отображение ожидания*/
+			/*TODO определение нажатия клавиши*/
+			sleep(WAITING_SECONDS);
+			rc = FAILURE;
+			continue;
+		}
+		if(number_acting == 0){
+			rc = FAILURE;
+	  		global_log("Сервер не создал игру %#x",number_acting);
+			return rc;
+		}
+		else{
+ 			rc = SUCCESS;
+	 		global_log("Сервер создал игру %#x, (%d)",number_acting,player.number);
+			break;
+		}
 	}
-	else{
- 		rc = SUCCESS;
- 		global_log("Сервер создал игру %#x, (%d)",number_acting,player.number);
+	if(rc == FAILURE){
+  		global_log("Сервер не ответечает!");
+		return rc;
 	}
 
 	if_create_game(number_acting);
 
 	partner_left.name = partner_left.str_name;
-	rc = c_answer_name_partner(&partner_left.number,&partner_left.name);
-  	if(rc == FAILURE){
-		global_log("Сервер неприсоединяет игроков!");
+	for(i = 0;i< WAITING_ANSWER;i++){
+		rc = c_answer_name_partner(&partner_left.number,&partner_left.name);
+  		if(rc == NOT_DATA_OBTAIN){
+			/*TODO отображение ожидания*/
+			/*TODO определение нажатия клавиши*/
+			sleep(WAITING_SECONDS);
+			rc = FAILURE;
+			continue;
+		}
+		if(rc == SUCCESS){
+			global_log("К игре присоединился игрок %s : (%d)!",partner_left.name,partner_left.number);
+			if_partner_left(partner_left.name);
+			break;
+		}
+		rc = FAILURE;
+		break;
+	}
+	if(rc == FAILURE){
+		global_log("Сервер неотвичает!");
 		return rc;
 	}
-	global_log("К игре присоединился игрок %s : (%d)!",partner_left.name,partner_left.number);
-	if_partner_left(partner_left.name);
 
 	partner_right.name = partner_right.str_name;
-	rc = c_answer_name_partner(&partner_right.number,&partner_right.name);
-  	if(rc == FAILURE){
-		global_log("Сервер неприсоединяет игроков!");
-		return rc;
+	for(i = 0;i< WAITING_ANSWER;i++){
+		rc = c_answer_name_partner(&partner_right.number,&partner_right.name);
+  		if(rc == NOT_DATA_OBTAIN){
+			/*TODO отображение ожидания*/
+			/*TODO определение нажатия клавиши*/
+			sleep(WAITING_SECONDS);
+			rc = FAILURE;
+			continue;
+		}
+		if(rc == SUCCESS){
+			global_log("К игре присоединился игрок %s : (%d)!",partner_right.name,partner_right.number);
+			if_partner_right(partner_right.name);
+			break;
+		}
+		rc = FAILURE;
+		break;
 	}
-	global_log("К игре присоединился игрок %s : (%d)!",partner_right.name,partner_right.number);
-	if_partner_right(partner_right.name);
+	if(rc == FAILURE){
+		global_log("Сервер неотвичает!");
+	}
 
 	return rc;
 }
 
 int access_server(void)
 {
+	int i;
 	int rc;
 
 	if(player.name == NULL){
@@ -195,31 +240,46 @@ int access_server(void)
 		return rc;
 	}
 
-	rc = c_answer_access_server();
-	if(rc == SUCCESS){
-		if_set_connect();
-		rc = SUCCESS;
-	}
-	else{
+	for(i = 0;i< WAITING_ANSWER;i++){
+		rc = c_answer_access_server();
+		if(rc == NOT_DATA_OBTAIN){
+			sleep(WAITING_SECONDS);
+			/*TODO Отрисовка ожидания*/
+			/*TODO определение нажатия клавиши*/
+			rc = FAILURE;
+			continue;
+		}
+		if(rc == SUCCESS){
+			if_set_connect();
+			rc = SUCCESS;
+			break;
+		}
 		if_not_set_connetc(rc);
 		rc = FAILURE;
+		break;
 	}
-
 	return rc;
+}
+/*************************************/
+all_message_u message;
+int check_message(all_message_u * msg)
+{
+
+	return SUCCESS;
 }
 
 int main_loop(void)
 {
 	int rc = 0;
-	all_message_u msg;
 	interface_cmd_e  cmd;
 
 	if_nonblock(TRUE);
 
 	for(;;){
-
-		rc = c_answer_message(&msg);
-		global_log("check socket : %d",rc);
+		rc = c_answer_message(&message);
+		if(rc != NOT_DATA_OBTAIN){
+			rc = check_message(&message);
+		}
 
 	 	cmd = if_cmd();
 		if (cmd == exit_client){

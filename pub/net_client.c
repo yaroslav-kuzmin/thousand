@@ -33,6 +33,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <openssl/md5.h>
 
 #include <glib.h>
@@ -105,6 +106,7 @@ int write_socket(uint8_t * buff,int len)
 	}
 	return rc;
 }
+
 static int wait_read_socket(void)
 {
 	int rc;
@@ -118,6 +120,7 @@ static int wait_read_socket(void)
 	}
 	else{
 		buff_save = g_byte_array_append(buff_save,read_buff,rc);
+		rc = SUCCESS;
 	}
 
 	return rc;
@@ -130,7 +133,7 @@ static int record_buff(uint8_t ** buff,int max_len)
 	uint16_t len = sizeof(message_cmd_s);
 
 	if(len > buff_save->len){
-		return FAILURE;
+		return NOT_DATA_OBTAIN;/*нет данных*/
 	}
 
 	cmd = (message_cmd_s *)buff_save->data;
@@ -147,7 +150,7 @@ static int record_buff(uint8_t ** buff,int max_len)
 			break;
 	}
 	if(len > buff_save->len){
-		return FAILURE;
+		return NOT_DATA_OBTAIN;/*не данных*/
 	}
 
 	if(len > max_len){
@@ -160,28 +163,21 @@ static int record_buff(uint8_t ** buff,int max_len)
 	memcpy(dbuff,sbuff,len);
 	buff_save = g_byte_array_remove_range(buff_save,0,len);
 
-	return SUCCESS;
+	return len;
 }
 
-int read_socket(uint8_t ** buff,int max_len,)
+int read_socket(uint8_t ** buff,int max_len)
 {
 	int rc;
 
-	for(;;){
-		if(buff_save->len != 0){
-			rc = record_buff(buff,max_len);
-			if(rc == SUCCESS ){
-				goto exit_read_socket;
-			}
-		}
-		rc = wait_read_socket();
-
-		if(rc == FAILURE){
-			goto exit_read_socket;
-		}
+	rc = wait_read_socket();
+	if(rc == FAILURE){
+		/*TODO попытатся перезапустить соединение*/
+		rc = NOT_DATA_OBTAIN;
 	}
-exit_read_socket:
-
+	else{
+		rc = record_buff(buff,max_len);
+	}
 	return rc;
 }
 
@@ -244,13 +240,11 @@ int c_answer_access_server(void)
 	message_cmd_s * msg = (message_cmd_s*)&pub_message;
 
 	rc = read_socket((uint8_t**)&msg,sizeof(message_cmd_s));
-	if(rc == FAILURE){
-	 	global_log("Нет связи с сервером!");
-		rc = NOT_CONNECT_SERVER;
+	if(rc == NOT_DATA_OBTAIN){
+	 	global_log("Нет сообщений от сервера!");
 		return rc;
 	}
 	/*TODO проверка на неполный пакет */
-	rc = FAILURE;
 	switch(msg->type){
 	 	case CMD_ACCESS_ALLOWED:
 			rc =  SUCCESS;
@@ -310,9 +304,8 @@ int c_answer_new_acting(uint16_t * acting,uint8_t * player)
 	*player = 0;
 
 	rc = read_socket((uint8_t**)&cmd,sizeof(message_acting_s));
-	if(rc == FAILURE){
-		global_log("Нет связи с сервером!");
-		rc = NOT_CONNECT_SERVER;
+	if(rc == NOT_DATA_OBTAIN){
+		global_log("Нет сообщений от сервера!");
 		return rc;
 	}
 
@@ -341,9 +334,8 @@ int c_answer_join_acting(uint16_t * acting,uint8_t * player)
 	*player = 0;
 
 	rc = read_socket((uint8_t**)&cmd,sizeof(message_acting_s));
-	if(rc == FAILURE){
-		global_log("Нет связи с сервером!");
-		rc = NOT_CONNECT_SERVER;
+	if(rc == NOT_DATA_OBTAIN){
+		global_log("Нет сообщений от сервера!");
 		return rc;
 	}
 	if(cmd->type != CMD_JOIN_ACTING){
@@ -370,9 +362,8 @@ int c_answer_name_partner(uint8_t * number,char ** name)
 	int len;
 
 	rc = read_socket((uint8_t**)&msg,sizeof(message_player_s));
-	if(rc == FAILURE){
-		global_log("Нет связи с сервером!");
-		rc = NOT_CONNECT_SERVER;
+	if(rc == NOT_DATA_OBTAIN){
+		global_log("Нет сообщений от сервера!");
 		return rc;
 	}
 
@@ -406,9 +397,8 @@ int c_answer_message(all_message_u * msg)
 {
 	int rc;
 	rc = read_socket((uint8_t**)&msg,sizeof(all_message_u));
-	if(rc == FAILURE){
-		global_log("Нет связи с сервером!");
-		rc = NOT_CONNECT_SERVER;
+	if(rc == NOT_DATA_OBTAIN){
+		global_log("Нет сообщений от сервера!");
 	}
 	return rc;
 }

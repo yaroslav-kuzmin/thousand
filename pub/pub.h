@@ -33,6 +33,7 @@
 #define YES                    1
 #define NO                     0
 
+
 #define DELETE_ACTING_USER     2
 #define DELETE_ACTING_SERVER   3
 
@@ -70,6 +71,7 @@
 #define LIMIT_ACTING                  -17
 #define LONG_DATA                     -18
 #define INCORRECT_SIZE                -19
+#define NOT_DATA_OBTAIN               -20
 #endif
 
 

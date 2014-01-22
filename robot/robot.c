@@ -140,10 +140,14 @@ static uint16_t check_acting(void)
 	return rc;
 }
 /*************************************/
+#define WAITING_ANSWER        5
+#define WAITING_SECONDS       1
 int access_server(void)
 {
+	int i;
 	int rc;
 	uint16_t acting_check;
+
 g_message("cmd login");
 	rc = c_cmd_login(robot);
 	if(rc == FAILURE){
@@ -155,31 +159,46 @@ g_message("cmd passwd");
 		return rc;
 	}
 g_message("wait answer");
-	rc = c_answer_access_server();
-	switch(rc){
-		case INCORRECT_LOGIN:
-			global_log("Не совпадает имя робота : %s",robot);
-			rc = FAILURE;
-			break;
-		case INCORRECT_PASSWORD:
-			global_log("Некорректный пароль");
-			rc = FAILURE;
-			break;
-		case INCORRECT_CMD:
-			global_log("Некорректный ответ сервера");
-			rc = FAILURE;
-			break;
-		case SUCCESS:
-			break;
-		default:
-			rc = FAILURE;
-			break;
+	for(i = 0;i < WAITING_ANSWER;i++){
+		rc = c_answer_access_server();
+		if(rc == NOT_DATA_OBTAIN){
+			sleep(WAITING_SECONDS);
+			continue;
+		}
+		switch(rc){
+			case INCORRECT_LOGIN:
+				global_log("Не совпадает имя робота : %s",robot);
+				rc = FAILURE;
+				break;
+			case INCORRECT_PASSWORD:
+				global_log("Некорректный пароль");
+				rc = FAILURE;
+				break;
+			case INCORRECT_CMD:
+				global_log("Некорректный ответ сервера");
+				rc = FAILURE;
+				break;
+			case SUCCESS:
+				break;
+			default:
+				rc = FAILURE;
+				break;
+		}
+		break;
 	}
 g_message("answer");
 	if(rc == SUCCESS){
 		rc = c_cmd_join_acting(acting);
 		if(rc == SUCCESS){
-			rc = c_answer_join_acting(&acting_check,&number_robot);
+			for(i= 0;i <WAITING_ANSWER;i++){
+				rc = c_answer_join_acting(&acting_check,&number_robot);
+				if(rc == NOT_DATA_OBTAIN){
+					sleep(WAITING_SECONDS);
+					rc = FAILURE;
+					continue;
+				}
+				break;
+			}
 			if(rc == SUCCESS){
 				if(acting_check == acting){
 					global_log("Присоединился к игре %#x, (%d)",acting,number_robot);
@@ -242,15 +261,15 @@ int main_loop(void)
 
 	for(;;){
 		rc = c_answer_message(&message);
-		if(rc == FAILURE){
-			global_log("Зачем я нужен если нет связи ?");
-			break;
+		if(rc != NOT_DATA_OBTAIN){
+			rc = check_message();
+			if(rc == FAILURE){
+				global_log("Закончилась игра!");
+				break;
+			}
 		}
-		rc = check_message();
-		if(rc == FAILURE){
-			global_log("Закончилась игра!");
-			break;
-		}
+		global_log("Ожидание сообщения!");
+		sleep(WAITING_SECONDS);
 	}
 
 	return SUCCESS;
