@@ -264,6 +264,8 @@ int access_server(void)
 all_message_u message;
 int check_message(all_message_u * msg)
 {
+	message_cmd_s * cmd = (message_cmd_s*)msg;
+	global_log("тип сообщения : %d",cmd->type);
 
 	return SUCCESS;
 }
@@ -274,11 +276,14 @@ int main_loop(void)
 	interface_cmd_e  cmd;
 
 	if_nonblock(TRUE);
+	memset(&message,0,sizeof(all_message_u));
 
 	for(;;){
 		rc = c_answer_message(&message);
+		global_log("Сообщение от сервера :%d",rc);
 		if(rc != NOT_DATA_OBTAIN){
 			rc = check_message(&message);
+			memset(&message,0,sizeof(all_message_u));
 		}
 
 	 	cmd = if_cmd();

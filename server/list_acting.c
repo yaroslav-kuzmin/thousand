@@ -76,6 +76,7 @@ struct _acting_s
  	user_s * player[AMOUNT_PLAYER];
 	uint16_t round;
 	uint16_t points[AMOUNT_PLAYER];
+	uint8_t bolt[AMOUNT_PLAYER];
 	uint8_t dealer;
 	deck_cards_s * deck;
 };
@@ -176,6 +177,12 @@ static int init_round(acting_s * psa)
 
 	psa->dealer = rand_dealer();
 	psa->round = FIRST_ROUND;
+	psa->points[PLAYER_CENTR] = 0;
+	psa->points[PLAYER_LEFT] = 0;
+	psa->points[PLAYER_RIGHT] = 0;
+	psa->bolt[PLAYER_CENTR] = 0;
+	psa->bolt[PLAYER_LEFT] = 0;
+	psa->bolt[PLAYER_RIGHT] = 0;
 
 	return SUCCESS;
 }
@@ -345,6 +352,7 @@ static int check_begin_round(acting_s * psa)
 	for(i = 0;i < AMOUNT_PLAYER;i++){
 		ptu = psa->player[i];
 		rc = s_cmd_number_round(ptu,psa->round);
+		rc = s_cmd_amount_point_player(ptu,i,psa->points[i],psa->bolt[i]);
 		if(rc == FAILURE){
 			del_user_list(ptu->fd,NOT_ACTING_DEL);
 			return SUCCESS;

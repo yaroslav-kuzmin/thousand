@@ -51,7 +51,7 @@
 #define ROBOT_FLAG        0x03
 /************************************/
 /***** Длина сообщений ****/
-#define LEN_MESSAGE_POINT        3
+#define LEN_MESSAGE_POINT        4
 #define LEN_MESSAGE_ACTING       3
 #define LEN_NAME_PLAYER          64                        /*длина строки имени игрока*/
 #define LEN_MAX_MESSAGE          LEN_NAME_PLAYER + 1       /*длина максимального сообщения*/

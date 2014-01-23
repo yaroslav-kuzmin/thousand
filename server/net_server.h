@@ -40,7 +40,8 @@ int s_answer_join_acting(user_s * psu,uint16_t acting,uint8_t player);
 int s_cmd_join_player(user_s * psu,uint8_t number,char * name);
 int s_cmd_game_over(user_s * psu,uint16_t acting);
 int s_cmd_number_round(user_s * psu,uint16_t round);
-int s_cmd_amount_point_player(user_s * psu,uint8_t player,int16_t point);
+int s_cmd_amount_point_player(user_s * psu,uint8_t player,int16_t points
+                             ,uint8_t bolt);
 
 #endif
 

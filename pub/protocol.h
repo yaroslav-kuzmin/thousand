@@ -81,6 +81,7 @@ struct _message_point_s
 
 	uint8_t player;
 	int16_t point;
+	uint8_t bolt;
 }__attribute__((packed));
 
 typedef struct _message_acting_s message_acting_s;
