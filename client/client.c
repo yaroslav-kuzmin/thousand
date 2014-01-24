@@ -428,6 +428,7 @@ int main(int argc,char * argv[])
 		global_log("Несмог создать игру");
 		goto exit_client;
 	}
+
 	main_loop();
 /*************************************/
 exit_client:

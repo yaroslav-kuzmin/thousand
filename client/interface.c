@@ -66,22 +66,22 @@ struct _object_s
 #define MAX_WIDTH              80
 #define MAX_HEIGHT             7
 
-static WINDOW * main_win = NULL;
+static WINDOW * log_win = NULL;
 static char * str_locale = NULL;
 
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
-static object_s o_main_win;
+static object_s o_log_win;
 
-static int draw_main_win(void)
+static int draw_log_win(void)
 {
-	if(main_win != NULL){
-		wrefresh(main_win);
+	if(log_win != NULL){
+		wrefresh(log_win);
 	}
 	return SUCCESS;
 }
-static int create_main_win(void)
+static int create_log_win(void)
 {
 	int y,x,w,h;
 
@@ -89,22 +89,23 @@ static int create_main_win(void)
 	x = (COLS - MAX_WIDTH)/2;
 	w = MAX_WIDTH;
 	h = MAX_HEIGHT;
-	main_win = newwin(h,w,y,x);
-	keypad(main_win,TRUE);
-	wattrset(main_win,COLOR_PAIR(MAIN_PAIR));
-	box(main_win,0,0);
-	o_main_win.y = y;
-	o_main_win.x = x;
-	o_main_win.h = h;
-	o_main_win.w = w;
-	o_main_win.data = NULL;
-	draw_main_win();
+	log_win = newwin(h,w,y,x);
+	keypad(log_win,TRUE);
+	wattrset(log_win,COLOR_PAIR(MAIN_PAIR));
+	box(log_win,0,0);
+	o_log_win.y = y;
+	o_log_win.x = x;
+	o_log_win.h = h;
+	o_log_win.w = w;
+	o_log_win.data = NULL;
+
+	draw_log_win();
 	return SUCCESS;
 }
 /*****************************************************************************/
 /* Основная функция                                                          */
 /*****************************************************************************/
-
+/******** Окно логина ****************/
 static char * PLAYER = "player : ";
 static char * PLAYER_FIELD = "__________";
 object_s o_label_player;
@@ -124,10 +125,10 @@ int init_o_player(void)
 	o_field_player.w = strlen(PLAYER_FIELD);
 	o_field_player.data = PLAYER_FIELD;
 
-	wmove(main_win,o_label_player.y,o_label_player.x);
-	wprintw(main_win,o_label_player.data);
-	wprintw(main_win,o_field_player.data);
-	draw_main_win();
+	wmove(log_win,o_label_player.y,o_label_player.x);
+	wprintw(log_win,o_label_player.data);
+	wprintw(log_win,o_field_player.data);
+	draw_log_win();
 
 	return SUCCESS;
 }
@@ -137,9 +138,9 @@ int if_get_name_player(char ** player,int len)
 	char *str = *player;
 	chtype ch;
 
-	wmove(main_win,o_field_player.y,o_field_player.x);
+	wmove(log_win,o_field_player.y,o_field_player.x);
 	for(i = 0;i < (len - 1);){
-		ch = wgetch(main_win);
+		ch = wgetch(log_win);
 		if(  (ch == KEY_ENTER)
 		  || (ch == CR)
 		  || (ch == NL)
@@ -151,10 +152,10 @@ int if_get_name_player(char ** player,int len)
 			*(str+i) = 0;
 			ch = '_';
 			if(i < o_field_player.w){
-				getyx(main_win,y,x);
-				wmove(main_win,y,x-1);
-				waddch(main_win,ch);
-				wmove(main_win,y,x-1);
+				getyx(log_win,y,x);
+				wmove(log_win,y,x-1);
+				waddch(log_win,ch);
+				wmove(log_win,y,x-1);
 			}
 		}
 		/*TODO добавить поддержку UTF-8*/
@@ -162,10 +163,10 @@ int if_get_name_player(char ** player,int len)
 			*(str+i) = (char)ch;
 			i++;
 			if(i < o_field_player.w){
-				waddch(main_win,ch);
+				waddch(log_win,ch);
 			}
 		}
-		draw_main_win();
+		draw_log_win();
 	}
 
 	str[i] = 0;
@@ -176,11 +177,11 @@ int if_set_name_player(char *player)
 {
 	int i;
 	int len = strlen(player);
-	wmove(main_win,o_field_player.y,o_field_player.x);
+	wmove(log_win,o_field_player.y,o_field_player.x);
 	for(i = 0;i< len;i++){
-		waddch(main_win,player[i]);
+		waddch(log_win,player[i]);
 	}
-	draw_main_win();
+	draw_log_win();
 	return SUCCESS;
 }
 
@@ -204,10 +205,10 @@ int init_o_passwd(void)
 	o_field_passwd.w = strlen(PASSWD_FIELD);
 	o_field_passwd.data = PASSWD_FIELD;
 
-	wmove(main_win,o_label_passwd.y,o_label_passwd.x);
-	wprintw(main_win,o_label_passwd.data);
-	wprintw(main_win,o_field_passwd.data);
-	draw_main_win();
+	wmove(log_win,o_label_passwd.y,o_label_passwd.x);
+	wprintw(log_win,o_label_passwd.data);
+	wprintw(log_win,o_field_passwd.data);
+	draw_log_win();
 
 	return SUCCESS;
 }
@@ -217,9 +218,9 @@ int if_get_passwd(char ** passwd,int len)
 	char *str = *passwd;
 	chtype ch;
 
-	wmove(main_win,o_field_passwd.y,o_field_passwd.x);
+	wmove(log_win,o_field_passwd.y,o_field_passwd.x);
 	for(i = 0;i < (len - 1);){
-		ch = wgetch(main_win);
+		ch = wgetch(log_win);
 		if(  (ch == KEY_ENTER)
 		  || (ch == CR)
 		  || (ch == NL)
@@ -232,10 +233,10 @@ int if_get_passwd(char ** passwd,int len)
 			*(str+i) = 0;
 			ch = '_';
 			if(i < o_field_passwd.w){
-				getyx(main_win,y,x);
-				wmove(main_win,y,x-1);
-				waddch(main_win,ch );
-				wmove(main_win,y,x-1);
+				getyx(log_win,y,x);
+				wmove(log_win,y,x-1);
+				waddch(log_win,ch );
+				wmove(log_win,y,x-1);
 			}
 		}
 		/*TODO добавить поддержку UTF-8*/
@@ -243,10 +244,10 @@ int if_get_passwd(char ** passwd,int len)
 			*(str+i) = (char)ch;
 			i++;
 			if(i < o_field_passwd.w){
-				waddch(main_win,ch );
+				waddch(log_win,ch );
 			}
 		}
-		draw_main_win ();
+		draw_log_win ();
 	}
 
 	str[i] = 0;
@@ -257,11 +258,11 @@ int if_set_passwd(char * passwd)
 {
 	int i;
 	int len = strlen(passwd);
-	wmove(main_win,o_field_passwd.y,o_field_passwd.x);
+	wmove(log_win,o_field_passwd.y,o_field_passwd.x);
 	for(i = 0;i< len;i++){
-		waddch(main_win,passwd[i]);
+		waddch(log_win,passwd[i]);
 	}
-	draw_main_win();
+	draw_log_win();
 	return SUCCESS;
 }
 
@@ -276,9 +277,9 @@ int init_o_connect(void)
 	o_label_connect.w = strlen(PASSWD);
 	o_label_connect.data = CONNECT;
 
-	wmove(main_win,o_label_connect.y,o_label_connect.x);
-	wprintw(main_win,o_label_connect.data);
-	draw_main_win();
+	wmove(log_win,o_label_connect.y,o_label_connect.x);
+	wprintw(log_win,o_label_connect.data);
+	draw_log_win();
 	return SUCCESS;
 }
 int if_set_connect(void)
@@ -289,15 +290,15 @@ int if_set_connect(void)
 	chtype ch;
 	char * str = CONNECT;
 */
-	wmove(main_win,o_label_connect.y,o_label_connect.x);
-	wprintw(main_win,o_label_connect.data);
+	wmove(log_win,o_label_connect.y,o_label_connect.x);
+	wprintw(log_win,o_label_connect.data);
 /*
 	for(i = 0;i < len-1;i++){
 		ch = *(str + i) | COLOR_PAIR(IN_MAIN_PAIR);
-		waddch(main_win,ch);
+		waddch(log_win,ch);
 	}
 */
-	draw_main_win();
+	draw_log_win();
 	return SUCCESS;
 }
 
@@ -313,9 +314,9 @@ int if_not_set_connetc(int type)
 	int y = 3;
 	int x ;
 
-	wattrset(main_win,COLOR_PAIR(ERROR_PAIR));
-	wmove(main_win,o_label_connect.y,o_label_connect.x);
-	wprintw(main_win,"%s",str);
+	wattrset(log_win,COLOR_PAIR(ERROR_PAIR));
+	wmove(log_win,o_label_connect.y,o_label_connect.x);
+	wprintw(log_win,"%s",str);
 	switch(type){
 		case INCORRECT_LOGIN:
 			str = LOGIN_INCORRECT;
@@ -327,11 +328,11 @@ int if_not_set_connetc(int type)
 
 	len = strlen(str);
 	x = (MAX_WIDTH - len)/2;
-	wmove(main_win,y,x);
-	wprintw(main_win,"%s",str);
-	draw_main_win();
+	wmove(log_win,y,x);
+	wprintw(log_win,"%s",str);
+	draw_log_win();
 	for(;;){
-	 	ch = wgetch(main_win);
+	 	ch = wgetch(log_win);
 		if( (ch == KEY_F(4)) || (ch == CR) ){
 			break;
 		}
@@ -367,19 +368,19 @@ int if_new_game(void)
 	int rc;
 	chtype ch;
 
-	wmove(main_win,o_label_new_game.y,o_label_new_game.x);
-	wprintw(main_win,"%s",o_label_new_game.data);
-	draw_main_win();
+	wmove(log_win,o_label_new_game.y,o_label_new_game.x);
+	wprintw(log_win,"%s",o_label_new_game.data);
+	draw_log_win();
 	for(;;){
-		ch = wgetch(main_win);
+		ch = wgetch(log_win);
 		if( ch == KEY_F(4)){
 			rc = FAILURE;
 			break;
 		}
 		if( (ch == CR) || (ch == TAB)){
 			rc = SUCCESS;
-			wprintw(main_win,"%s",o_label_create.data);
-			draw_main_win();
+			wprintw(log_win,"%s",o_label_create.data);
+			draw_log_win();
 			break;
 		}
 	}
@@ -402,22 +403,22 @@ int init_o_game(void)
 int if_create_game(uint16_t number)
 {
 	 chtype ch;
-	wmove(main_win,o_label_game.y,o_label_game.x);
-	wprintw(main_win,"%s0x%04x",o_label_game.data,number);
+	wmove(log_win,o_label_game.y,o_label_game.x);
+	wprintw(log_win,"%s0x%04x",o_label_game.data,number);
 	if(number == 0){
-		wprintw(main_win,"Not create game");
+		wprintw(log_win,"Not create game");
 		for(;;){
-		 	ch = wgetch(main_win);
+		 	ch = wgetch(log_win);
 			if( (ch == KEY_F(4)) || (ch == CR) ){
 				break;
 			}
 		}
 	}
 	else{
-		wmove(main_win,o_label_new_game.y,o_label_new_game.x);
-		wprintw(main_win,"                ");
+		wmove(log_win,o_label_new_game.y,o_label_new_game.x);
+		wprintw(log_win,"                ");
 	}
-	draw_main_win();
+	draw_log_win();
 
 	return SUCCESS;
 }
@@ -446,16 +447,16 @@ int init_partner(void)
 
 int if_partner_left(char * name)
 {
-	wmove(main_win,o_partner_left.y,o_partner_left.x);
-	wprintw(main_win,"%s%s",o_partner_left.data,name);
-	draw_main_win();
+	wmove(log_win,o_partner_left.y,o_partner_left.x);
+	wprintw(log_win,"%s%s",o_partner_left.data,name);
+	draw_log_win();
 	return SUCCESS;
 }
 int if_partner_right(char * name)
 {
-	wmove(main_win,o_partner_right.y,o_partner_right.x);
-	wprintw(main_win,"%s%s",o_partner_right.data,name);
-	draw_main_win();
+	wmove(log_win,o_partner_right.y,o_partner_right.x);
+	wprintw(log_win,"%s%s",o_partner_right.data,name);
+	draw_log_win();
 	return SUCCESS;
 }
 /*************************************/
@@ -466,8 +467,8 @@ interface_cmd_e if_cmd(void)
 	interface_cmd_e cmd;
 	chtype ch;
 
-	wmove(main_win,LAST_Y,LAST_X);
-	ch = wgetch(main_win);
+	wmove(log_win,LAST_Y,LAST_X);
+	ch = wgetch(log_win);
 	switch(ch){
 		case KEY_F(4):
 			cmd = exit_client;
@@ -482,12 +483,12 @@ interface_cmd_e if_cmd(void)
 int if_nonblock(int non)
 {
 	int rc = SUCCESS;
-	/*rc = nodelay(main_win,bf);*/
+	/*rc = nodelay(log_win,bf);*/
 	if(non == TRUE){
-		wtimeout(main_win,1000);/*ожидание нажатия клавиши 1000 милисекунд*/
+		wtimeout(log_win,1000);/*ожидание нажатия клавиши 1000 милисекунд*/
 	}
 	else{
-		wtimeout(main_win,-1); /*Ожидать нажатие клавиши*/
+		wtimeout(log_win,-1); /*Ожидать нажатие клавиши*/
 	}
 	return rc;
 }
@@ -540,7 +541,7 @@ int init_interface(void)
 	printw("Тысяча!");
 	refresh();
 
-	create_main_win();
+	create_log_win();
 
 	init_o_player();
 	init_o_passwd();
