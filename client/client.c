@@ -262,11 +262,39 @@ int access_server(void)
 }
 /*************************************/
 all_message_u message;
+int check_point(message_point_s * cmd)
+{
+	if(cmd->player == player.number){
+		global_log("point :> %d : bolt :> %d",cmd->point,cmd->bolt);
+		return SUCCESS;
+	}
+	if(cmd->player == partner_left.number){
+		if_partner_left_point(cmd->point);
+		if_partner_left_bolt(cmd->bolt);
+		return SUCCESS;
+	}
+	if(cmd->player == partner_right.number){
+		if_partner_right_point(cmd->point);
+		if_partner_right_bolt(cmd->bolt);
+	}
+	return SUCCESS;
+}
 int check_message(all_message_u * msg)
 {
 	message_cmd_s * cmd = (message_cmd_s*)msg;
 	global_log("тип сообщения : %d",cmd->type);
-
+	switch(cmd->type){
+		case CMD_NUMBER_ROUND:
+			if_number_round(cmd->msg);
+			if_status_round(begin_round);
+			global_log("Номер роунда :> %d",cmd->msg);
+			break;
+		case CMD_POINT:
+			check_point((message_point_s*)cmd);
+			break;
+		default:
+			break;
+	}
 	return SUCCESS;
 }
 

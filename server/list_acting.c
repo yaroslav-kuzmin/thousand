@@ -352,7 +352,12 @@ static int check_begin_round(acting_s * psa)
 	for(i = 0;i < AMOUNT_PLAYER;i++){
 		ptu = psa->player[i];
 		rc = s_cmd_number_round(ptu,psa->round);
-		rc = s_cmd_amount_point_player(ptu,i,psa->points[i],psa->bolt[i]);
+		rc = s_cmd_amount_point_player(ptu,PLAYER_CENTR
+		                              ,psa->points[PLAYER_CENTR],psa->bolt[PLAYER_CENTR]);
+		rc = s_cmd_amount_point_player(ptu,PLAYER_LEFT
+		                              ,psa->points[PLAYER_LEFT],psa->bolt[PLAYER_LEFT]);
+		rc = s_cmd_amount_point_player(ptu,PLAYER_RIGHT
+		                              ,psa->points[PLAYER_RIGHT],psa->bolt[PLAYER_RIGHT]);
 		if(rc == FAILURE){
 			del_user_list(ptu->fd,NOT_ACTING_DEL);
 			return SUCCESS;

@@ -36,6 +36,14 @@ enum _if_cmd_e
 	last_command
 };
 
+typedef enum _if_status_round_e status_round_e;
+enum _if_status_round_e
+{
+	begin_round = 0,
+	auction_round,
+	play_round,
+	end_round,
+};
 
 #endif
 

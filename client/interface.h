@@ -36,7 +36,13 @@ int if_not_set_connetc(int type);
 int if_new_game(void);
 int if_create_game(uint16_t number);
 int if_partner_left(char * name);
+int if_partner_left_point(uint16_t point);
+int if_partner_left_bolt(uint8_t bolt);
 int if_partner_right(char * name);
+int if_partner_right_point(uint16_t point);
+int if_partner_right_bolt(uint8_t bolt);
+int if_number_round(uint16_t round);
+int if_status_round(status_round_e sr);
 
 interface_cmd_e if_cmd(void);
 int if_nonblock(int non);
