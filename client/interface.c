@@ -40,6 +40,7 @@
 #include "warning.h"
 #include "log.h"
 #include "protocol.h"
+#include "cards.h"
 
 #include "interface_cmd.h"
 /*****************************************************************************/
@@ -64,11 +65,37 @@ struct _object_s
 };
 
 #define MAX_WIDTH              100
-#define MAX_HEIGHT             15
+#define MAX_HEIGHT             20
 
 static WINDOW * main_win = NULL;
 static char * str_locale = NULL;
 
+static char black_hearts[4]   = {0xe2,0x99,0xa5,0};
+static char black_diamonds[4] = {0xe2,0x99,0xa6,0};
+static char black_clubs[4]    = {0xe2,0x99,0xa3,0};
+static char black_spades[4]   = {0xe2,0x99,0xa0,0};
+#if 0
+static char white_hearts[4]   = {0xe2,0x99,0xa1,0};
+static char white_diamonds[4] = {0xe2,0x99,0xa2,0};
+static char white_clubs[4]    = {0xe2,0x99,0xa7,0};
+static char white_spades[4]   = {0xe2,0x99,0xa4,0};
+#endif
+static char ace[3] = " A";
+static char ten[3] = "10";
+static char king[3] = " K";
+static char queen[3] = " Q";
+static char jack[3] = " J";
+static char nine[3] = " 9";
+static char shirt_suit[4] = {0xe2,0x96,0x92,0};
+static char shirt_value[5] = {0x20,0xe2,0x96,0x92,0};
+
+static char top_line[16] = {0xe2,0x94,0x8c, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x90, 0};
+static char bottom_line[16] = {0xe2,0x94,0x94, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x98, 0};
+static char v_line[4] = {0xe2,0x94,0x82, 0};
+static char h_line[4] = {0xe2,0x94,0x80,0};
+
+#define WIDTH_CARD       5
+#define HEIGHT_CARD      3
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
@@ -108,8 +135,12 @@ static int create_main_win(void)
 /******** Окно логина ****************/
 static char * PLAYER = "player : ";
 static char * PLAYER_FIELD = "__________";
+static char * PASSWD = "passwd : ";
+static char * PASSWD_FIELD = "__________";
 object_s o_label_player;
 object_s o_field_player;
+object_s o_label_passwd;
+object_s o_field_passwd;
 
 int init_o_player(void)
 {
@@ -186,10 +217,6 @@ int if_set_name_player(char *player)
 }
 
 /*************************************/
-static char * PASSWD = "passwd : ";
-static char * PASSWD_FIELD = "__________";
-object_s o_label_passwd;
-object_s o_field_passwd;
 
 int init_o_passwd(void)
 {
@@ -388,23 +415,30 @@ int if_new_game(void)
 	return rc;
 }
 /*************************************/
-static char * GAME = "GAME : ";
+static char * GAME = "   GAME   ";
+#define SIZE_GAME_LINE       (((MAX_WIDTH - 2) * SIZE_UTF8_SYMBOL_0800) +1)
+static char game_line[SIZE_GAME_LINE] = {0};
 object_s o_label_game;
 int init_o_game(void)
 {
+	int i;
+	for(i = 0;i < (SIZE_GAME_LINE-1);i++){
+		char s = h_line[i % SIZE_UTF8_SYMBOL_0800];
+		game_line[i] = s;
+	}
 	o_label_game.y = 2;
 	o_label_game.x = 1;
 	o_label_game.h = 1;
 	o_label_game.w = strlen(GAME);
-	o_label_game.data = GAME;
+	o_label_game.data = game_line;
 
 	return SUCCESS;
 }
 int if_create_game(uint16_t number)
 {
-	 chtype ch;
+	chtype ch;
 	wmove(main_win,o_label_game.y,o_label_game.x);
-	wprintw(main_win,"%s0x%04x",o_label_game.data,number);
+	wprintw(main_win,"%s",o_label_game.data);
 	if(number == 0){
 		wprintw(main_win,"Not create game");
 		for(;;){
@@ -416,7 +450,7 @@ int if_create_game(uint16_t number)
 	}
 	else{
 		wmove(main_win,o_label_new_game.y,o_label_new_game.x);
-		wprintw(main_win,"                ");
+		wprintw(main_win,GAME);
 	}
 	draw_main_win();
 
@@ -434,44 +468,59 @@ object_s o_partner_left_point;
 object_s o_partner_right_point;
 object_s o_partner_left_bolt;
 object_s o_partner_right_bolt;
+object_s o_partner_left_card;
+object_s o_partner_right_card;
+
 
 int init_o_partner(void)
 {
-	o_partner_left.y = 4;
+	o_partner_left.y = 6;
 	o_partner_left.x = 1;
 	o_partner_left.h = 1;
 	o_partner_left.w = strlen(PARTNER_LEFT);
 	o_partner_left.data = PARTNER_LEFT;
 
-	o_partner_left_point.y = 5;
+	o_partner_left_point.y = 7;
 	o_partner_left_point.x = 1;
 	o_partner_left_point.h = 1;
 	o_partner_left_point.w = strlen(POINT);
 	o_partner_left_point.data = POINT;
 
-	o_partner_left_bolt.y = 6;
+	o_partner_left_bolt.y = 8;
 	o_partner_left_bolt.x = 1;
 	o_partner_left_bolt.h = 1;
 	o_partner_left_bolt.w = strlen(BOLT);
 	o_partner_left_bolt.data = BOLT;
 
-	o_partner_right.y = 4;
+	o_partner_left_card.y = 9;
+	o_partner_left_card.x = 1;
+	o_partner_left_card.h = HEIGHT_CARD;
+	o_partner_left_card.w = WIDTH_CARD;
+	o_partner_left_card.data = NULL;
+
+	o_partner_right.y = 6;
 	o_partner_right.x = MAX_WIDTH/2;
 	o_partner_right.h = 1;
 	o_partner_right.w = strlen(PARTNER_RIGHT);
 	o_partner_right.data = PARTNER_RIGHT;
 
-	o_partner_right_point.y = 5;
+	o_partner_right_point.y = 7;
 	o_partner_right_point.x = MAX_WIDTH/2;
 	o_partner_right_point.h = 1;
 	o_partner_right_point.w = strlen(POINT);
 	o_partner_right_point.data = POINT;
 
-	o_partner_right_bolt.y = 6;
+	o_partner_right_bolt.y = 8;
 	o_partner_right_bolt.x = MAX_WIDTH/2;
 	o_partner_right_bolt.h = 1;
 	o_partner_right_bolt.w = strlen(BOLT);
 	o_partner_right_bolt.data = BOLT;
+
+	o_partner_rught_card.y = 9;
+	o_partner_rught_card.x = MAX_WIDTH/2;
+	o_partner_rught_card.h = HEIGHT_CARD;
+	o_partner_rught_card.w = WIDTH_CARD;
+	o_partner_rught_card.data = NULL;
 
 	return SUCCESS;
 }
@@ -519,7 +568,22 @@ int if_partner_right_bolt(uint8_t bolt)
 	draw_main_win();
 	return SUCCESS;
 }
+int if_partner_left_card(uint8_t card)
+{
+	char * card_s = shirt_suit;
+	char * card_v = shirt_value;
 
+	wmove(main_win,o_card_left.y,o_card_left.x);
+	wprintw(main_win,"%s",top_line);
+	wmove(main_win,(o_card_left.y + 1),o_card_left.x);
+	wprintw(main_win,"%s%s%s%s",v_line,card_s,card_v,v_line);
+	wmove(main_win,(o_card_left.y + 2),o_card_left.x);
+	wprintw(main_win,"%s",bottom_line);
+	draw_main_win();
+
+	
+	return SUCCESS;
+}
 /*************************************/
 /*отображение номера раунда          */
 static char * ROUND = "round :> ";
@@ -534,13 +598,13 @@ object_s o_status;
 
 int init_o_round(void)
 {
-	o_round.y = 3;
+	o_round.y = 4;
 	o_round.x = 1;
 	o_round.h = 1;
 	o_round.w = strlen(ROUND);
 	o_round.data = ROUND;
 
-	o_status.y = 3;
+	o_status.y = 4;
 	o_status.x = o_round.w + SIZE_STR_ROUND;
 	o_status.h = 1;
 	o_status.w = strlen(STATUS_AUCTION_ROUND);
@@ -582,24 +646,8 @@ int if_status_round(status_round_e sr)
 }
 /*************************************/
 /* отображение стола раздачи         */
-static char black_hearts[4]   = {0xe2,0x99,0xa5,0};
-static char black_diamonds[4] = {0xe2,0x99,0xa6,0};
-static char black_clubs[4]    = {0xe2,0x99,0xa3,0};
-static char black_spades[4]   = {0xe2,0x99,0xa0,0};
-static char white_hearts[4]   = {0xe2,0x99,0xa1,0};
-static char white_diamonds[4] = {0xe2,0x99,0xa2,0};
-static char white_clubs[4]    = {0xe2,0x99,0xa7,0};
-static char white_spades[4]   = {0xe2,0x99,0xa4,0};
-static char ace[3] = " A";
-static char ten[3] = "10";
-static char king[3] = " K";
-static char queen[3] = " Q";
-static char jack[3] = " J";
-static char nine[3] = " 9";
-
-static char top_line[16] = {0xe2,0x94,0x8c, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x90, 0};
-static char bottom_line[16] = {0xe2,0x94,0x94, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x98, 0};
-static char v_line[4] = {0xe2,0x94,0x82, 0};
+/* отображение карт на столе                 */
+#define SIZE_TABLE     (3*SIZE_CARD)
 static char * TABLE = "table : ";
 
 object_s o_table;
@@ -609,17 +657,30 @@ object_s o_card_right;
 
 int init_o_table(void)
 {
-	o_table.y = 8;
+	o_table.y = 12;
 	o_table.x = 1;
 	o_table.h = 1;
 	o_table.w = strlen(TABLE);
 	o_table.data = TABLE;
 
-	o_card_left.y = 7;
-	o_card_left.x = 9;
-	o_card_left.h = 3;
-	o_card_left.w = 5;
+	o_card_left.y = 12;
+	o_card_left.x = (MAX_WIDTH/2) - (SIZE_TABLE/2);
+	o_card_left.h = WIDTH_CARD;
+	o_card_left.w = HEIGHT_CARD;
 	o_card_left.data = NULL;
+
+	o_card_center.y = 12;
+	o_card_center.x = (MAX_WIDTH/2) - (SIZE_CARD/2);
+	o_card_center.h = WIDTH_CARD;
+	o_card_center.w = HEIGHT_CARD;
+	o_card_center.data = NULL;
+
+	o_card_right.y = 12;
+	o_card_right.x = (MAX_WIDTH/2) + (SIZE_CARD/2)+1;
+	o_card_right.h = WIDTH_CARD;
+	o_card_right.w = HEIGHT_CARD;
+	o_card_right.data = NULL;
+
 	return SUCCESS;
 }
 
@@ -630,12 +691,93 @@ int if_table(void)
 	draw_main_win();
 	return SUCCESS;
 }
+static char * check_suit(uint8_t suit)
+{
+	char * str = shirt_suit;
+	switch(suit){
+		case HEARTS:
+			str = black_hearts;
+			break;
+		case DIAMONDS:
+			str = black_diamonds;
+			break;
+		case CLUBS:
+			str = black_clubs;
+			break;
+		case SPADES:
+			str = black_spades;
+			break;
+	}
+	return str;
+}
+static char * check_value(uint8_t value)
+{
+	char * str = shirt_value;
+	switch(value){
+		case ACE:
+			str = ace;
+			break;
+		case TEN:
+			str = ten;
+			break;
+		case KING:
+			str = king;
+			break;
+		case QUEEN:
+			str = queen;
+			break;
+		case JACK:
+			str = jack;
+			break;
+		case NINE:
+			str = nine;
+			break;
+	}
+	return str;
+}
 int if_table_card_left(uint8_t suit,uint8_t value)
 {
-	char 
+	char * card_s = check_suit(suit);
+	char * card_v = check_value(value);
+
 	wmove(main_win,o_card_left.y,o_card_left.x);
 	wprintw(main_win,"%s",top_line);
-	wmove(main_win,o_card_left.y-1)
+	wmove(main_win,(o_card_left.y + 1),o_card_left.x);
+	wprintw(main_win,"%s%s%s%s",v_line,card_s,card_v,v_line);
+	wmove(main_win,(o_card_left.y + 2),o_card_left.x);
+	wprintw(main_win,"%s",bottom_line);
+	draw_main_win();
+
+	return SUCCESS;
+}
+int if_table_card_center(uint8_t suit,uint8_t value)
+{
+	char * card_s = check_suit(suit);
+	char * card_v = check_value(value);
+
+	wmove(main_win,o_card_center.y,o_card_center.x);
+	wprintw(main_win,"%s",top_line);
+	wmove(main_win,(o_card_center.y + 1),o_card_center.x);
+	wprintw(main_win,"%s%s%s%s",v_line,card_s,card_v,v_line);
+	wmove(main_win,(o_card_center.y + 2),o_card_center.x);
+	wprintw(main_win,"%s",bottom_line);
+	draw_main_win();
+
+	return SUCCESS;
+}
+int if_table_card_right(uint8_t suit,uint8_t value)
+{
+	char * card_s = check_suit(suit);
+	char * card_v = check_value(value);
+
+	wmove(main_win,o_card_right.y,o_card_right.x);
+	wprintw(main_win,"%s",top_line);
+	wmove(main_win,(o_card_right.y + 1),o_card_right.x);
+	wprintw(main_win,"%s%s%s%s",v_line,card_s,card_v,v_line);
+	wmove(main_win,(o_card_right.y + 2),o_card_right.x);
+	wprintw(main_win,"%s",bottom_line);
+	draw_main_win();
+
 	return SUCCESS;
 }
 /*************************************/
@@ -729,6 +871,7 @@ int init_interface(void)
 	init_o_game();
 	init_o_round();
 	init_o_partner();
+	init_o_table();
 
 	return SUCCESS;
 }

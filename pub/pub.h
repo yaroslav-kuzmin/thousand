@@ -57,6 +57,9 @@
 #define LEN_MAX_MESSAGE          LEN_NAME_PLAYER + 1       /*длина максимального сообщения*/
 /************************************/
 
+#define SIZE_UTF8_SYMBOL_0080        2
+#define SIZE_UTF8_SYMBOL_0800        3
+
 #define WAITING_USER           100   /*Проверка подключения в секундах каждого пользователя на сервере*/
 
 /*************** ERROR **************/

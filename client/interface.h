@@ -43,6 +43,10 @@ int if_partner_right_point(uint16_t point);
 int if_partner_right_bolt(uint8_t bolt);
 int if_number_round(uint16_t round);
 int if_status_round(status_round_e sr);
+int if_table(void);
+int if_table_card_left(uint8_t suit,uint8_t value);
+int if_table_card_center(uint8_t suit,uint8_t value);
+int if_table_card_right(uint8_t suit,uint8_t value);
 
 interface_cmd_e if_cmd(void);
 int if_nonblock(int non);
