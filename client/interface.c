@@ -516,11 +516,11 @@ int init_o_partner(void)
 	o_partner_right_bolt.w = strlen(BOLT);
 	o_partner_right_bolt.data = BOLT;
 
-	o_partner_rught_card.y = 9;
-	o_partner_rught_card.x = MAX_WIDTH/2;
-	o_partner_rught_card.h = HEIGHT_CARD;
-	o_partner_rught_card.w = WIDTH_CARD;
-	o_partner_rught_card.data = NULL;
+	o_partner_right_card.y = 9;
+	o_partner_right_card.x = MAX_WIDTH/2;
+	o_partner_right_card.h = HEIGHT_CARD;
+	o_partner_right_card.w = WIDTH_CARD;
+	o_partner_right_card.data = NULL;
 
 	return SUCCESS;
 }
@@ -573,15 +573,14 @@ int if_partner_left_card(uint8_t card)
 	char * card_s = shirt_suit;
 	char * card_v = shirt_value;
 
-	wmove(main_win,o_card_left.y,o_card_left.x);
+	wmove(main_win,o_partner_left_card.y,o_partner_left_card.x);
 	wprintw(main_win,"%s",top_line);
-	wmove(main_win,(o_card_left.y + 1),o_card_left.x);
+	wmove(main_win,(o_partner_left_card.y + 1),o_partner_left_card.x);
 	wprintw(main_win,"%s%s%s%s",v_line,card_s,card_v,v_line);
-	wmove(main_win,(o_card_left.y + 2),o_card_left.x);
+	wmove(main_win,(o_partner_left_card.y + 2),o_partner_left_card.x);
 	wprintw(main_win,"%s",bottom_line);
 	draw_main_win();
 
-	
 	return SUCCESS;
 }
 /*************************************/
@@ -647,7 +646,7 @@ int if_status_round(status_round_e sr)
 /*************************************/
 /* отображение стола раздачи         */
 /* отображение карт на столе                 */
-#define SIZE_TABLE     (3*SIZE_CARD)
+#define SIZE_TABLE     (3*WIDTH_CARD)
 static char * TABLE = "table : ";
 
 object_s o_table;
@@ -657,26 +656,26 @@ object_s o_card_right;
 
 int init_o_table(void)
 {
-	o_table.y = 12;
+	o_table.y = 13;
 	o_table.x = 1;
 	o_table.h = 1;
 	o_table.w = strlen(TABLE);
 	o_table.data = TABLE;
 
-	o_card_left.y = 12;
+	o_card_left.y = 13;
 	o_card_left.x = (MAX_WIDTH/2) - (SIZE_TABLE/2);
 	o_card_left.h = WIDTH_CARD;
 	o_card_left.w = HEIGHT_CARD;
 	o_card_left.data = NULL;
 
-	o_card_center.y = 12;
-	o_card_center.x = (MAX_WIDTH/2) - (SIZE_CARD/2);
+	o_card_center.y = 13;
+	o_card_center.x = (MAX_WIDTH/2) - (WIDTH_CARD/2);
 	o_card_center.h = WIDTH_CARD;
 	o_card_center.w = HEIGHT_CARD;
 	o_card_center.data = NULL;
 
-	o_card_right.y = 12;
-	o_card_right.x = (MAX_WIDTH/2) + (SIZE_CARD/2)+1;
+	o_card_right.y = 13;
+	o_card_right.x = (MAX_WIDTH/2) + (WIDTH_CARD/2)+1;
 	o_card_right.h = WIDTH_CARD;
 	o_card_right.w = HEIGHT_CARD;
 	o_card_right.data = NULL;
