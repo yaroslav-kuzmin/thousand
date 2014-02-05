@@ -90,7 +90,11 @@ static char shirt_suit[4] = {0xe2,0x96,0x92,0};
 static char shirt_value[5] = {0x20,0xe2,0x96,0x92,0};
 
 static char top_line[16] = {0xe2,0x94,0x8c, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x90, 0};
+static char top_line_left[7] = {0xe2,0x94,0x8c, 0xe2,0x94,0x80, 0};
+static char top_line_right[10] = {0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x90, 0};  
 static char bottom_line[16] = {0xe2,0x94,0x94, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x98, 0};
+static char bottom_line_left[7] = {0xe2,0x94,0x94, 0xe2,0x94,0x80, 0};
+static char bottom_line_right[10] = {0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x98, 0};
 static char v_line[4] = {0xe2,0x94,0x82, 0};
 static char h_line[4] = {0xe2,0x94,0x80,0};
 
@@ -546,6 +550,27 @@ int if_partner_left_bolt(uint8_t bolt)
 	draw_main_win();
 	return SUCCESS;
 }
+#define AMOUNT_CARD_PLAYER           8
+int if_partner_left_card(uint8_t card)
+{
+	int i;
+	char * card_s = shirt_suit;
+	char * card_v = shirt_value;
+	/*отчистеть */
+	for(i = 0;i < AMOUNT_CARD_PLAYER;i++){
+
+	}
+
+	wmove(main_win,o_partner_left_card.y,o_partner_left_card.x);
+	wprintw(main_win,"%s",top_line);
+	wmove(main_win,(o_partner_left_card.y + 1),o_partner_left_card.x);
+	wprintw(main_win,"%s%s%s%s",v_line,card_s,card_v,v_line);
+	wmove(main_win,(o_partner_left_card.y + 2),o_partner_left_card.x);
+	wprintw(main_win,"%s",bottom_line);
+	draw_main_win();
+
+	return SUCCESS;
+}
 
 int if_partner_right(char * name)
 {
@@ -566,21 +591,6 @@ int if_partner_right_bolt(uint8_t bolt)
 	wmove(main_win,o_partner_right_bolt.y,o_partner_right_bolt.x);
 	wprintw(main_win,"%s%d",o_partner_right_bolt.data,bolt);
 	draw_main_win();
-	return SUCCESS;
-}
-int if_partner_left_card(uint8_t card)
-{
-	char * card_s = shirt_suit;
-	char * card_v = shirt_value;
-
-	wmove(main_win,o_partner_left_card.y,o_partner_left_card.x);
-	wprintw(main_win,"%s",top_line);
-	wmove(main_win,(o_partner_left_card.y + 1),o_partner_left_card.x);
-	wprintw(main_win,"%s%s%s%s",v_line,card_s,card_v,v_line);
-	wmove(main_win,(o_partner_left_card.y + 2),o_partner_left_card.x);
-	wprintw(main_win,"%s",bottom_line);
-	draw_main_win();
-
 	return SUCCESS;
 }
 /*************************************/
