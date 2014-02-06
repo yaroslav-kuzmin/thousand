@@ -307,9 +307,6 @@ int main_loop(void)
 	if_nonblock(TRUE);
 	memset(&message,0,sizeof(all_message_u));
 	if_table();
-	if_table_card_left(DIAMONDS,ACE);
-	if_table_card_center(HEARTS,TEN);
-	if_table_card_right(UNKNOWN_CARD,UNKNOWN_CARD);
 
 	for(;;){
 		rc = c_answer_message(&message);

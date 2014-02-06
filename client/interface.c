@@ -65,7 +65,7 @@ struct _object_s
 };
 
 #define MAX_WIDTH              100
-#define MAX_HEIGHT             20
+#define MAX_HEIGHT             24
 
 static WINDOW * main_win = NULL;
 static char * str_locale = NULL;
@@ -91,7 +91,7 @@ static char shirt_value[5] = {0x20,0xe2,0x96,0x92,0};
 
 static char top_line[16] = {0xe2,0x94,0x8c, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x90, 0};
 static char top_line_left[7] = {0xe2,0x94,0x8c, 0xe2,0x94,0x80, 0};
-static char top_line_right[10] = {0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x90, 0};  
+static char top_line_right[10] = {0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x90, 0};
 static char bottom_line[16] = {0xe2,0x94,0x94, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x98, 0};
 static char bottom_line_left[7] = {0xe2,0x94,0x94, 0xe2,0x94,0x80, 0};
 static char bottom_line_right[10] = {0xe2,0x94,0x80, 0xe2,0x94,0x80, 0xe2,0x94,0x98, 0};
@@ -465,7 +465,7 @@ int if_create_game(uint16_t number)
 static char * PARTNER_LEFT  = "partner left  : ";
 static char * PARTNER_RIGHT = "partner right : ";
 static char * POINT = "point :> ";
-static char * BOLT = "bolt :> ";
+static char * BOLT =  "bolt  :> ";
 object_s o_partner_left;
 object_s o_partner_right;
 object_s o_partner_left_point;
@@ -474,7 +474,6 @@ object_s o_partner_left_bolt;
 object_s o_partner_right_bolt;
 object_s o_partner_left_card;
 object_s o_partner_right_card;
-
 
 int init_o_partner(void)
 {
@@ -538,7 +537,7 @@ int if_partner_left(char * name)
 }
 int if_partner_left_point(uint16_t point)
 {
-	wmove(main_win,o_partner_left_point.y,o_partner_left.x);
+	wmove(main_win,o_partner_left_point.y,o_partner_left_point.x);
 	wprintw(main_win,"%s%05d",o_partner_left_point.data,point);
 	draw_main_win();
 	return SUCCESS;
@@ -550,23 +549,40 @@ int if_partner_left_bolt(uint8_t bolt)
 	draw_main_win();
 	return SUCCESS;
 }
-#define AMOUNT_CARD_PLAYER           8
+#define AMOUNT_CARD_PARTNER           8
+static char * CLEAN_CARD_PARTNER = "                    ";
 int if_partner_left_card(uint8_t card)
 {
 	int i;
-	char * card_s = shirt_suit;
-	char * card_v = shirt_value;
 	/*отчистеть */
-	for(i = 0;i < AMOUNT_CARD_PLAYER;i++){
-
+	wmove(main_win,o_partner_left_card.y,o_partner_left_card.x);
+	wprintw(main_win,"%s",CLEAN_CARD_PARTNER);
+	wmove(main_win,o_partner_left_card.y+1,o_partner_left_card.x);
+	wprintw(main_win,"%s",CLEAN_CARD_PARTNER);
+	wmove(main_win,o_partner_left_card.y+2,o_partner_left_card.x);
+	wprintw(main_win,"%s",CLEAN_CARD_PARTNER);
+	if(card == 0){
+		return SUCCESS;
 	}
 
-	wmove(main_win,o_partner_left_card.y,o_partner_left_card.x);
-	wprintw(main_win,"%s",top_line);
-	wmove(main_win,(o_partner_left_card.y + 1),o_partner_left_card.x);
-	wprintw(main_win,"%s%s%s%s",v_line,card_s,card_v,v_line);
-	wmove(main_win,(o_partner_left_card.y + 2),o_partner_left_card.x);
-	wprintw(main_win,"%s",bottom_line);
+	if(card > AMOUNT_CARD_PARTNER){
+		card = AMOUNT_CARD_PARTNER;
+	}
+	for(i = 0;i < card;i++ ){
+		wmove(main_win,o_partner_left_card.y,o_partner_left_card.x+(i*2));
+		wprintw(main_win,"%s",top_line_left);
+		wmove(main_win,o_partner_left_card.y+1,o_partner_left_card.x+(i*2));
+		wprintw(main_win,"%s%s",v_line,shirt_suit);
+		wmove(main_win,o_partner_left_card.y+2,o_partner_left_card.x+(i*2));
+		wprintw(main_win,"%s",bottom_line_left);
+	}
+	wmove(main_win,o_partner_left_card.y,o_partner_left_card.x+(i*2));
+	wprintw(main_win,"%s",top_line_right);
+	wmove(main_win,o_partner_left_card.y+1,o_partner_left_card.x+(i*2));
+	wprintw(main_win,"%s%s",shirt_value,v_line);
+	wmove(main_win,o_partner_left_card.y+2,o_partner_left_card.x+(i*2));
+	wprintw(main_win,"%s",bottom_line_right);
+
 	draw_main_win();
 
 	return SUCCESS;
@@ -581,7 +597,7 @@ int if_partner_right(char * name)
 }
 int if_partner_right_point(uint16_t point)
 {
-	wmove(main_win,o_partner_right_point.y,o_partner_right.x);
+	wmove(main_win,o_partner_right_point.y,o_partner_right_point.x);
 	wprintw(main_win,"%s%05d",o_partner_right_point.data,point);
 	draw_main_win();
 	return SUCCESS;
@@ -591,6 +607,41 @@ int if_partner_right_bolt(uint8_t bolt)
 	wmove(main_win,o_partner_right_bolt.y,o_partner_right_bolt.x);
 	wprintw(main_win,"%s%d",o_partner_right_bolt.data,bolt);
 	draw_main_win();
+	return SUCCESS;
+}
+int if_partner_right_card(uint8_t card)
+{
+	int i;
+	/*отчистеть */
+	wmove(main_win,o_partner_right_card.y,o_partner_right_card.x);
+	wprintw(main_win,"%s",CLEAN_CARD_PARTNER);
+	wmove(main_win,o_partner_right_card.y+1,o_partner_right_card.x);
+	wprintw(main_win,"%s",CLEAN_CARD_PARTNER);
+	wmove(main_win,o_partner_right_card.y+2,o_partner_right_card.x);
+	wprintw(main_win,"%s",CLEAN_CARD_PARTNER);
+	if(card == 0){
+		return SUCCESS;
+	}
+	if(card > AMOUNT_CARD_PARTNER){
+		card = AMOUNT_CARD_PARTNER;
+	}
+	for(i = 0;i < card;i++ ){
+		wmove(main_win,o_partner_right_card.y,o_partner_right_card.x+(i*2));
+		wprintw(main_win,"%s",top_line_left);
+		wmove(main_win,o_partner_right_card.y+1,o_partner_right_card.x+(i*2));
+		wprintw(main_win,"%s%s",v_line,shirt_suit);
+		wmove(main_win,o_partner_right_card.y+2,o_partner_right_card.x+(i*2));
+		wprintw(main_win,"%s",bottom_line_left);
+	}
+	wmove(main_win,o_partner_right_card.y,o_partner_right_card.x+(i*2));
+	wprintw(main_win,"%s",top_line_right);
+	wmove(main_win,o_partner_right_card.y+1,o_partner_right_card.x+(i*2));
+	wprintw(main_win,"%s%s",shirt_value,v_line);
+	wmove(main_win,o_partner_right_card.y+2,o_partner_right_card.x+(i*2));
+	wprintw(main_win,"%s",bottom_line_right);
+
+	draw_main_win();
+
 	return SUCCESS;
 }
 /*************************************/
@@ -604,6 +655,8 @@ static char * STATUS_END_ROUND =     "status : end!";
 
 object_s o_round;
 object_s o_status;
+object_s o_point;
+object_s o_bolt;
 
 int init_o_round(void)
 {
@@ -618,6 +671,19 @@ int init_o_round(void)
 	o_status.h = 1;
 	o_status.w = strlen(STATUS_AUCTION_ROUND);
 	o_status.data = STATUS_BEGIN_ROUND;
+
+	o_point.y = 17;
+	o_point.x = 1;
+	o_point.h = 1;
+	o_point.w = strlen(POINT);
+	o_point.data = POINT;
+
+	o_bolt.y = 18;
+	o_bolt.x = 1;
+	o_bolt.h = 1;
+	o_bolt.w = strlen(BOLT);
+	o_bolt.data = BOLT;
+
 	return SUCCESS;
 }
 
@@ -653,11 +719,27 @@ int if_status_round(status_round_e sr)
 	wprintw(main_win,"%s",str);
 	return SUCCESS;
 }
+
+int if_player_point(uint16_t point)
+{
+	wmove(main_win,o_point.y,o_point.x);
+	wprintw(main_win,"%s%05d",o_point.data,point);
+	draw_main_win();
+	return SUCCESS;
+}
+int if_player_bolt(uint8_t bolt)
+{
+	wmove(main_win,o_bolt.y,o_bolt.x);
+	wprintw(main_win,"%s%d",o_bolt.data,bolt);
+	draw_main_win();
+	return SUCCESS;
+}
 /*************************************/
 /* отображение стола раздачи         */
 /* отображение карт на столе                 */
 #define SIZE_TABLE     (3*WIDTH_CARD)
 static char * TABLE = "table : ";
+static char * CLEAN_TABLE = "               ";
 
 object_s o_table;
 object_s o_card_left;
@@ -744,10 +826,21 @@ static char * check_value(uint8_t value)
 	}
 	return str;
 }
-int if_table_card_left(uint8_t suit,uint8_t value)
+int if_clean_table(void)
 {
-	char * card_s = check_suit(suit);
-	char * card_v = check_value(value);
+	wmove(main_win,o_card_left.y,o_card_left.x);
+	wprintw(main_win,"%s",CLEAN_TABLE);
+	wmove(main_win,(o_card_left.y + 1),o_card_left.x);
+	wprintw(main_win,"%s",CLEAN_TABLE);
+	wmove(main_win,(o_card_left.y + 2),o_card_left.x);
+	wprintw(main_win,"%s",CLEAN_TABLE);
+
+	return SUCCESS;
+}
+int if_table_card_left(uint8_t card)
+{
+	char * card_s = check_suit(SUIT_CARD(card));
+	char * card_v = check_value(VALUE_CARD(card));
 
 	wmove(main_win,o_card_left.y,o_card_left.x);
 	wprintw(main_win,"%s",top_line);
@@ -759,10 +852,10 @@ int if_table_card_left(uint8_t suit,uint8_t value)
 
 	return SUCCESS;
 }
-int if_table_card_center(uint8_t suit,uint8_t value)
+int if_table_card_center(uint8_t card)
 {
-	char * card_s = check_suit(suit);
-	char * card_v = check_value(value);
+	char * card_s = check_suit(SUIT_CARD(card));
+	char * card_v = check_value(VALUE_CARD(card));
 
 	wmove(main_win,o_card_center.y,o_card_center.x);
 	wprintw(main_win,"%s",top_line);
@@ -774,10 +867,10 @@ int if_table_card_center(uint8_t suit,uint8_t value)
 
 	return SUCCESS;
 }
-int if_table_card_right(uint8_t suit,uint8_t value)
+int if_table_card_right(uint8_t card)
 {
-	char * card_s = check_suit(suit);
-	char * card_v = check_value(value);
+	char * card_s = check_suit(SUIT_CARD(card));
+	char * card_v = check_value(VALUE_CARD(card));
 
 	wmove(main_win,o_card_right.y,o_card_right.x);
 	wprintw(main_win,"%s",top_line);
@@ -787,6 +880,60 @@ int if_table_card_right(uint8_t suit,uint8_t value)
 	wprintw(main_win,"%s",bottom_line);
 	draw_main_win();
 
+	return SUCCESS;
+}
+/*************************************/
+/*  Отображение карт игрока          */
+#define AMOUNT_CARD_PLAYER            10
+static char * CLEAN_CARD_PLAYER = "     ";
+object_s o_card[AMOUNT_CARD_PLAYER];
+
+int init_card_player(void)
+{
+	int i;
+	for(i = 0;i< AMOUNT_CARD_PLAYER;i++){
+		o_card[i].y = 17;
+		o_card[i].x = 20 + (i * (WIDTH_CARD+1));
+		o_card[i].h = HEIGHT_CARD;
+		o_card[i].w = WIDTH_CARD;
+		o_card[i].data = NULL;
+	}
+	return SUCCESS;
+}
+
+int if_card_player(uint8_t number_card,uint8_t card,uint8_t select)
+{
+	int i;
+	int x,y;
+	char * card_s;
+	char * card_v;
+
+	if(number_card >= AMOUNT_CARD_PLAYER ){
+		global_log("Неккоректный номер карты!");
+		return SUCCESS;
+	}
+	x = o_card[number_card].x;
+	y = o_card[number_card].y;
+
+	for(i = 0;i< (HEIGHT_CARD*2);i++){
+		wmove(main_win,y+i,x);
+		wprintw(main_win,"%s",CLEAN_CARD_PLAYER);
+	}
+
+	if(select == NO){
+		y += HEIGHT_CARD;
+	}
+	card_s = check_suit(SUIT_CARD(card));
+	card_v = check_value(VALUE_CARD(card));
+
+	wmove(main_win,y,x);
+	wprintw(main_win,"%s",top_line);
+	wmove(main_win,y+1,x);
+	wprintw(main_win,"%s%s%s%s",v_line,card_s,card_v,v_line);
+	wmove(main_win,y+2,x);
+	wprintw(main_win,"%s",bottom_line);
+
+	draw_main_win();
 	return SUCCESS;
 }
 /*************************************/
@@ -881,6 +1028,7 @@ int init_interface(void)
 	init_o_round();
 	init_o_partner();
 	init_o_table();
+	init_card_player();
 
 	return SUCCESS;
 }
