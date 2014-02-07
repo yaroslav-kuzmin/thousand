@@ -348,6 +348,9 @@ static int check_begin_round(acting_s * psa)
 	int rc;
 	user_s * ptu;
 	/*uint32_t flag;*/
+	deck_cards_s * psd = psa->decks;
+
+	generate_deck(psd);
 
 	for(i = 0;i < AMOUNT_PLAYER;i++){
 		ptu = psa->player[i];
