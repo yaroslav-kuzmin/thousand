@@ -65,7 +65,7 @@ struct _object_s
 };
 
 #define MAX_WIDTH              100
-#define MAX_HEIGHT             24
+#define MAX_HEIGHT             25
 
 static WINDOW * main_win = NULL;
 static char * str_locale = NULL;
@@ -466,13 +466,21 @@ static char * PARTNER_LEFT  = "partner left  : ";
 static char * PARTNER_RIGHT = "partner right : ";
 static char * POINT = "point :> ";
 static char * BOLT =  "bolt  :> ";
+static char * DEALER =  "dealer! ";
+static char * AUTOMAT = "automat!";
+static char * FREE =    "free!   ";
+#define AMOUNT_CARD_PARTNER           8
+static char * CLEAN_CARD_PARTNER = "                    ";
+
 object_s o_partner_left;
-object_s o_partner_right;
 object_s o_partner_left_point;
-object_s o_partner_right_point;
 object_s o_partner_left_bolt;
-object_s o_partner_right_bolt;
+object_s o_partner_left_status;
 object_s o_partner_left_card;
+object_s o_partner_right;
+object_s o_partner_right_point;
+object_s o_partner_right_bolt;
+object_s o_partner_right_status;
 object_s o_partner_right_card;
 
 int init_o_partner(void)
@@ -495,7 +503,13 @@ int init_o_partner(void)
 	o_partner_left_bolt.w = strlen(BOLT);
 	o_partner_left_bolt.data = BOLT;
 
-	o_partner_left_card.y = 9;
+	o_partner_left_status.y = 9;
+	o_partner_left_status.x = 1;
+	o_partner_left_status.h = 1;
+	o_partner_left_status.w = strlen(DEALER);
+	o_partner_left_status.data = DEALER;
+
+	o_partner_left_card.y = 10;
 	o_partner_left_card.x = 1;
 	o_partner_left_card.h = HEIGHT_CARD;
 	o_partner_left_card.w = WIDTH_CARD;
@@ -519,7 +533,14 @@ int init_o_partner(void)
 	o_partner_right_bolt.w = strlen(BOLT);
 	o_partner_right_bolt.data = BOLT;
 
-	o_partner_right_card.y = 9;
+	o_partner_right_status.y = 9;
+	o_partner_right_status.x = MAX_WIDTH/2;
+	o_partner_right_status.h = 1;
+	o_partner_right_status.w = strlen(DEALER);
+	o_partner_right_status.data = DEALER;
+
+
+	o_partner_right_card.y = 10;
 	o_partner_right_card.x = MAX_WIDTH/2;
 	o_partner_right_card.h = HEIGHT_CARD;
 	o_partner_right_card.w = WIDTH_CARD;
@@ -549,8 +570,28 @@ int if_partner_left_bolt(uint8_t bolt)
 	draw_main_win();
 	return SUCCESS;
 }
-#define AMOUNT_CARD_PARTNER           8
-static char * CLEAN_CARD_PARTNER = "                    ";
+int if_partner_left_status(status_player_e st)
+{
+	char * str;
+	switch(st){
+		case dealer_palyer:
+			str = DEALER;
+			break;
+		case automat_player:
+			str = AUTOMAT;
+			break;
+		case free_player:
+			str = FREE;
+			break;
+		default :
+			str = FREE;
+			break;
+	}
+	wmove(main_win,o_partner_left_status.y,o_partner_left_status.x);
+	wprintw(main_win,"%s",str);
+	draw_main_win();
+	return SUCCESS;
+}
 int if_partner_left_card(uint8_t card)
 {
 	int i;
@@ -609,6 +650,28 @@ int if_partner_right_bolt(uint8_t bolt)
 	draw_main_win();
 	return SUCCESS;
 }
+int if_partner_right_status(status_player_e st)
+{
+	char * str;
+	switch(st){
+		case dealer_palyer:
+			str = DEALER;
+			break;
+		case automat_player:
+			str = AUTOMAT;
+			break;
+		case free_player:
+			str = FREE;
+			break;
+		default :
+			str = FREE;
+			break;
+	}
+	wmove(main_win,o_partner_right_status.y,o_partner_right_status.x);
+	wprintw(main_win,"%s",str);
+	draw_main_win();
+	return SUCCESS;
+}
 int if_partner_right_card(uint8_t card)
 {
 	int i;
@@ -654,9 +717,10 @@ static char * STATUS_PLAY_ROUND =    "status : play!";
 static char * STATUS_END_ROUND =     "status : end!";
 
 object_s o_round;
-object_s o_status;
+object_s o_status_round;
 object_s o_point;
 object_s o_bolt;
+object_s o_status;
 
 int init_o_round(void)
 {
@@ -666,24 +730,29 @@ int init_o_round(void)
 	o_round.w = strlen(ROUND);
 	o_round.data = ROUND;
 
-	o_status.y = 4;
-	o_status.x = o_round.w + SIZE_STR_ROUND;
-	o_status.h = 1;
-	o_status.w = strlen(STATUS_AUCTION_ROUND);
-	o_status.data = STATUS_BEGIN_ROUND;
+	o_status_round.y = 4;
+	o_status_round.x = o_round.w + SIZE_STR_ROUND;
+	o_status_round.h = 1;
+	o_status_round.w = strlen(STATUS_AUCTION_ROUND);
+	o_status_round.data = STATUS_BEGIN_ROUND;
 
-	o_point.y = 17;
+	o_point.y = 18;
 	o_point.x = 1;
 	o_point.h = 1;
 	o_point.w = strlen(POINT);
 	o_point.data = POINT;
 
-	o_bolt.y = 18;
+	o_bolt.y = 19;
 	o_bolt.x = 1;
 	o_bolt.h = 1;
 	o_bolt.w = strlen(BOLT);
 	o_bolt.data = BOLT;
 
+	o_status.y = 20;
+	o_status.x = 1;
+	o_status.h = 1;
+	o_status.w = strlen(DEALER);
+	o_status.data = DEALER;
 	return SUCCESS;
 }
 
@@ -698,7 +767,7 @@ int if_number_round(uint16_t round)
 int if_status_round(status_round_e sr)
 {
 	char * str;
-	wmove(main_win,o_status.y,o_status.x);
+	wmove(main_win,o_status_round.y,o_status_round.x);
 	switch(sr){
 		case begin_round:
 			str = STATUS_BEGIN_ROUND;
@@ -734,6 +803,28 @@ int if_player_bolt(uint8_t bolt)
 	draw_main_win();
 	return SUCCESS;
 }
+int if_player_status(status_player_e st)
+{
+	char * str;
+	switch(st){
+		case dealer_palyer:
+			str = DEALER;
+			break;
+		case automat_player:
+			str = AUTOMAT;
+			break;
+		case free_player:
+			str = FREE;
+			break;
+		default :
+			str = FREE;
+			break;
+	}
+	wmove(main_win,o_status.y,o_status.x);
+	wprintw(main_win,"%s",str);
+	draw_main_win();
+	return SUCCESS;
+}
 /*************************************/
 /* отображение стола раздачи         */
 /* отображение карт на столе                 */
@@ -748,25 +839,25 @@ object_s o_card_right;
 
 int init_o_table(void)
 {
-	o_table.y = 13;
+	o_table.y = 14;
 	o_table.x = 1;
 	o_table.h = 1;
 	o_table.w = strlen(TABLE);
 	o_table.data = TABLE;
 
-	o_card_left.y = 13;
+	o_card_left.y = 14;
 	o_card_left.x = (MAX_WIDTH/2) - (SIZE_TABLE/2);
 	o_card_left.h = WIDTH_CARD;
 	o_card_left.w = HEIGHT_CARD;
 	o_card_left.data = NULL;
 
-	o_card_center.y = 13;
+	o_card_center.y = 14;
 	o_card_center.x = (MAX_WIDTH/2) - (WIDTH_CARD/2);
 	o_card_center.h = WIDTH_CARD;
 	o_card_center.w = HEIGHT_CARD;
 	o_card_center.data = NULL;
 
-	o_card_right.y = 13;
+	o_card_right.y = 14;
 	o_card_right.x = (MAX_WIDTH/2) + (WIDTH_CARD/2)+1;
 	o_card_right.h = WIDTH_CARD;
 	o_card_right.w = HEIGHT_CARD;
@@ -892,7 +983,7 @@ int init_card_player(void)
 {
 	int i;
 	for(i = 0;i< AMOUNT_CARD_PLAYER;i++){
-		o_card[i].y = 17;
+		o_card[i].y = 18;
 		o_card[i].x = 20 + (i * (WIDTH_CARD+1));
 		o_card[i].h = HEIGHT_CARD;
 		o_card[i].w = WIDTH_CARD;

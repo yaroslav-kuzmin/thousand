@@ -308,6 +308,7 @@ int main_loop(void)
 	memset(&message,0,sizeof(all_message_u));
 	if_table();
 
+
 	for(;;){
 		rc = c_answer_message(&message);
 		global_log("Сообщение от сервера :%d",rc);
