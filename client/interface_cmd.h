@@ -45,13 +45,6 @@ enum _if_status_round_e
 	end_round,
 };
 
-typedef enum _if_status_player_e status_player_e;
-enum _if_status_player_e
-{
-	dealer_palyer = 0,
-	automat_player,
-	free_player,
-};
 #endif
 
 /*****************************************************************************/

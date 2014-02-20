@@ -72,6 +72,17 @@ struct _message_player_s
 	uint8_t name_player[LEN_NAME_PLAYER];
 }__attribute__((packed));
 
+typedef struct _message_status_player_s message_status_player_s;
+struct _message_status_player_s
+{
+	uint16_t number;
+	uint16_t type;
+	uint16_t len;
+
+	uint8_t number_player;
+	uint8_t status_player;
+}__attribute__((packed));
+
 typedef struct _message_point_s message_point_s;
 struct _message_point_s
 {
@@ -118,6 +129,7 @@ union _all_message_u
 #define CMD_GAME_OVER               0x000A
 #define CMD_NUMBER_ROUND            0x000B
 #define CMD_POINT                   0x000C
+#define MESSAGE_STATUS_PLAYER       0x000D
 
 /********************* message **********************************************/
 #define END_NUMBER_ACTING   0

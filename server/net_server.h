@@ -42,6 +42,7 @@ int s_cmd_game_over(user_s * psu,uint16_t acting);
 int s_cmd_number_round(user_s * psu,uint16_t round);
 int s_cmd_amount_point_player(user_s * psu,uint8_t player,int16_t points
                              ,uint8_t bolt);
+int s_cmd_statys_player(user_s * psu,uint8_t player,uint8_t status);
 
 #endif
 

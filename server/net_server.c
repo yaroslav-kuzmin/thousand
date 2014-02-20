@@ -429,4 +429,31 @@ int s_cmd_amount_point_player(user_s * psu,uint8_t player,int16_t point,uint8_t 
 	return rc;
 }
 
+int s_cmd_statys_player(user_s * psu,uint8_t player,uint8_t status)
+{
+	int rc;
+	int fd = psu->fd;
+	message_status_player_s msg;
+
+	msg.number = psu->package;
+	msg.type = MESSAGE_STATUS_PLAYER;
+	msg.len = LEN_MESSAGE_STATUS_PLAYER;
+	msg.number_player = number;
+	msg.status_player = status;
+
+	rc = send(fd,(uint8_t *)&msg,full_len,0);
+	if(rc == -1){
+	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		psu->package ++;
+		rc = SUCCESS;
+	}
+
+	return rc;
+}
+int s_cmd_card_player(user_s * psu,uint8_t * card )
+{
+}
 /*****************************************************************************/

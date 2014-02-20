@@ -77,7 +77,7 @@ struct _acting_s
 	uint16_t round;
 	uint16_t points[AMOUNT_PLAYER];
 	uint8_t bolt[AMOUNT_PLAYER];
-	uint8_t dealer;
+	status_player_e status_player[AMOUNT_PLAYER];
 	deck_cards_s * deck;
 };
 
@@ -166,16 +166,40 @@ static int rand_dealer(void)
 	int rc = g_rand_int_range(fortune,0,AMOUNT_PLAYER);
 	return rc;
 }
+/* передается номер текушего раздающего , идет смена */
+static change_status_players(acting_s * psa,uint8_t player)
+{
+	if(player == PLAYER_CENTR){
+		psa->status_player[PLAYER_CENTR] = free_player;
+		psa->status_player[PLAYER_LEFT] = dealer_player;
+		psa->status_player[PLAYER_RIGHT] = automat_player;
+	}
+	if(player == PLAYER_LEFT){
+		psa->status_player[PLAYER_CENTR] = automat_player;
+		psa->status_player[PLAYER_LEFT] = free_player;
+		psa->status_player[PLAYER_RIGHT] = dealer_player;
+	}
+	if(player == PLAYER_RIGHT){
+		psa->status_player[PLAYER_CENTR] = dealer_player;
+		psa->status_player[PLAYER_LEFT] = automat_player;
+		psa->status_player[PLAYER_RIGHT] = free_player;
+	}
+
+	return SUCCESS;
+}
 
 #define FIRST_ROUND    1
 static int init_round(acting_s * psa)
 {
 	uint32_t flag = psa->flag;
+	int p = 0;
 
 	set_bit_flag(flag,all_join_acting,1);
 	set_bit_flag(flag,begin_round,1);
 
-	psa->dealer = rand_dealer();
+	p = rand_dealer();
+	change_status_players(psa,p);
+
 	psa->round = FIRST_ROUND;
 	psa->points[PLAYER_CENTR] = 0;
 	psa->points[PLAYER_LEFT] = 0;
@@ -348,7 +372,7 @@ static int check_begin_round(acting_s * psa)
 	int rc;
 	user_s * ptu;
 	/*uint32_t flag;*/
-	deck_cards_s * psd = psa->decks;
+	deck_cards_s * psd = psa->deck;
 
 	generate_deck(psd);
 
@@ -361,11 +385,13 @@ static int check_begin_round(acting_s * psa)
 		                              ,psa->points[PLAYER_LEFT],psa->bolt[PLAYER_LEFT]);
 		rc = s_cmd_amount_point_player(ptu,PLAYER_RIGHT
 		                              ,psa->points[PLAYER_RIGHT],psa->bolt[PLAYER_RIGHT]);
+		rc = s_cmd_statys_player(ptu,PLAYER_CENTR,psa->status_player[PLAYER_CENTR]);
+		rc = s_cmd_statys_player(ptu,PLAYER_LEFT,psa->status_player[PLAYER_LEFT]);
+		rc = s_cmd_statys_player(ptu,PLAYER_RIGHT,psa->status_player[PLAYER_RIGHT]);
 		if(rc == FAILURE){
 			del_user_list(ptu->fd,NOT_ACTING_DEL);
 			return SUCCESS;
 		}
-		/*flag = ptu->flag;*/
 	}
 	return SUCCESS;
 }
