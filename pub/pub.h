@@ -63,6 +63,13 @@
 
 #define WAITING_USER           100   /*Проверка подключения в секундах каждого пользователя на сервере*/
 
+/************************************/
+#define AMOUNT_PLAYER      3
+#define PLAYER_CREATOR     0
+#define PLAYER_CENTR       PLAYER_CREATOR
+#define PLAYER_LEFT        1
+#define PLAYER_RIGHT       2
+
 /*************** ERROR **************/
 
 #define NOT_CONNECT_SERVER            -10

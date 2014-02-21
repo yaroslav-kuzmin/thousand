@@ -52,11 +52,6 @@
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
-#define AMOUNT_PLAYER      3
-#define PLAYER_CREATOR     0
-#define PLAYER_CENTR       PLAYER_CREATOR
-#define PLAYER_LEFT        1
-#define PLAYER_RIGHT       2
 
 typedef enum _acting_flag_e acting_flag_e;
 
