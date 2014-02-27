@@ -574,7 +574,7 @@ int if_partner_left_status(status_player_e st)
 {
 	char * str;
 	switch(st){
-		case dealer_palyer:
+		case dealer_player:
 			str = DEALER;
 			break;
 		case automat_player:
@@ -654,7 +654,7 @@ int if_partner_right_status(status_player_e st)
 {
 	char * str;
 	switch(st){
-		case dealer_palyer:
+		case dealer_player:
 			str = DEALER;
 			break;
 		case automat_player:
@@ -807,7 +807,7 @@ int if_player_status(status_player_e st)
 {
 	char * str;
 	switch(st){
-		case dealer_palyer:
+		case dealer_player:
 			str = DEALER;
 			break;
 		case automat_player:

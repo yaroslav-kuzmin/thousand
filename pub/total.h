@@ -55,7 +55,7 @@ int total_check(void);
 typedef enum _if_status_player_e status_player_e;
 enum _if_status_player_e
 {
-	dealer_palyer = 0,
+	dealer_player = 0,
 	automat_player,
 	free_player,
 };

@@ -36,6 +36,7 @@
 #include <glib.h>
 
 #include "pub.h"
+#include "total.h"
 #include "protocol.h"
 #include "log.h"
 #include "warning.h"
@@ -162,7 +163,7 @@ static int rand_dealer(void)
 	return rc;
 }
 /* передается номер текушего раздающего , идет смена */
-static change_status_players(acting_s * psa,uint8_t player)
+static int change_status_players(acting_s * psa,uint8_t player)
 {
 	if(player == PLAYER_CENTR){
 		psa->status_player[PLAYER_CENTR] = free_player;

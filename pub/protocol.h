@@ -106,6 +106,17 @@ struct _message_acting_s
 	uint8_t player;
 }__attribute__((packed));
 
+typedef struct _message_cards_s message_cards_s;
+struct _message_cards_s
+{
+	uint16_t number;
+	uint16_t type;
+	uint16_t len;
+
+	uint8_t amount;
+	uint8_t card[LEN_MESSAGE_CARD];
+}__attribute__((packed));
+
 typedef union _all_message_u all_message_u;
 union _all_message_u
 {
