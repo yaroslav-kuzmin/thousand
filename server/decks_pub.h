@@ -32,9 +32,7 @@
 
 typedef struct _deck_cards_s  deck_cards_s;
 struct _deck_cards_s{
-	uint8_t player_center[AMOUNT_CARD_PLAYER];
-	uint8_t player_left[AMOUNT_CARD_PLAYER];
-	uint8_t player_right[AMOUNT_CARD_PLAYER];
+	uint8_t dealing[AMOUNT_PLAYER][AMOUNT_CARD_PLAYER];
 	uint8_t deal[AMOUNT_CARD_DEAL];
 };
 #endif

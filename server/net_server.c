@@ -454,6 +454,38 @@ int s_cmd_statys_player(user_s * psu,uint8_t player,uint8_t status)
 }
 int s_cmd_card_player(user_s * psu,uint8_t amount,uint8_t * card )
 {
+	int rc;
+	int fd = psu->fd;
+	uint8_t * dest_data;
+	message_cards_s msg;
+	int len = amount;
+
+	if(len > LEN_MESSAGE_CARD){
+		global_warning("Длина данных больши размера буфера %d > %d!"
+		              ,len,LEN_MESSAGE_CARD);
+		return LONG_DATA;
+	}
+
+	len += (sizeof(uint8_t) + sizeof(message_cmd_s));
+
+	msg.number = psu->package;
+	msg.type = MESSAGE_CARDS;
+	msg.len = len;
+
+	msg.amount = amount;
+	dest_data = msg.card;
+	memcpy(dest_data,card,amount);
+
+	rc = send(fd,(uint8_t *)&msg,len,0);
+	if(rc == -1){
+	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		psu->package ++;
+		rc = SUCCESS;
+	}
+
 	return SUCCESS;
 }
 /*****************************************************************************/

@@ -82,7 +82,7 @@ static int check_deck_card(int card)
 				break;
 			}
 			if(number == (AMOUNT_SUIT_CARD*AMOUNT_VALUE_CARD) ){
-				/*g_message("2 n :> %d",number);*/
+				global_warning("2 n :> %d",number);
 				number = -1;
 			}
 		}
@@ -156,7 +156,9 @@ static uint8_t generate_card(void)
 	uint8_t card;
 	int number = generate_number_card();
 
+
 	number = check_deck_card(number);
+	global_warning("number     check :> %d",number);
 	card = number_to_card(number);
 
 	return card;
@@ -192,23 +194,23 @@ int generate_deck(deck_cards_s * psd)
 
 	zero_deck_card();
 
-	for(i = 0;i < (AMOUNT_CARD_PLAYER -1);i++){
+	for(i = 0;i < (AMOUNT_CARD_PLAYER - 1);i++){
 		card = generate_card();
-		psd->player_center[i] = card;
+		psd->dealing[PLAYER_CENTR][i] = card;
 		card = generate_card();
-		psd->player_left[i] = card;
+		psd->dealing[PLAYER_LEFT][i] = card;
 		card = generate_card();
-		psd->player_right[i] = card;
+		psd->dealing[PLAYER_RIGHT][i] = card;
 	}
 	for(i = 0;i < (AMOUNT_CARD_DEAL);i++){
 		card = generate_card();
 		psd->deal[i] = card;
 	}
-	pt = psd->player_center;
+	pt = psd->dealing[PLAYER_CENTR];
 	sort_card(&pt,(AMOUNT_CARD_PLAYER-1));
-	pt = psd->player_left;
+	pt = psd->dealing[PLAYER_LEFT];
 	sort_card(&pt,(AMOUNT_CARD_PLAYER-1));
-	pt = psd->player_right;
+	pt = psd->dealing[PLAYER_RIGHT];
 	sort_card(&pt,(AMOUNT_CARD_PLAYER-1));
 	pt = psd->deal;
 	sort_card(&pt,(AMOUNT_CARD_DEAL));
