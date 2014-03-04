@@ -67,7 +67,7 @@ static int check_deck_card(int card)
 {
 	int i = 0;
 	int c = 0;
-	int number = card;
+	unsigned int number = card;
 
 	c = deck_card[number];
 	if(c == NO){
@@ -76,7 +76,7 @@ static int check_deck_card(int card)
 	else{
 		number++;
 		for(i = 0;i < (AMOUNT_SUIT_CARD*AMOUNT_VALUE_CARD);i++,number++){
-			if(number == (AMOUNT_SUIT_CARD*AMOUNT_VALUE_CARD) ){
+			if(number >= (AMOUNT_SUIT_CARD*AMOUNT_VALUE_CARD) ){
 				number = 0;
 			}
 			c = deck_card[number];
@@ -154,12 +154,8 @@ static uint8_t generate_card(void)
 {
 	uint8_t card;
 	int number = generate_number_card();
-
-	global_warning("number rand check :> %d",number);
 	number = check_deck_card(number);
-	global_warning("number      check :> %d",number);
 	card = number_to_card(number);
-
 	return card;
 }
 
