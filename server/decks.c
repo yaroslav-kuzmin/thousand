@@ -46,6 +46,7 @@ static GRand * fortune = NULL;
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
+
 static int generate_number_card(void)
 {
 	return g_rand_int_range(fortune,0,(AMOUNT_SUIT_CARD *AMOUNT_VALUE_CARD));
@@ -75,15 +76,13 @@ static int check_deck_card(int card)
 	else{
 		number++;
 		for(i = 0;i < (AMOUNT_SUIT_CARD*AMOUNT_VALUE_CARD);i++,number++){
-			/*g_message("1 n :> %d",number);*/
+			if(number == (AMOUNT_SUIT_CARD*AMOUNT_VALUE_CARD) ){
+				number = 0;
+			}
 			c = deck_card[number];
 			if(c == NO){
 				deck_card[number] = YES;
 				break;
-			}
-			if(number == (AMOUNT_SUIT_CARD*AMOUNT_VALUE_CARD) ){
-				global_warning("2 n :> %d",number);
-				number = -1;
 			}
 		}
 	}
@@ -156,9 +155,9 @@ static uint8_t generate_card(void)
 	uint8_t card;
 	int number = generate_number_card();
 
-
+	global_warning("number rand check :> %d",number);
 	number = check_deck_card(number);
-	global_warning("number     check :> %d",number);
+	global_warning("number      check :> %d",number);
 	card = number_to_card(number);
 
 	return card;
