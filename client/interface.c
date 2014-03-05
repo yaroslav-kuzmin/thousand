@@ -469,7 +469,6 @@ static char * BOLT =  "bolt  :> ";
 static char * DEALER =  "dealer! ";
 static char * AUTOMAT = "automat!";
 static char * FREE =    "free!   ";
-#define AMOUNT_CARD_PARTNER           8
 static char * CLEAN_CARD_PARTNER = "                    ";
 
 object_s o_partner_left;

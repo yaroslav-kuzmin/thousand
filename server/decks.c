@@ -146,7 +146,6 @@ static uint8_t number_to_card(unsigned int number)
 			global_warning("Error VALUE CARD : %d",value);
 			break;
 	}
-
 	return card;
 }
 
@@ -189,7 +188,7 @@ int generate_deck(deck_cards_s * psd)
 
 	zero_deck_card();
 
-	for(i = 0;i < (AMOUNT_CARD_PLAYER - 1);i++){
+	for(i = 0;i < (AMOUNT_CARD_PLAYER);i++){
 		card = generate_card();
 		psd->dealing[PLAYER_CENTR][i] = card;
 		card = generate_card();
@@ -202,11 +201,11 @@ int generate_deck(deck_cards_s * psd)
 		psd->deal[i] = card;
 	}
 	pt = psd->dealing[PLAYER_CENTR];
-	sort_card(&pt,(AMOUNT_CARD_PLAYER-1));
+	sort_card(&pt,(AMOUNT_CARD_PLAYER));
 	pt = psd->dealing[PLAYER_LEFT];
-	sort_card(&pt,(AMOUNT_CARD_PLAYER-1));
+	sort_card(&pt,(AMOUNT_CARD_PLAYER));
 	pt = psd->dealing[PLAYER_RIGHT];
-	sort_card(&pt,(AMOUNT_CARD_PLAYER-1));
+	sort_card(&pt,(AMOUNT_CARD_PLAYER));
 	pt = psd->deal;
 	sort_card(&pt,(AMOUNT_CARD_DEAL));
 

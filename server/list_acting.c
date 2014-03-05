@@ -75,6 +75,7 @@ struct _acting_s
 	uint8_t bolt[AMOUNT_PLAYER];
 	status_player_e status_player[AMOUNT_PLAYER];
 	deck_cards_s * deck;
+	uint8_t cards_player[AMOUNT_PLAYER][];
 };
 
 static GHashTable * all_acting = NULL;
@@ -345,7 +346,6 @@ static int delete_acting(acting_s * psa,user_s * psu)
 	int i;
 	user_s * ptu;
 
-
 	for(i = 0;i < AMOUNT_PLAYER;i++){
 		ptu = psa->player[i];
 		if(ptu == NULL){
@@ -356,9 +356,7 @@ static int delete_acting(acting_s * psa,user_s * psu)
 		}
 		del_user_list(ptu->fd,ACTING_DEl);
 	}
-
 	global_log("Удаление игры под номером 0x%04x",psa->number);
-
 	return TRUE;
 }
 
@@ -384,6 +382,7 @@ static int check_begin_round(acting_s * psa)
 		rc = s_cmd_statys_player(ptu,PLAYER_CENTR,psa->status_player[PLAYER_CENTR]);
 		rc = s_cmd_statys_player(ptu,PLAYER_LEFT,psa->status_player[PLAYER_LEFT]);
 		rc = s_cmd_statys_player(ptu,PLAYER_RIGHT,psa->status_player[PLAYER_RIGHT]);
+		rc = s_cmd_card_player(ptu,AMOUNT_CARD_PLAYER,psd->dealing[i]);
 		if(rc == FAILURE){
 			del_user_list(ptu->fd,NOT_ACTING_DEL);
 			return SUCCESS;

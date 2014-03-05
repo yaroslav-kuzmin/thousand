@@ -54,7 +54,6 @@
 #define LEN_MESSAGE_POINT            4
 #define LEN_MESSAGE_STATUS_PLAYER    2
 #define LEN_MESSAGE_ACTING           3
-#define LEN_MESSAGE_CARD             7
 #define LEN_NAME_PLAYER              64                        /*длина строки имени игрока*/
 #define LEN_MAX_MESSAGE              LEN_NAME_PLAYER + 1       /*длина максимального сообщения*/
 /************************************/
@@ -71,6 +70,7 @@
 #define PLAYER_LEFT        1
 #define PLAYER_RIGHT       2
 
+#define AMOUNT_CARD_PARTNER           8
 /*************** ERROR **************/
 
 #define NOT_CONNECT_SERVER            -10

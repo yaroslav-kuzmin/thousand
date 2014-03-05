@@ -27,7 +27,7 @@
 #ifndef DECK_H
 #define DECK_H
 
-#define AMOUNT_CARD_PLAYER     8
+#define AMOUNT_CARD_PLAYER     7
 #define AMOUNT_CARD_DEAL       3
 
 typedef struct _deck_cards_s  deck_cards_s;

@@ -460,7 +460,7 @@ int s_cmd_card_player(user_s * psu,uint8_t amount,uint8_t * card )
 	message_cards_s msg;
 	int len = amount;
 
-	if(len > LEN_MESSAGE_CARD){
+	if(len > AMOUNT_CARD_PLAYER){
 		global_warning("Длина данных больши размера буфера %d > %d!"
 		              ,len,LEN_MESSAGE_CARD);
 		return LONG_DATA;
