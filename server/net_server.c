@@ -470,7 +470,7 @@ int s_cmd_card_player(user_s * psu,uint8_t amount,uint8_t * card )
 
 	msg.number = psu->package;
 	msg.type = MESSAGE_CARDS;
-	msg.len = len;
+	msg.len = amount + sizeof(uint8_t);
 
 	msg.amount = amount;
 	dest_data = msg.card;

@@ -301,6 +301,23 @@ int check_status_player(message_status_player_s * cmd)
 	}
 	return FAILURE;
 }
+int check_cards(message_cards_s * cmd)
+{
+	int i;
+
+	if(cmd->amount == AMOUNT_CARD_PLAYER){ /*Вначале приходит 7 карт*/
+		if_partner_left_card((AMOUNT_CARD_PARTNER - 1)); /*одна в прикупе*/
+		if_partner_right_card((AMOUNT_CARD_PARTNER - 1));
+		if_table_card_left(UNKNOWN_CARD);
+		if_table_card_center(UNKNOWN_CARD);
+		if_table_card_right(UNKNOWN_CARD);
+		for(i = 0;i < (AMOUNT_CARD_PLAYER -1);i++){
+			uint8_t c = cmd->card[i];
+			if_card_player(i,c,NO);
+		}
+	}
+	return SUCCESS;
+}
 int check_message(all_message_u * msg)
 {
 	message_cmd_s * cmd = (message_cmd_s*)msg;
@@ -316,6 +333,9 @@ int check_message(all_message_u * msg)
 			break;
 		case MESSAGE_STATUS_PLAYER:
 			check_status_player((message_status_player_s*)msg);
+			break;
+		case MESSAGE_CARDS:
+			check_cards((message_cards_s*)msg);
 			break;
 		default:
 			break;

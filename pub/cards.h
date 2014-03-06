@@ -27,7 +27,7 @@
 #ifndef CARDS_H
 #define CARDS_H
 
-#define UNKNOWN_CARD       0xCC
+#define UNKNOWN_CARD       0xEE
 
 #define AMOUNT_SUIT_CARD   4
 #define HEARTS             0x30    /*Черви  U+2662 | U+2666 */
