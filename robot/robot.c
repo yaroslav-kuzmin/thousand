@@ -245,10 +245,10 @@ static int check_message(void)
 			rc = FAILURE;
 			break;
 		case MESSAGE_STATUS_PLAYER:
-			global_log("Статус игрока !");	
+			global_log("Статус игрока !");
 			break;
 		case MESSAGE_CARDS:
-			global_log("Карты!");	
+			global_log("Карты!");
 			break;
 		default:
 			global_log("Пришла не известная команда : %#x",cmd->type);
