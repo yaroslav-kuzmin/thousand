@@ -267,18 +267,39 @@ int check_point(message_point_s * cmd)
 {
 	if(cmd->player == player.number){
 		global_log("point :> %d : bolt :> %d",cmd->point,cmd->bolt);
-		return SUCCESS;
+		if_player_point(cmd->point);
+		if_player_bolt(cmd->bolt);
+ 		return SUCCESS;
 	}
 	if(cmd->player == partner_left.number){
-		if_partner_left_point(cmd->point);
+ 		if_partner_left_point(cmd->point);
 		if_partner_left_bolt(cmd->bolt);
 		return SUCCESS;
 	}
 	if(cmd->player == partner_right.number){
 		if_partner_right_point(cmd->point);
 		if_partner_right_bolt(cmd->bolt);
+		return SUCCESS;
 	}
-	return SUCCESS;
+ 	return FAILURE;
+}
+
+int check_status_player(message_status_player_s * cmd)
+{
+	if(cmd->number_player == player.number){
+		global_log("status :> %d",cmd->status_player);
+		if_player_status(cmd->status_player);
+		return SUCCESS;
+	}
+	if(cmd->number_player == partner_left.number){
+		if_partner_left_status(cmd->status_player);
+		return SUCCESS;
+	}
+	if(cmd->number_player == partner_right.number){
+		if_partner_right_status(cmd->status_player);
+		return SUCCESS;
+	}
+	return FAILURE;
 }
 int check_message(all_message_u * msg)
 {
@@ -292,6 +313,9 @@ int check_message(all_message_u * msg)
 			break;
 		case CMD_POINT:
 			check_point((message_point_s*)cmd);
+			break;
+		case MESSAGE_STATUS_PLAYER:
+			check_status_player((message_status_player_s*)msg);
 			break;
 		default:
 			break;

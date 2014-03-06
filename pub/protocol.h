@@ -114,18 +114,20 @@ struct _message_cards_s
 	uint16_t len;
 
 	uint8_t amount;
-	uint8_t card[LEN_MESSAGE_CARD];
+	uint8_t card[AMOUNT_CARD_PLAYER];
 }__attribute__((packed));
 
 typedef union _all_message_u all_message_u;
 union _all_message_u
 {
-	message_cmd_s    cmd;
-	message_login_s  login;
-	message_passwd_s passwd;
-	message_player_s player;
-	message_point_s point;
-	message_acting_s acting;
+	message_cmd_s           cmd;
+	message_login_s         login;
+	message_passwd_s        passwd;
+	message_player_s        player;
+	message_point_s         point;
+	message_acting_s        acting;
+	message_status_player_s status_player;
+	message_cards_s         cards;
 };
 /**************** type message **********************************************/
 #define CMD_CHECK_CONNECT           0x0001

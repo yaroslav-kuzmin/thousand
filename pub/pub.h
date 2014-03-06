@@ -70,7 +70,9 @@
 #define PLAYER_LEFT        1
 #define PLAYER_RIGHT       2
 
-#define AMOUNT_CARD_PARTNER           8
+#define AMOUNT_CARD_PLAYER     8
+#define AMOUNT_CARD_DEAL       3
+#define AMOUNT_CARD_PARTNER           AMOUNT_CARD_PLAYER
 /*************** ERROR **************/
 
 #define NOT_CONNECT_SERVER            -10

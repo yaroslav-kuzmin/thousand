@@ -75,7 +75,7 @@ struct _acting_s
 	uint8_t bolt[AMOUNT_PLAYER];
 	status_player_e status_player[AMOUNT_PLAYER];
 	deck_cards_s * deck;
-	uint8_t cards_player[AMOUNT_PLAYER][];
+	uint8_t * cards_player[AMOUNT_PLAYER];
 };
 
 static GHashTable * all_acting = NULL;
@@ -149,6 +149,11 @@ static int create_acting(user_s * psu)
 	pta->player[PLAYER_CREATOR] = psu;
 	pta->flag = init_bit_flags(last_flag_acting);
 	pta->deck = g_slice_alloc(sizeof(deck_cards_s));
+
+	pta->cards_player[PLAYER_CENTR] = pta->deck->dealing[PLAYER_CENTR];
+	pta->cards_player[PLAYER_LEFT] = pta->deck->dealing[PLAYER_LEFT];
+	pta->cards_player[PLAYER_RIGHT] = pta->deck->dealing[PLAYER_RIGHT];
+
 	g_hash_table_add(all_acting,pta);
 
 	set_bit_flag(flag,acting_user,1);
@@ -186,7 +191,7 @@ static int change_status_players(acting_s * psa,uint8_t player)
 }
 
 #define FIRST_ROUND    1
-static int init_round(acting_s * psa)
+static int init_acting(acting_s * psa)
 {
 	uint32_t flag = psa->flag;
 	int p = 0;
@@ -269,7 +274,7 @@ static int join_acting(user_s * psu,uint16_t number)
 	}
 
 	if(c == i){
-		init_round(pta);
+		init_acting(pta);
 	}
 
 	return number_player;
@@ -365,10 +370,8 @@ static int check_begin_round(acting_s * psa)
 	int i;
 	int rc;
 	user_s * ptu;
-	/*uint32_t flag;*/
-	deck_cards_s * psd = psa->deck;
 
-	generate_deck(psd);
+	generate_deck(psa->deck);
 
 	for(i = 0;i < AMOUNT_PLAYER;i++){
 		ptu = psa->player[i];
@@ -382,7 +385,7 @@ static int check_begin_round(acting_s * psa)
 		rc = s_cmd_statys_player(ptu,PLAYER_CENTR,psa->status_player[PLAYER_CENTR]);
 		rc = s_cmd_statys_player(ptu,PLAYER_LEFT,psa->status_player[PLAYER_LEFT]);
 		rc = s_cmd_statys_player(ptu,PLAYER_RIGHT,psa->status_player[PLAYER_RIGHT]);
-		rc = s_cmd_card_player(ptu,AMOUNT_CARD_PLAYER,psd->dealing[i]);
+		rc = s_cmd_card_player(ptu,AMOUNT_CARD_PLAYER,psa->cards_player[i]);
 		if(rc == FAILURE){
 			del_user_list(ptu->fd,NOT_ACTING_DEL);
 			return SUCCESS;

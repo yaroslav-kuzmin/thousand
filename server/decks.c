@@ -188,7 +188,7 @@ int generate_deck(deck_cards_s * psd)
 
 	zero_deck_card();
 
-	for(i = 0;i < (AMOUNT_CARD_PLAYER);i++){
+	for(i = 0;i < (AMOUNT_CARD_PLAYER - 1);i++){
 		card = generate_card();
 		psd->dealing[PLAYER_CENTR][i] = card;
 		card = generate_card();
@@ -196,16 +196,19 @@ int generate_deck(deck_cards_s * psd)
 		card = generate_card();
 		psd->dealing[PLAYER_RIGHT][i] = card;
 	}
+	psd->dealing[PLAYER_CENTR][i] = UNKNOWN_CARD;
+	psd->dealing[PLAYER_LEFT][i] = UNKNOWN_CARD;
+	psd->dealing[PLAYER_RIGHT][i] = UNKNOWN_CARD;
 	for(i = 0;i < (AMOUNT_CARD_DEAL);i++){
 		card = generate_card();
 		psd->deal[i] = card;
 	}
 	pt = psd->dealing[PLAYER_CENTR];
-	sort_card(&pt,(AMOUNT_CARD_PLAYER));
+	sort_card(&pt,(AMOUNT_CARD_PLAYER-1));
 	pt = psd->dealing[PLAYER_LEFT];
-	sort_card(&pt,(AMOUNT_CARD_PLAYER));
+	sort_card(&pt,(AMOUNT_CARD_PLAYER-1));
 	pt = psd->dealing[PLAYER_RIGHT];
-	sort_card(&pt,(AMOUNT_CARD_PLAYER));
+	sort_card(&pt,(AMOUNT_CARD_PLAYER-1));
 	pt = psd->deal;
 	sort_card(&pt,(AMOUNT_CARD_DEAL));
 

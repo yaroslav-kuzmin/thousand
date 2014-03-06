@@ -974,14 +974,14 @@ int if_table_card_right(uint8_t card)
 }
 /*************************************/
 /*  Отображение карт игрока          */
-#define AMOUNT_CARD_PLAYER            10
+#define AMOUNT_ALL_CARD_PLAYER            10
 static char * CLEAN_CARD_PLAYER = "     ";
-object_s o_card[AMOUNT_CARD_PLAYER];
+object_s o_card[AMOUNT_ALL_CARD_PLAYER];
 
 int init_card_player(void)
 {
 	int i;
-	for(i = 0;i< AMOUNT_CARD_PLAYER;i++){
+	for(i = 0;i< AMOUNT_ALL_CARD_PLAYER;i++){
 		o_card[i].y = 18;
 		o_card[i].x = 20 + (i * (WIDTH_CARD+1));
 		o_card[i].h = HEIGHT_CARD;
@@ -998,7 +998,7 @@ int if_card_player(uint8_t number_card,uint8_t card,uint8_t select)
 	char * card_s;
 	char * card_v;
 
-	if(number_card >= AMOUNT_CARD_PLAYER ){
+	if(number_card >= AMOUNT_ALL_CARD_PLAYER ){
 		global_log("Неккоректный номер карты!");
 		return SUCCESS;
 	}
