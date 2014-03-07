@@ -396,7 +396,8 @@ static int check_begin_round(acting_s * psa)
 
 static int check_auction_round(acting_s * pas)
 {
-	return SUCCESS;
+
+	return FAILURE;
 }
 
 static int check_play_round(acting_s * psa)
@@ -427,7 +428,14 @@ static int check_acting_server(acting_s * psa)
 			set_bit_flag(flag,auction_round,1);
 		}
 	}
-	check_auction_round(psa);
+	rc = check_bit_flag(flag,auction_round,1);
+	if(rc == YES){
+		rc = check_auction_round(psa);
+		if(rc == SUCCESS){
+			unset_bit_flag(flag,auction_round,1);
+			set_bit_flag(flag,play_round,1);
+		}
+	}
 	check_play_round(psa);
 	check_end_round(psa);
 
