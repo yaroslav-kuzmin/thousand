@@ -486,6 +486,27 @@ int s_cmd_card_player(user_s * psu,uint8_t amount,uint8_t * card )
 		rc = SUCCESS;
 	}
 
-	return SUCCESS;
+	return rc;
+}
+
+int s_cmd_auction(user_s * psu,uint16_t auction)
+{
+	int rc;
+	int fd = psu->fd;
+	message_cmd_s cmd;
+
+	cmd.number = psu->package;
+	cmd.type = CMD_AUCTION;
+	cmd.msg = auction;
+	rc = send(fd,(uint8_t *)&cmd,(sizeof(message_cmd_s)),0);
+	if(rc == -1){
+	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		psu->package ++;
+		rc = SUCCESS;
+	}
+	return rc;
 }
 /*****************************************************************************/

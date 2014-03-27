@@ -144,6 +144,7 @@ union _all_message_u
 #define CMD_POINT                   0x000C
 #define MESSAGE_STATUS_PLAYER       0x000D
 #define MESSAGE_CARDS               0x000E
+#define CMD_AUCTION                 0x000F
 
 /********************* message **********************************************/
 #define END_NUMBER_ACTING   0
