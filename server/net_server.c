@@ -488,7 +488,6 @@ int s_cmd_card_player(user_s * psu,uint8_t amount,uint8_t * card )
 
 	return rc;
 }
-
 int s_cmd_auction(user_s * psu,uint16_t auction)
 {
 	int rc;
