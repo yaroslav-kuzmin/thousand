@@ -80,6 +80,7 @@ struct _acting_s
 	status_player_e status_player[AMOUNT_PLAYER];
 	deck_cards_s * deck;
 	uint8_t * cards_player[AMOUNT_PLAYER];
+	uint8_t status_auction[AMOUNT_PLAYER];
 };
 
 static GHashTable * all_acting = NULL;
