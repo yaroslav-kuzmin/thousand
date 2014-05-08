@@ -55,7 +55,6 @@
 /*****************************************************************************/
 
 typedef enum _acting_flag_e acting_flag_e;
-
 enum _acting_flag_e{
 	all_join_acting,
 	begin_round,
@@ -68,6 +67,7 @@ enum _acting_flag_e{
 	end_round,
 	last_flag_acting
 };
+
 typedef struct _acting_s acting_s;
 struct _acting_s
 {
@@ -80,7 +80,7 @@ struct _acting_s
 	status_player_e status_player[AMOUNT_PLAYER];
 	deck_cards_s * deck;
 	uint8_t * cards_player[AMOUNT_PLAYER];
-	uint8_t status_auction[AMOUNT_PLAYER];
+	uint16_t bets; /*Ставка*/
 };
 
 static GHashTable * all_acting = NULL;
@@ -399,8 +399,27 @@ static int check_begin_round(acting_s * psa)
 	return SUCCESS;
 }
 
+static int invert_status_players(acting_s * pas)
+{
+	int i;
+	for(i = 0;i < AMOUNT_PLAYER;i++){
+		if(psa->status_player[i] == free_player){
+			psa->status_player[i] = bets_player;
+		}
+		else{
+			psa->status_player[i] = queue_player;
+		}
+	}
+	return SUCCESS;
+}
+
+#define AUTOMAT_BETS      100
+
 static int check_begin_auction_round(acting_s * pas)
 {
+	invert_status_players(pas);
+	pas->bets = AUTOMAT_BETS;
+
 	return FAILURE;
 }
 

@@ -58,6 +58,9 @@ enum _if_status_player_e
 	dealer_player = 0,
 	automat_player,
 	free_player,
+	bets_player,
+	queue_player,
+	pass_player
 };
 #endif
 /*****************************************************************************/
