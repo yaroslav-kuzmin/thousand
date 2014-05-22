@@ -80,7 +80,7 @@ struct _acting_s
 	status_player_e status_player[AMOUNT_PLAYER];
 	deck_cards_s * deck;
 	uint8_t * cards_player[AMOUNT_PLAYER];
-	uint16_t bets; /*Ставка*/
+	uint16_t bets[AMOUNT_PLAYER]; /*Ставки игроков*/
 };
 
 static GHashTable * all_acting = NULL;
@@ -395,6 +395,12 @@ static int check_begin_round(acting_s * psa)
 			del_user_list(ptu->fd,NOT_ACTING_DEL);
 			return SUCCESS;
 		}
+		if(psa->status_player[i] == automat_player){
+			psa->bets[i] = AUTOMAT_BETS;
+		}
+		else{
+			psa->bets[i] = NULL_BETS;
+		}
 	}
 	return SUCCESS;
 }
@@ -413,12 +419,25 @@ static int invert_status_players(acting_s * pas)
 	return SUCCESS;
 }
 
-#define AUTOMAT_BETS      100
-
 static int check_begin_auction_round(acting_s * pas)
 {
+	int i;
+	int rc;
+	uint16_t bets;
+	user_s * ptu;
+
 	invert_status_players(pas);
-	pas->bets = AUTOMAT_BETS;
+
+	for(i = 0;i < AMOUNT_PLAYER;i++ ){
+		ptu = psa->player[i];
+		if(psa->status_player[i] == bets_player){
+			bets = psa->bets;
+		}
+		else{
+
+		}	
+			rc = s_cmd_auction(ptu)
+	}
 
 	return FAILURE;
 }
@@ -458,17 +477,18 @@ static int check_acting_server(acting_s * psa)
 		rc = check_begin_round(psa);
 		if(rc == SUCCESS){
 			unset_bit_flag(flag,begin_round,1);
+			set_bit_flag(flag,begin_auction_round,1);
+		}
+	}
+	rc = check_bit_flag(flag,begin_auction_round,1);
+	if(rc == YES){
+		rc = check_begin_auction_round(psa);
+		if(rc == SUCCESS){
+			unset_bit_flag(flag,begin_auction_round,1);
 			set_bit_flag(flag,auction_round,1);
 		}
 	}
-	rc = check_bit_flag(flag,auction_round,1);
-	if(rc == YES){
-		rc = check_auction_round(psa);
-		if(rc == SUCCESS){
-			unset_bit_flag(flag,auction_round,1);
-			set_bit_flag(flag,play_round,1);
-		}
-	}
+
 	check_play_round(psa);
 	check_end_round(psa);
 

@@ -452,6 +452,7 @@ int s_cmd_statys_player(user_s * psu,uint8_t player,uint8_t status)
 
 	return rc;
 }
+/**/
 int s_cmd_card_player(user_s * psu,uint8_t amount,uint8_t * card )
 {
 	int rc;
@@ -488,6 +489,7 @@ int s_cmd_card_player(user_s * psu,uint8_t amount,uint8_t * card )
 
 	return rc;
 }
+/**/
 int s_cmd_auction(user_s * psu,uint16_t auction)
 {
 	int rc;

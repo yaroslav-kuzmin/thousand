@@ -73,6 +73,10 @@
 #define AMOUNT_CARD_PLAYER     8
 #define AMOUNT_CARD_DEAL       3
 #define AMOUNT_CARD_PARTNER           AMOUNT_CARD_PLAYER
+/************* СТАВКИ ***************/
+#define AUTOMAT_BETS      100
+#define NULL_BETS         10
+#define PAS_BETS          20
 /*************** ERROR **************/
 
 #define NOT_CONNECT_SERVER            -10
