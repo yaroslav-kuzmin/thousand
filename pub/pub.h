@@ -76,7 +76,7 @@
 /************* СТАВКИ ***************/
 #define AUTOMAT_BETS      100
 #define NULL_BETS         10
-#define PAS_BETS          20
+#define PASS_BETS          20
 /*************** ERROR **************/
 
 #define NOT_CONNECT_SERVER            -10

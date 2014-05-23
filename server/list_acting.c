@@ -81,6 +81,7 @@ struct _acting_s
 	deck_cards_s * deck;
 	uint8_t * cards_player[AMOUNT_PLAYER];
 	uint16_t bets[AMOUNT_PLAYER]; /*Ставки игроков*/
+	uint16_t max_bets;            /*Максимальная ставка*/
 };
 
 static GHashTable * all_acting = NULL;
@@ -393,8 +394,9 @@ static int check_begin_round(acting_s * psa)
 		rc = s_cmd_card_player(ptu,AMOUNT_CARD_PLAYER,psa->cards_player[i]);
 		if(rc == FAILURE){
 			del_user_list(ptu->fd,NOT_ACTING_DEL);
-			return SUCCESS;
+			return FAILURE;
 		}
+		psa->max_bets = AUTOMAT_BETS;
 		if(psa->status_player[i] == automat_player){
 			psa->bets[i] = AUTOMAT_BETS;
 		}
@@ -431,15 +433,19 @@ static int check_begin_auction_round(acting_s * pas)
 	for(i = 0;i < AMOUNT_PLAYER;i++ ){
 		ptu = psa->player[i];
 		if(psa->status_player[i] == bets_player){
-			bets = psa->bets;
+			bets = psa->max_bets;
 		}
 		else{
-
-		}	
-			rc = s_cmd_auction(ptu)
+			bets = PASS_BETS;
+		}
+		rc = s_cmd_auction(ptu,bets);
+		if(rc == FAILURE){
+			del_user_list(ptu->fd,NOT_ACTING_DEL);
+			return FAILURE;
+		}
 	}
 
-	return FAILURE;
+	return SUCCESS;
 }
 
 static int check_auction_round(acting_s * pas)
