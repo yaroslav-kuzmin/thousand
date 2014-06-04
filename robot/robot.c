@@ -250,6 +250,9 @@ static int check_message(void)
 		case MESSAGE_CARDS:
 			global_log("Карты!");
 			break;
+		case CMD_AUCTION:
+			global_log("Торги : %d",cmd->msg);
+			break;
 		default:
 			global_log("Пришла не известная команда : %#x",cmd->type);
 			rc = FAILURE;

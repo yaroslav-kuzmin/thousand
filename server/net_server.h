@@ -44,7 +44,7 @@ int s_cmd_amount_point_player(user_s * psu,uint8_t player,int16_t points
                              ,uint8_t bolt);
 int s_cmd_statys_player(user_s * psu,uint8_t player,uint8_t status);
 int s_cmd_card_player(user_s * psu,uint8_t amount,uint8_t * card);
-int s_cmd_auction(user_s * psu);
+int s_cmd_auction(user_s * psu,uint16_t auction);
 
 #endif
 

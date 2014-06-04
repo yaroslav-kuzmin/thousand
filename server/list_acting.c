@@ -407,7 +407,7 @@ static int check_begin_round(acting_s * psa)
 	return SUCCESS;
 }
 
-static int invert_status_players(acting_s * pas)
+static int invert_status_players(acting_s * psa)
 {
 	int i;
 	for(i = 0;i < AMOUNT_PLAYER;i++){
@@ -421,14 +421,14 @@ static int invert_status_players(acting_s * pas)
 	return SUCCESS;
 }
 
-static int check_begin_auction_round(acting_s * pas)
+static int check_begin_auction_round(acting_s * psa)
 {
 	int i;
 	int rc;
 	uint16_t bets;
 	user_s * ptu;
 
-	invert_status_players(pas);
+	invert_status_players(psa);
 
 	for(i = 0;i < AMOUNT_PLAYER;i++ ){
 		ptu = psa->player[i];
@@ -448,12 +448,12 @@ static int check_begin_auction_round(acting_s * pas)
 	return SUCCESS;
 }
 
-static int check_auction_round(acting_s * pas)
+static int check_auction_round(acting_s * psa)
 {
 	return FAILURE;
 }
 
-static int check_end_auction_round(acting_s * pas)
+static int check_end_auction_round(acting_s * psa)
 {
 	return FAILURE;
 }
@@ -494,9 +494,6 @@ static int check_acting_server(acting_s * psa)
 			set_bit_flag(flag,auction_round,1);
 		}
 	}
-
-	check_play_round(psa);
-	check_end_round(psa);
 
 	return SUCCESS;
 }

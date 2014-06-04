@@ -318,6 +318,18 @@ int check_cards(message_cards_s * cmd)
 	}
 	return SUCCESS;
 }
+int check_auction(message_cmd_s * cmd)
+{
+	global_log("Торги ");
+	if(cmd->msg == PASS_BETS){
+		global_log("Ожидаю очереди!");
+	}
+	else{
+		global_log("Минимальная ставка : %d",cmd->msg);
+	}
+	return SUCCESS;
+}
+
 int check_message(all_message_u * msg)
 {
 	message_cmd_s * cmd = (message_cmd_s*)msg;
@@ -336,6 +348,9 @@ int check_message(all_message_u * msg)
 			break;
 		case MESSAGE_CARDS:
 			check_cards((message_cards_s*)msg);
+			break;
+		case CMD_AUCTION:
+			check_auction(cmd);
 			break;
 		default:
 			break;

@@ -144,6 +144,7 @@ static int record_buff(uint8_t ** buff,int max_len)
 		case CMD_ACCESS_ALLOWED:
 		case CMD_GAME_OVER:
 		case CMD_NUMBER_ROUND:
+		case CMD_AUCTION:
 			break;
 		default:
 			len += cmd->len;
