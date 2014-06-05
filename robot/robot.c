@@ -253,6 +253,12 @@ static int check_message(void)
 		case CMD_AUCTION:
 			global_log("Торги : %d",cmd->msg);
 			break;
+		case MESSAGE_BETS:
+			{
+			message_bets_s * pmsg = (message_bets_s*)cmd;
+			global_log("Игрок %d : ставка %d",pmsg->player,pmsg->bets);
+			break;
+			}
 		default:
 			global_log("Пришла не известная команда : %#x",cmd->type);
 			rc = FAILURE;

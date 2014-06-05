@@ -489,10 +489,10 @@ int s_cmd_card_player(user_s * psu,uint8_t amount,uint8_t * card )
 
 	return rc;
 }
-/*Послать команду аукцион игрокам */
+/*Послать команду аукцион игрокам и информацию о ставках других игроков*/
 int s_cmd_auction(user_s * psu,uint16_t auction)
 {
-	int rc;
+ 	int rc;
 	int fd = psu->fd;
 	message_cmd_s cmd;
 
@@ -509,5 +509,31 @@ int s_cmd_auction(user_s * psu,uint16_t auction)
 		rc = SUCCESS;
 	}
 	return rc;
+}
+/*Информация о ставках других  игроков торгов*/
+int s_cmd_bets(user_s * psu,uint8_t player,uint16_t bets)
+{
+	int rc;
+	int fd = psu->fd;
+	message_bets_s msg;
+
+	msg.number = psu->package;
+	msg.type = MESSAGE_BETS;
+	msg.len = LEN_MESSAGE_BETS;
+	msg.player = player;
+	msg.bets = bets;
+
+	rc = send(fd,(uint8_t *)&msg,sizeof(message_bets_s),0);
+	if(rc == -1){
+	 	global_warning("Несмог отправить сообщение по канналу %d : %s",fd,strerror(errno));
+		rc = FAILURE;
+	}
+	else{
+		psu->package ++;
+		rc = SUCCESS;
+	}
+
+	return rc;
+
 }
 /*****************************************************************************/

@@ -373,7 +373,7 @@ static int delete_acting(acting_s * psa,user_s * psu)
 
 static int check_begin_round(acting_s * psa)
 {
-	int i;
+	int i ;
 	int rc;
 	user_s * ptu;
 
@@ -394,7 +394,7 @@ static int check_begin_round(acting_s * psa)
 		rc = s_cmd_card_player(ptu,AMOUNT_CARD_PLAYER,psa->cards_player[i]);
 		if(rc == FAILURE){
 			del_user_list(ptu->fd,NOT_ACTING_DEL);
-			return FAILURE;
+		 	return FAILURE;
 		}
 		psa->max_bets = AUTOMAT_BETS;
 		if(psa->status_player[i] == automat_player){
@@ -409,7 +409,7 @@ static int check_begin_round(acting_s * psa)
 
 static int invert_status_players(acting_s * psa)
 {
-	int i;
+	int  i;
 	for(i = 0;i < AMOUNT_PLAYER;i++){
 		if(psa->status_player[i] == free_player){
 			psa->status_player[i] = bets_player;
@@ -436,7 +436,20 @@ static int check_begin_auction_round(acting_s * psa)
 			bets = psa->max_bets;
 		}
 		else{
-			bets = PASS_BETS;
+			bets = WAIT_BETS;
+		}
+
+		if(i == PLAYER_CENTR){
+			rc = s_cmd_bets(ptu,PLAYER_LEFT,psa->bets[PLAYER_LEFT]);
+			rc = s_cmd_bets(ptu,PLAYER_RIGHT,psa->bets[PLAYER_RIGHT]);
+		}
+		if(i == PLAYER_LEFT){
+			rc = s_cmd_bets(ptu,PLAYER_CENTR,psa->bets[PLAYER_CENTR]);
+			rc = s_cmd_bets(ptu,PLAYER_RIGHT,psa->bets[PLAYER_RIGHT]);
+		}
+		if(i == PLAYER_RIGHT){
+			rc = s_cmd_bets(ptu,PLAYER_CENTR,psa->bets[PLAYER_CENTR]);
+			rc = s_cmd_bets(ptu,PLAYER_LEFT,psa->bets[PLAYER_LEFT]);
 		}
 		rc = s_cmd_auction(ptu,bets);
 		if(rc == FAILURE){

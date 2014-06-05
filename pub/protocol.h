@@ -117,6 +117,17 @@ struct _message_cards_s
 	uint8_t card[AMOUNT_CARD_PLAYER];
 }__attribute__((packed));
 
+typedef struct _message_bets_s message_bets_s;
+struct _message_bets_s
+{
+	uint16_t number;
+	uint16_t type;
+	uint16_t len;
+
+	uint8_t player;
+	uint16_t bets;
+}__attribute__((packed));
+
 typedef union _all_message_u all_message_u;
 union _all_message_u
 {
@@ -128,6 +139,7 @@ union _all_message_u
 	message_acting_s        acting;
 	message_status_player_s status_player;
 	message_cards_s         cards;
+	message_bets_s          bets;
 };
 /**************** type message **********************************************/
 #define CMD_CHECK_CONNECT           0x0001
@@ -145,6 +157,7 @@ union _all_message_u
 #define MESSAGE_STATUS_PLAYER       0x000D
 #define MESSAGE_CARDS               0x000E
 #define CMD_AUCTION                 0x000F
+#define MESSAGE_BETS                0x0010
 
 /********************* message **********************************************/
 #define END_NUMBER_ACTING   0

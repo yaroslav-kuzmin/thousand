@@ -320,6 +320,7 @@ int check_cards(message_cards_s * cmd)
 }
 int check_auction(message_cmd_s * cmd)
 {
+	if_status_round(auction_round);
 	global_log("Торги ");
 	if(cmd->msg == PASS_BETS){
 		global_log("Ожидаю очереди!");
@@ -352,6 +353,12 @@ int check_message(all_message_u * msg)
 		case CMD_AUCTION:
 			check_auction(cmd);
 			break;
+		case MESSAGE_BETS:
+			{
+			message_bets_s * pmsg = (message_bets_s*)cmd;
+			global_log("Игрок %d : ставка %d",pmsg->player,pmsg->bets);
+			break;
+			}
 		default:
 			break;
 	}

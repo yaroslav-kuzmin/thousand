@@ -51,6 +51,7 @@
 #define ROBOT_FLAG        0x03
 /************************************/
 /***** Длина сообщений ****/
+#define LEN_MESSAGE_BETS             3
 #define LEN_MESSAGE_POINT            4
 #define LEN_MESSAGE_STATUS_PLAYER    2
 #define LEN_MESSAGE_ACTING           3
@@ -75,8 +76,9 @@
 #define AMOUNT_CARD_PARTNER           AMOUNT_CARD_PLAYER
 /************* СТАВКИ ***************/
 #define AUTOMAT_BETS      100
-#define NULL_BETS         10
-#define PASS_BETS          20
+#define DO_BETS           10
+#define PASS_BETS         20
+#define WAIT_BETS         30
 /*************** ERROR **************/
 
 #define NOT_CONNECT_SERVER            -10
