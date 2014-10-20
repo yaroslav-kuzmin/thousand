@@ -439,6 +439,7 @@ static int check_begin_auction_round(acting_s * psa)
 			bets = WAIT_BETS;
 		}
 
+		rc = s_cmd_auction(ptu,bets);
 		if(i == PLAYER_CENTR){
 			rc = s_cmd_bets(ptu,PLAYER_LEFT,psa->bets[PLAYER_LEFT]);
 			rc = s_cmd_bets(ptu,PLAYER_RIGHT,psa->bets[PLAYER_RIGHT]);
@@ -451,7 +452,6 @@ static int check_begin_auction_round(acting_s * psa)
 			rc = s_cmd_bets(ptu,PLAYER_CENTR,psa->bets[PLAYER_CENTR]);
 			rc = s_cmd_bets(ptu,PLAYER_LEFT,psa->bets[PLAYER_LEFT]);
 		}
-		rc = s_cmd_auction(ptu,bets);
 		if(rc == FAILURE){
 			del_user_list(ptu->fd,NOT_ACTING_DEL);
 			return FAILURE;
