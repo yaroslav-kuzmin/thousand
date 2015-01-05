@@ -97,8 +97,8 @@ uint32_t acting_hash(gconstpointer key)
 }
 int acting_equal(gconstpointer a,gconstpointer b)
 {
-	uint16_t ta = ((acting_s  *)a)->number;
-	uint16_t tb = ((acting_s*)b)->number;
+	uint16_t ta = ((acting_s *)a)->number;
+	uint16_t tb = ((acting_s *)b)->number;
 	if(ta == tb){
 		return TRUE;
 	}

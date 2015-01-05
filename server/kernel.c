@@ -54,6 +54,10 @@
 /*****************************************************************************/
 /* Вспомогательные функции                                                   */
 /*****************************************************************************/
+
+/*****************************************************************************/
+/* Основные функции                                                          */
+/*****************************************************************************/
 volatile sig_atomic_t amount_alrm = 0;
 void handler_timer(int signal_num)
 {
@@ -68,13 +72,10 @@ void sigaction_io(int num,siginfo_t * sig,void * test)
 	/*g_message("fd :> %d : sig_io :> %d",sig->si_fd,amount_sig_io);*/
 }
 
-/*****************************************************************************/
-/* Основная функция                                                          */
-/*****************************************************************************/
 struct itimerval main_timer;
 int set_timer(void)
 {
-	int rc ;
+ 	int rc ;
 	main_timer.it_interval.tv_sec = WAITING_USER;
 	main_timer.it_interval.tv_usec = 0;
 	main_timer.it_value.tv_sec = WAITING_USER;
@@ -167,6 +168,7 @@ check_timeout:
 		current_actings();
 
 /* Ожидание сигналов на дискрипторах*/
+/*TODO */
 		if(amount_sig_io <= 1){
 			amount_sig_io = 0;
 g_message("Pause!");

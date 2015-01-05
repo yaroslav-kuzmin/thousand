@@ -141,7 +141,7 @@ union _all_message_u
 	message_cards_s         cards;
 	message_bets_s          bets;
 };
-/**************** type message **********************************************/
+/**************** type message ***********************************************/
 #define CMD_CHECK_CONNECT           0x0001
 #define MESSAGE_LOGIN               0x0002
 #define MESSAGE_PASSWD              0x0003
@@ -159,10 +159,10 @@ union _all_message_u
 #define CMD_AUCTION                 0x000F
 #define MESSAGE_BETS                0x0010
 
-/********************* message **********************************************/
+/********************* message ***********************************************/
 #define END_NUMBER_ACTING   0
 
 #endif
 
-/*****************************************************************************/
+/******************************************************************************/
 

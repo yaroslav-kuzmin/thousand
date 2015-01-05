@@ -299,6 +299,10 @@ int main(int argc,char * argv[])
 /*************************************/
 /* основной цикл                     */
 /*************************************/
+#if 0
+	g_message("%d : %d : %d ",glib_major_version,glib_minor_version,glib_micro_version);
+#endif
+
 	main_loop();
 /*************************************/
 /* Завершение работы                 */
