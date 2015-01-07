@@ -62,7 +62,7 @@ const struct option long_options[] =
 {
 	{"user",    1, NULL, 'u'},
 	{"acting",  1, NULL, 'a'},
-	{"master",  1, NULL, 'm'}
+	{"master",  1, NULL, 'm'},
 	{"help",    0, NULL, 'h'},
 	{"version", 0, NULL, 'V'},
 	{"log",     0, NULL, 'l'},
