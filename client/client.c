@@ -284,19 +284,19 @@ int check_point(message_point_s * cmd)
  	return FAILURE;
 }
 
-int check_bet_player(message_status_player_s * cmd)
+int check_status_player(message_status_player_s * cmd)
 {
 	if(cmd->number_player == player.number){
 		global_log("status :> %d",cmd->status_player);
-		if_player_bet(cmd->status_player,234);
+		if_player_status(cmd->status_player);
 		return SUCCESS;
 	}
 	if(cmd->number_player == partner_left.number){
-		if_partner_left_bet(cmd->status_player,123);
+		if_partner_left_status(cmd->status_player);
 		return SUCCESS;
 	}
 	if(cmd->number_player == partner_right.number){
-		if_partner_right_bet(cmd->status_player,345);
+		if_partner_right_status(cmd->status_player);
 		return SUCCESS;
 	}
 	return FAILURE;
@@ -345,7 +345,7 @@ int check_message(all_message_u * msg)
 			check_point((message_point_s*)cmd);
 			break;
 		case MESSAGE_STATUS_PLAYER:
-			check_bet_player((message_status_player_s*)msg);
+			check_status_player((message_status_player_s*)msg);
 			break;
 		case MESSAGE_CARDS:
 			check_cards((message_cards_s*)msg);
@@ -518,7 +518,7 @@ int main(int argc,char * argv[])
 		global_log("Не корректный логин : %s или пароль : %s",player,passwd);
 	 	goto exit_client;
 	}
-	/*TODO создание новой или присоединение к текущей*/
+
 	rc = new_acting();
 	if(rc == FAILURE){
 		global_log("Несмог создать игру");
