@@ -45,7 +45,7 @@
 /*****************************************************************************/
 /* Глобальные переменые                                                      */
 /*****************************************************************************/
-static char * KEY_ROBOT = "robot";
+static char KEY_ROBOT[] = "robot";
 static int number_robot = 0;
 #define PATH_ROBOT        0
 #define NAME_ROBOT        1

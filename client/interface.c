@@ -137,10 +137,10 @@ static int create_main_win(void)
 /* Основная функция                                                          */
 /*****************************************************************************/
 /******** Окно логина ****************/
-static char * PLAYER = "player : ";
-static char * PLAYER_FIELD = "__________";
-static char * PASSWD = "passwd : ";
-static char * PASSWD_FIELD = "__________";
+static char PLAYER[] = "player : ";
+static char PLAYER_FIELD[] = "__________";
+static char PASSWD[] = "passwd : ";
+static char PASSWD_FIELD[] = "__________";
 object_s o_label_player;
 object_s o_field_player;
 object_s o_label_passwd;
@@ -298,7 +298,7 @@ int if_set_passwd(char * passwd)
 }
 
 /*************************************/
-static char * CONNECT = "connect ";
+static char CONNECT[] = "connect ";
 object_s o_label_connect;
 int init_o_connect(void)
 {
@@ -333,9 +333,9 @@ int if_set_connect(void)
 	return SUCCESS;
 }
 
-static char * NOT_CONNECT = "not connect";
-static char * PASSWORD_INCORRECT = "password incorrect !!";
-static char * LOGIN_INCORRECT = "login busy !!";
+static char NOT_CONNECT[] = "not connect";
+static char PASSWORD_INCORRECT[] = "password incorrect !!";
+static char LOGIN_INCORRECT[] = "login busy !!";
 
 int if_not_set_connetc(int type)
 {
@@ -372,8 +372,8 @@ int if_not_set_connetc(int type)
 }
 
 /*************************************/
-static char * NEW_GAME = " new game ";
-static char * CREATE = "create ";
+static char NEW_GAME[] = " new game ";
+static char CREATE[] = "create ";
 object_s o_label_new_game;
 object_s o_label_create;
 int init_o_new_game(void)
@@ -419,7 +419,7 @@ int if_new_game(void)
 	return rc;
 }
 /*************************************/
-static char * GAME = "   GAME   ";
+static char GAME[] = "   GAME   ";
 #define SIZE_GAME_LINE       (((MAX_WIDTH - 2) * SIZE_UTF8_SYMBOL_0800) +1)
 static char game_line[SIZE_GAME_LINE] = {0};
 object_s o_label_game;
@@ -462,14 +462,14 @@ int if_create_game(uint16_t number)
 }
 /*************************************/
 /*отображение имен игроков           */
-static char * PARTNER_LEFT  = "partner left  : ";
-static char * PARTNER_RIGHT = "partner right : ";
-static char * POINT = "point :> ";
-static char * BOLT =  "bolt  :> ";
-static char * DEALER =  "dealer! ";
-static char * AUTOMAT = "automat!";
-static char * FREE =    "free!   ";
-static char * CLEAN_CARD_PARTNER = "                    ";
+static char PARTNER_LEFT[]  = "partner left  : ";
+static char PARTNER_RIGHT[] = "partner right : ";
+static char POINT[] = "point :> ";
+static char BOLT[] =  "bolt  :> ";
+static char DEALER[] =  "dealer! ";
+static char AUTOMAT[] = "automat!";
+static char FREE[] =    "free!   ";
+static char CLEAN_CARD_PARTNER[] = "                    ";
 
 object_s o_partner_left;
 object_s o_partner_left_point;
@@ -708,15 +708,19 @@ int if_partner_right_card(uint8_t card)
 }
 /*************************************/
 /*отображение номера раунда          */
-static char * ROUND = "round :> ";
-#define SIZE_STR_ROUND   10
-static char * STATUS_BEGIN_ROUND =  "status : begin!";
-static char * STATUS_AUCTION_ROUND = "status : auction!";
-static char * STATUS_PLAY_ROUND =    "status : play!";
-static char * STATUS_END_ROUND =     "status : end!";
+static char ROUND[] = "round :> ";
+static char STATUS_BEGIN_ROUND[] =   "status : begin!  ";
+static char STATUS_AUCTION_ROUND[] = "status : auction!";
+static char STATUS_PLAY_ROUND[] =    "status : play!   ";
+static char STATUS_END_ROUND[] =     "status : end!    ";
+static char STATUS_END_ACTING[] =    "status : ACTING! ";
+#define SIZE_OFFSET   10
+static char BET[] = "Bet : "; 
+#define SIZE_STR_BET_OFFSET 6
 
 object_s o_round;
 object_s o_status_round;
+object_s o_bet;
 object_s o_point;
 object_s o_bolt;
 object_s o_status;
@@ -730,10 +734,16 @@ int init_o_round(void)
 	o_round.data = ROUND;
 
 	o_status_round.y = 4;
-	o_status_round.x = o_round.w + SIZE_STR_ROUND;
+	o_status_round.x = o_round.x + o_round.w + SIZE_OFFSET;
 	o_status_round.h = 1;
 	o_status_round.w = strlen(STATUS_AUCTION_ROUND);
 	o_status_round.data = STATUS_BEGIN_ROUND;
+
+	o_bet.y = 4;
+	o_bet.x = o_status_round.x + o_status_round.w + SIZE_OFFSET;
+	o_bet.h = 1;
+	o_bet.w = strlen(BET);
+	o_bet.data = BET;
 
 	o_point.y = 18;
 	o_point.x = 1;
@@ -752,7 +762,7 @@ int init_o_round(void)
 	o_status.h = 1;
 	o_status.w = strlen(DEALER);
 	o_status.data = DEALER;
-	return SUCCESS;
+	return SUCCESS; 
 }
 
 int if_number_round(uint16_t round)
@@ -780,11 +790,23 @@ int if_status_round(status_round_e sr)
 		case end_round:
 			str = STATUS_END_ROUND;
 			break;
+		case end_acting:
+			str = STATUS_END_ACTING;
+			break;	
 		default:
 			str = STATUS_BEGIN_ROUND;
-			break;
+ 			break;
 	}
 	wprintw(main_win,"%s",str);
+	draw_main_win();
+ 	return SUCCESS;
+} 
+
+int if_bet(uint16_t bet)
+{
+	wmove(main_win,o_bet.y,o_bet.x);
+	wprintw(main_win,"%s%03d !",o_bet.data,bet);
+	draw_main_win();
 	return SUCCESS;
 }
 
@@ -793,7 +815,7 @@ int if_player_point(uint16_t point)
 	wmove(main_win,o_point.y,o_point.x);
 	wprintw(main_win,"%s%05d",o_point.data,point);
 	draw_main_win();
-	return SUCCESS;
+	return SUCCESS; 
 }
 int if_player_bolt(uint8_t bolt)
 {
@@ -828,8 +850,8 @@ int if_player_status(status_player_e st)
 /* отображение стола раздачи         */
 /* отображение карт на столе                 */
 #define SIZE_TABLE     (3*WIDTH_CARD)
-static char * TABLE = "table : ";
-static char * CLEAN_TABLE = "               ";
+static char TABLE[] = "table : ";
+static char CLEAN_TABLE[] = "               ";
 
 object_s o_table;
 object_s o_card_left;

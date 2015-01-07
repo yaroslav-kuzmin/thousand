@@ -75,26 +75,26 @@ static char * user_name = NULL;
 static char * home_user = NULL;
 
 static char * home_catalog = NULL;
-static const char * HOME_CATALOG = "/.thousand/";
+static const char HOME_CATALOG[] = "/.thousand/";
 #define SIZE_STR_HOME_CATAOLG    12
 
-static const char * USER_NAME ="USER";
-static const char * HOME_USER ="HOME";
+static const char USER_NAME[] ="USER";
+static const char HOME_USER[] ="HOME";
 
 static char * ini_file = NULL;
-static const char * INI = "ini";
+static const char INI[] = "ini";
 #define SIZE_STR_INI   4
 
 static char * log_catalog = NULL;
-static const char * LOG_CATALOG = "log/";
+static const char LOG_CATALOG[] = "log/";
 #define SIZE_STR_LOG_CATALOG 5
 
 static char * local_socket = NULL;
-static const char * LOCAL_SOCKET = "socket";
-#define SIZE_STR_LOCAL_SOCKET  7
+static const char LOCAL_SOCKET[] = "thousand.socket";
+#define SIZE_STR_LOCAL_SOCKET  16
 
 static char * access_file = NULL;
-static const char * ACCESS = "database/access";
+static const char ACCESS[] = "database/access";
 #define SIZE_STR_ACCESS 16
 
 char * get_user_name(void)
@@ -200,7 +200,7 @@ int total_check(void)
 		DEBUG_PRINTF_S("Not malloc!");
 	}
 #endif
-	return SUCCESS;
+	return SUCCESS; 
 }
 
 /*****************************************************************************/

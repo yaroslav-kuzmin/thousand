@@ -43,6 +43,7 @@ enum _if_status_round_e
 	auction_round,
 	play_round,
 	end_round,
+	end_acting
 };
 
 #endif

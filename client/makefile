@@ -32,7 +32,7 @@ OBJS=$(patsubst %.c,$(OBJ_CATALOG)%.o,$(SOURCE))
 DEPEND=$(patsubst %.c,$(DEPEND_CATALOG)%.d,$(SOURCE))
 
 CXX=gcc
-CFLAGS=-g2 -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` `pkg-config --cflags ncursesw`\
+CFLAGS=-g -Wall -I$(PUB_CATALOG) -I. `pkg-config --cflags glib-2.0` `pkg-config --cflags ncursesw`\
 		 -DDEBUG -D_GNU_SOURCE -DG_LOG_DOMAIN=\"thc\"
 LDFLAGS=-g2 -L$(LIB_CATALOG)
 LIB_PUB=$(LIB_CATALOG)libthp.a

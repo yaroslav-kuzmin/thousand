@@ -31,7 +31,7 @@ DEPEND=$(patsubst %.c,$(DEPEND_CATALOG)%.d,$(SOURCE))
 
 AR=ar
 CXX=gcc
-CFLAGS=-g2 -Wall -I. -DDEBUG -D_GNU_SOURCE `pkg-config --cflags glib-2.0`
+CFLAGS=-g -Wall -I. -DDEBUG -D_GNU_SOURCE `pkg-config --cflags glib-2.0`
 ARFLAGS=sru
 
 $(LIB):$(OBJS)

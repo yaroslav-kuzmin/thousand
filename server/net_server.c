@@ -505,6 +505,7 @@ int s_cmd_auction(user_s * psu,uint16_t auction)
 		rc = FAILURE;
 	}
 	else{
+/*g_message("fd : %d | bet : %d",fd,auction);		*/
 		psu->package ++;
 		rc = SUCCESS;
 	}
@@ -529,6 +530,7 @@ int s_cmd_bets(user_s * psu,uint8_t player,uint16_t bets)
 		rc = FAILURE;
 	}
 	else{
+/*g_message("fd : %d | player : %d |bet : %d",fd,player,bets);		*/
 		psu->package ++;
 		rc = SUCCESS;
 	}

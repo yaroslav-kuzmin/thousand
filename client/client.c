@@ -262,7 +262,9 @@ int access_server(void)
 	return rc;
 }
 /*************************************/
+
 all_message_u message;
+uint16_t max_bet = AUTOMAT_BETS;
 int check_point(message_point_s * cmd)
 {
 	if(cmd->player == player.number){
@@ -322,12 +324,45 @@ int check_auction(message_cmd_s * cmd)
 {
 	if_status_round(auction_round);
 	global_log("Торги ");
-	if(cmd->msg == PASS_BETS){
+	if(cmd->msg == WAIT_BETS){
 		global_log("Ожидаю очереди!");
+		return SUCCESS;
 	}
-	else{
-		global_log("Минимальная ставка : %d",cmd->msg);
+	if(cmd->msg == PASS_BETS){
+		global_log("Пасс!!"); 
+		return SUCCESS;
 	}
+	/*делаем ставку */
+	if(max_bet > cmd->msg){
+		global_log("Ошибка : внутриния ставка %d > внешняя ставка %d",max_bet,cmd->msg);
+		return FAILURE;
+	}
+	max_bet = cmd->msg;
+
+	global_log("Минимальная ставка : %d",max_bet);
+	if_bet(max_bet);
+	
+	return SUCCESS;
+}
+
+int check_bets(message_bets_s * cmd)
+{
+	if(cmd->bets == PASS_BETS){
+		global_log("Игрок %d : пасс!",cmd->player);
+		return SUCCESS;
+	}
+	if(cmd->bets == WAIT_BETS){
+		global_log("Игрок %d : ожидает хода!",cmd->player);
+		return SUCCESS;
+	}
+	if(cmd->bets < max_bet){
+		global_log("Ошибка : внутриния ставка %d > внешняя ставка %d",max_bet,cmd->bets);
+		return FAILURE;
+	}
+	max_bet = cmd->bets;
+	global_log("Игрок %d : ход : %d!",cmd->player,max_bet);
+	if_bet(max_bet);
+
 	return SUCCESS;
 }
 
@@ -339,6 +374,7 @@ int check_message(all_message_u * msg)
 		case CMD_NUMBER_ROUND:
 			if_number_round(cmd->msg);
 			if_status_round(begin_round);
+			max_bet = AUTOMAT_BETS;
 			global_log("Номер роунда :> %d",cmd->msg);
 			break;
 		case CMD_POINT:
@@ -354,11 +390,8 @@ int check_message(all_message_u * msg)
 			check_auction(cmd);
 			break;
 		case MESSAGE_BETS:
-			{
-			message_bets_s * pmsg = (message_bets_s*)cmd;
-			global_log("Игрок %d : ставка %d",pmsg->player,pmsg->bets);
+			check_bets((message_bets_s*)msg);
 			break;
-			}
 		default:
 			break;
 	}
