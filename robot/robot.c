@@ -42,22 +42,27 @@
 #include "protocol.h"
 #include "net_client.h"
 
+#include "ai.h"
+
 /*****************************************************************************/
 /* глобальные переменые                                                      */
 /*****************************************************************************/
 
 const char * programm_name;
+
 char * robot = NULL;
-uint8_t number_robot = 0;
 uint8_t str_passwd[MD5_DIGEST_LENGTH] = {0};
 uint8_t * passwd = str_passwd;
+
 uint16_t acting = 0;
 char * str_acting = NULL;
-const char * const short_options = "u:a:hVl";
+
+const char * const short_options = "u:a:m:hVl";
 const struct option long_options[] =
 {
 	{"user",    1, NULL, 'u'},
 	{"acting",  1, NULL, 'a'},
+	{"master",  1, NULL, 'm'}
 	{"help",    0, NULL, 'h'},
 	{"version", 0, NULL, 'V'},
 	{"log",     0, NULL, 'l'},
@@ -73,6 +78,7 @@ static void print_help(FILE * stream)
 	fprintf(stream,"использоание программы : %s [ОПЦИИ] \n",programm_name);
 	fprintf(stream,"    -u  --user      Имя игрока\n"
 	               "    -a  --acting    Номер игры в формате 0xXXXX (X == [0-9A-F] )\n"
+	               "    -m  --master    Уровень игры от 0 до 5 (по умолчанию 5)"
 	               "    -h  --help      Выводит помощь \n"
 	               "    -V  --version   Версия программы\n"
 	               "    -l  --log       Включить запись действий в программе\n");
@@ -148,17 +154,14 @@ int access_server(void)
 	int rc;
 	uint16_t acting_check;
 
-g_message("cmd login");
 	rc = c_cmd_login(robot);
 	if(rc == FAILURE){
 		return rc;
 	}
-g_message("cmd passwd");
 	rc = c_cmd_passwd(passwd);
 	if(rc == FAILURE){
 		return rc;
 	}
-g_message("wait answer");
 	for(i = 0;i < WAITING_ANSWER;i++){
 		rc = c_answer_access_server();
 		if(rc == NOT_DATA_OBTAIN){
@@ -186,7 +189,6 @@ g_message("wait answer");
 		}
 		break;
 	}
-g_message("answer");
 	if(rc == SUCCESS){
 		rc = c_cmd_join_acting(acting);
 		if(rc == SUCCESS){
@@ -234,22 +236,30 @@ static int check_message(void)
 		case CMD_CHECK_CONNECT:
 			global_log("Проверка соединения!");
 			break;
-		case CMD_NUMBER_ROUND:
-			global_log("Номер раунда : %d",cmd->msg);
-			break;
-		case CMD_POINT:
-			global_log("Очки игроков!");
-			break;
 		case CMD_GAME_OVER:
 			global_log("Пришла команда \'игра окончена\'!");
 			rc = FAILURE;
 			break;
-		case MESSAGE_STATUS_PLAYER:
-			global_log("Статус игрока !");
+		case CMD_NUMBER_ROUND:
+			global_log("Номер раунда : %d",cmd->msg);
 			break;
+		case CMD_POINT:
+			{
+			message_point_s * pmsg = (message_point_s*)&message;
+			ai_set_player_point(pmsg->player,pmsg->point,pmsg->bolt);
+			}	
+			break;
+		case MESSAGE_STATUS_PLAYER:
+			{
+			message_status_player_s * pmsg = (message_status_player_s*)&message;
+			ai_set_status_player(pmsg->number_player,pmsg->status_player);
+			break;
+			}
 		case MESSAGE_CARDS:
+			{
 			global_log("Карты!");
 			break;
+			}
 		case CMD_AUCTION:
 			global_log("Торги : %d",cmd->msg);
 			break;
@@ -346,6 +356,9 @@ int main(int argc,char * argv[])
 				str_acting = optarg;
 				acting = check_acting();
 				break;
+			case 'm':
+				ai_set_master_robot(optarg);				
+				break;	
 			case 'h':
 				print_help(stdout);
 				exit(SUCCESS);

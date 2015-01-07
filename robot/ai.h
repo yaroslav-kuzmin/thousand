@@ -21,12 +21,17 @@
 /*****************************************************************************/
 
 /*****************************************************************************/
-/* Модуль ai                                */
+/* Модуль ai : анализ игры                                                   */
 /*****************************************************************************/
 
 #ifndef AI_H
 #define AI_H
 
+extern uint8_t number_robot = 0;
+
+int ai_set_player_point(uint8_t player,int16_t point,uint8_t bolt);
+int ai_set_status_player(uint8_t number_player,uint8_t status_player);
+int ai_set_master_robot(char * str_master);
 #endif
 
 /*****************************************************************************/

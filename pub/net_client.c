@@ -191,9 +191,10 @@ int close_socket(void)
 }
 
 /*************************************/
+
 int c_cmd_login(char * user)
 {
-	int rc;
+ 	int rc;
 	message_login_s msg;
 	char * str = user;
 	int len = strlen(str);
