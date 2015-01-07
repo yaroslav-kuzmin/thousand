@@ -320,40 +320,50 @@ int access_users(int * success)
 	uint32_t flag;
 	int rc;
 
+	
 	ptu = get_first_user_list();
 	for(;ptu != NULL;ptu = get_next_user_list()){
 	 	flag = ptu->flag;
 		rc = check_bit_flag(flag,access_server_user,1);
+		if( rc == YES){
+			continue;
+		}
+		/*TODO проверка на длительность ожидания доступа*/
+ 		rc = check_bit_flag(flag,message_user,1);
+		if( rc == NO ){
+			exit++;
+			continue;
+		}
+
+		rc = check_bit_flag(flag,login_user,1);
 		if( rc == NO){
-	 		rc = check_bit_flag(flag,message_user,1);
-			if( rc == NO ){
-				exit++;
+			rc = full_login(ptu);
+			if(rc == FAILURE){
+				del_user_list(ptu->fd,NOT_ACTING_DEL);
+	 		 	continue;
 			}
-			else{
-	 			rc = check_bit_flag(flag,login_user,1);
-				if( rc == NO){
-					rc = full_login(ptu);
-					if(rc == FAILURE){
-						del_user_list(ptu->fd,NOT_ACTING_DEL);
-	 		 			continue;
-	 		 		}
-			 	}
-				rc = check_bit_flag(flag,passwd_user,1);
-				if(rc == NO){
-					rc = full_passwd(ptu);
-					if(rc == FAILURE){
-						del_user_list(ptu->fd,NOT_ACTING_DEL);
-						continue;
-	 				}
-				}
-				rc = check_access(ptu);
-				if(rc == FAILURE){
-					exit ++;
-				}
-				else{
-					(*success)++;
-				}
+		}
+		
+		rc = check_bit_flag(flag,message_user,1);
+		if(rc == NO){
+			exit++;
+			continue;
+		}
+
+		rc = check_bit_flag(flag,passwd_user,1);
+		if(rc == NO){
+			rc = full_passwd(ptu);
+			if(rc == FAILURE){
+				del_user_list(ptu->fd,NOT_ACTING_DEL);
+				continue;
 			}
+		}
+		rc = check_access(ptu); /*если доступа нет, посылает сообщение*/
+		if(rc == FAILURE){
+			exit ++;
+		}
+		else{
+			(*success)++;
 		}
 	}
 

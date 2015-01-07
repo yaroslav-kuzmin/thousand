@@ -158,6 +158,7 @@ check_timeout:
 				new_connect = NO;
 			}
 		}
+		/*Создание новый игры или присоединение к имеющейся игре*/
 		if(new_acting > 0){
 			create_actings(&new_acting);
 			if(new_acting < 0){

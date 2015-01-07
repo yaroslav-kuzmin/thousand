@@ -98,7 +98,8 @@ int write_socket(uint8_t * buff,int len)
 	int rc;
 	rc = send(fd_local_socket, buff , len , 0);
 	if(rc == -1){
-		global_warning("Несмог отправить сообшение : %s",strerror(errno));
+		global_warning("Несмог отправить сообшение : %d : %s "
+		              ,getpid(),strerror(errno));
 		rc = FAILURE;
 	}
 	else{
