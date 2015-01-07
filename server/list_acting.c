@@ -65,6 +65,7 @@ enum _acting_flag_e{
 	play_round,
 	end_play_round,
 	end_round,
+	end_acting,
 	last_flag_acting
 };
 
@@ -396,20 +397,23 @@ static int check_begin_round(acting_s * psa)
 			del_user_list(ptu->fd,NOT_ACTING_DEL);
 		 	return FAILURE;
 		}
-		psa->max_bets = AUTOMAT_BETS;
-		if(psa->status_player[i] == automat_player){
-			psa->bets[i] = AUTOMAT_BETS;
-		}
-		else{
-			psa->bets[i] = NULL_BETS;
-		}
 	}
 	return SUCCESS;
 }
 
-static int invert_status_players(acting_s * psa)
+static int check_begin_auction_round(acting_s * psa)
 {
-	int  i;
+	int i;
+
+	psa->max_bets = AUTOMAT_BETS;
+	for(i = 0;i < AMOUNT_PLAYER;i++ ){
+		if(psa->status_player[i] == automat_player){
+			psa->bets[i] = AUTOMAT_BETS;
+		}
+		else{
+			psa->bets[i] = WAIT_BETS; /*ждут сделать ставку*/
+		}
+	}
 	for(i = 0;i < AMOUNT_PLAYER;i++){
 		if(psa->status_player[i] == free_player){
 			psa->status_player[i] = bets_player;
@@ -418,27 +422,44 @@ static int invert_status_players(acting_s * psa)
 			psa->status_player[i] = queue_player;
 		}
 	}
+
 	return SUCCESS;
 }
 
-static int check_begin_auction_round(acting_s * psa)
+static int check_auction_round(acting_s * psa)
 {
 	int i;
 	int rc;
-	uint16_t bets;
+	uint16_t bets = 0;
 	user_s * ptu;
 
-	invert_status_players(psa);
+	for(i = 0;i < AMOUNT_PLAYER;i++){
+		if(psa->status_player[i] == pass_player){
+			bets ++;
+		}
+	}
+	if(bets == (AMOUNT_PLAYER -1)){
+		return SUCCESS;/*два игрока спасовали*/
+	}
 
-	for(i = 0;i < AMOUNT_PLAYER;i++ ){
+	for(i = 0;i < AMOUNT_PLAYER;i++){
+		switch(psa->status_player[i]){
+			case bets_player:
+				bets = psa->max_bets;
+				break;
+			case pass_player:
+				bets = PASS_BETS;
+				break;
+			case queue_player:	
+				bets = WAIT_BETS;
+				break;
+			default:
+				global_warning("Error status player");
+				bets = WAIT_BETS;
+				break;			  	
+		}
+
 		ptu = psa->player[i];
-		if(psa->status_player[i] == bets_player){
-			bets = psa->max_bets;
-		}
-		else{
-			bets = WAIT_BETS;
-		}
-
 		rc = s_cmd_auction(ptu,bets);
 		if(i == PLAYER_CENTR){
 			rc = s_cmd_bets(ptu,PLAYER_LEFT,psa->bets[PLAYER_LEFT]);
@@ -458,11 +479,6 @@ static int check_begin_auction_round(acting_s * psa)
 		}
 	}
 
-	return SUCCESS;
-}
-
-static int check_auction_round(acting_s * psa)
-{
 	return FAILURE;
 }
 
@@ -471,14 +487,29 @@ static int check_end_auction_round(acting_s * psa)
 	return FAILURE;
 }
 
+static int check_begin_play_round(acting_s * psa)
+{
+	return FAILURE;
+}
+
 static int check_play_round(acting_s * psa)
 {
-	return SUCCESS;
+	return FAILURE;
+}
+
+static int check_end_play_round(acting_s * psa)
+{
+	return FAILURE;
 }
 
 static int check_end_round(acting_s * psa)
 {
-	return SUCCESS;
+	return FAILURE;
+}
+
+static int check_end_acting(acting_s * psa)
+{
+	return FAILURE;
 }
 
 static int check_acting_server(acting_s * psa)
@@ -490,7 +521,6 @@ static int check_acting_server(acting_s * psa)
 	if(rc == NO){
 		return FAILURE;
 	}
-
 	rc = check_bit_flag(flag,begin_round,1);
 	if(rc == YES){
 		rc = check_begin_round(psa);
@@ -507,7 +537,71 @@ static int check_acting_server(acting_s * psa)
 			set_bit_flag(flag,auction_round,1);
 		}
 	}
-
+	rc = check_bit_flag(flag,auction_round,1);
+	if(rc == YES){
+		rc = check_auction_round(psa);
+		if(rc == SUCCESS){
+			unset_bit_flag(flag,auction_round,1);
+			set_bit_flag(flag,end_auction_round,1);
+		}
+		else{
+			return SUCCESS;
+		}
+	}
+	rc = check_bit_flag(flag,end_auction_round,1);
+	if(rc == YES){
+		rc = check_end_auction_round(psa);
+		if(rc == SUCCESS){
+			unset_bit_flag(flag,end_auction_round,1);
+			set_bit_flag(flag,begin_play_round,1);
+		}
+	}
+	rc = check_bit_flag(flag,begin_play_round,1);
+	if(rc == YES){
+		rc = check_begin_play_round(psa);
+		if(rc == SUCCESS){
+			unset_bit_flag(flag,begin_play_round,1);
+		 	set_bit_flag(flag,play_round,1);
+		}
+	}
+	rc = check_bit_flag(flag,play_round,1);
+	if(rc == YES){
+		rc = check_play_round(psa);
+		if(rc == SUCCESS){
+			unset_bit_flag(flag,play_round,1);
+			set_bit_flag(flag,end_play_round,1);
+		}
+		else{
+			return SUCCESS;	  	
+		}
+	}	
+	rc = check_bit_flag(flag,end_play_round,1);
+	if(rc == YES){
+		rc = check_end_play_round(psa);
+		if(rc == SUCCESS){
+			unset_bit_flag(flag,end_play_round,1);
+			set_bit_flag(flag,end_round,1);
+		}
+	}
+	rc = check_bit_flag(flag,end_round,1);
+	if(rc == YES){
+		rc = check_end_round(psa);
+		unset_bit_flag(flag,end_round,1);
+		if(rc == SUCCESS){
+			set_bit_flag(flag,end_acting,1);
+		}
+		else{
+			set_bit_flag(flag,begin_round,1);
+			return SUCCESS;
+		}
+	}
+	rc = check_bit_flag(flag,end_acting,1);
+	if(rc == YES){
+		rc = check_end_acting(psa);
+		if(rc == SUCCESS){
+			return DELETE_ACTING_SERVER;
+		}
+	}
 	return SUCCESS;
 }
 
@@ -529,6 +623,7 @@ static int check_acting_user(user_s * psu)
 	 		global_log("Команда \'завершение игры\' от игрока : %s",psu->name);
 			rc = DELETE_ACTING_USER;
 			break;
+			
 		default:
 			global_log("Неизвестная команда %#x от игрока : %s",psu->name);
 			del_user_list(psu->fd,NOT_ACTING_DEL);
@@ -572,7 +667,7 @@ static gboolean check_acting(gpointer psa,gpointer dupsa,gpointer data)
 		}
 	}
 
-	return FALSE;
+	return FALSE; 
 }
 
 /*****************************************************************************/
