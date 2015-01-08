@@ -450,13 +450,13 @@ static int check_auction_round(acting_s * psa)
 			case pass_player:
 				bets = PASS_BETS;
 				break;
-			case queue_player:	
+			case queue_player:
 				bets = WAIT_BETS;
 				break;
 			default:
 				global_warning("Error status player");
 				bets = WAIT_BETS;
-				break;			  	
+				break;
 		}
 
 		ptu = psa->player[i];
@@ -572,9 +572,9 @@ static int check_acting_server(acting_s * psa)
 			set_bit_flag(flag,end_play_round,1);
 		}
 		else{
-			return SUCCESS;	  	
+			return SUCCESS;
 		}
-	}	
+	}
 	rc = check_bit_flag(flag,end_play_round,1);
 	if(rc == YES){
 		rc = check_end_play_round(psa);
@@ -623,7 +623,7 @@ static int check_acting_user(user_s * psu)
 	 		global_log("Команда \'завершение игры\' от игрока : %s",psu->name);
 			rc = DELETE_ACTING_USER;
 			break;
-			
+
 		default:
 			global_log("Неизвестная команда %#x от игрока : %s",psu->name);
 			del_user_list(psu->fd,NOT_ACTING_DEL);
@@ -667,7 +667,7 @@ static gboolean check_acting(gpointer psa,gpointer dupsa,gpointer data)
 		}
 	}
 
-	return FALSE; 
+	return FALSE;
 }
 
 /*****************************************************************************/

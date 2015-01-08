@@ -43,7 +43,13 @@
 uint8_t number_robot = 0;
 #define MIN_LEVEL_MASTER  0
 #define MAX_LEVEL_MASTER  5
-int master_robot = MIN_LEVEL_MASTER; 
+int master_robot = MIN_LEVEL_MASTER;
+
+static char black_hearts[4]   = {0xe2,0x99,0xa5,0};
+static char black_diamonds[4] = {0xe2,0x99,0xa6,0};
+static char black_clubs[4]    = {0xe2,0x99,0xa3,0};
+static char black_spades[4]   = {0xe2,0x99,0xa0,0};
+
 /*****************************************************************************/
 /* Вспомогательные функция                                                   */
 /*****************************************************************************/
@@ -64,6 +70,16 @@ int ai_set_status_player(uint8_t number_player,uint8_t status_player)
 	return SUCCESS;
 }
 
+int ai_set_card(int amount,uint8_t * card)
+{
+	int i;
+
+	global_log("Карты ");
+	for(i = 0;i < amount;i++){
+		global_log("");
+	}
+	return SUCCESS;
+}
 
 int ai_set_master_robot(char * str_master)
 {

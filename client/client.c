@@ -307,7 +307,7 @@ int check_cards(message_cards_s * cmd)
 {
 	int i;
 
-	if(cmd->amount == AMOUNT_CARD_PLAYER){ /*Вначале приходит 7 карт*/
+	if(cmd->amount == AMOUNT_CARD_PLAYER){ /*Вначале приходит 7 карт последняя пустая*/
 		if_partner_left_card((AMOUNT_CARD_PARTNER - 1)); /*одна в прикупе*/
 		if_partner_right_card((AMOUNT_CARD_PARTNER - 1));
 		if_table_card_left(UNKNOWN_CARD);
@@ -329,7 +329,7 @@ int check_auction(message_cmd_s * cmd)
 		return SUCCESS;
 	}
 	if(cmd->msg == PASS_BETS){
-		global_log("Пасс!!"); 
+		global_log("Пасс!!");
 		return SUCCESS;
 	}
 	/*делаем ставку */
@@ -341,7 +341,7 @@ int check_auction(message_cmd_s * cmd)
 
 	global_log("Минимальная ставка : %d",max_bet);
 	if_bet(max_bet);
-	
+
 	return SUCCESS;
 }
 

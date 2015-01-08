@@ -715,7 +715,7 @@ static char STATUS_PLAY_ROUND[] =    "status : play!   ";
 static char STATUS_END_ROUND[] =     "status : end!    ";
 static char STATUS_END_ACTING[] =    "status : ACTING! ";
 #define SIZE_OFFSET   10
-static char BET[] = "Bet : "; 
+static char BET[] = "Bet : ";
 #define SIZE_STR_BET_OFFSET 6
 
 object_s o_round;
@@ -762,7 +762,7 @@ int init_o_round(void)
 	o_status.h = 1;
 	o_status.w = strlen(DEALER);
 	o_status.data = DEALER;
-	return SUCCESS; 
+	return SUCCESS;
 }
 
 int if_number_round(uint16_t round)
@@ -792,7 +792,7 @@ int if_status_round(status_round_e sr)
 			break;
 		case end_acting:
 			str = STATUS_END_ACTING;
-			break;	
+			break;
 		default:
 			str = STATUS_BEGIN_ROUND;
  			break;
@@ -800,7 +800,7 @@ int if_status_round(status_round_e sr)
 	wprintw(main_win,"%s",str);
 	draw_main_win();
  	return SUCCESS;
-} 
+}
 
 int if_bet(uint16_t bet)
 {
@@ -815,7 +815,7 @@ int if_player_point(uint16_t point)
 	wmove(main_win,o_point.y,o_point.x);
 	wprintw(main_win,"%s%05d",o_point.data,point);
 	draw_main_win();
-	return SUCCESS; 
+	return SUCCESS;
 }
 int if_player_bolt(uint8_t bolt)
 {

@@ -247,7 +247,7 @@ static int check_message(void)
 			{
 			message_point_s * pmsg = (message_point_s*)&message;
 			ai_set_player_point(pmsg->player,pmsg->point,pmsg->bolt);
-			}	
+			}
 			break;
 		case MESSAGE_STATUS_PLAYER:
 			{
@@ -257,7 +257,8 @@ static int check_message(void)
 			}
 		case MESSAGE_CARDS:
 			{
-			global_log("Карты!");
+			message_cards_s * pmsg = (message_cards_s*)&message;
+			ai_set_card(pmsg->amount,pmsg->card);
 			break;
 			}
 		case CMD_AUCTION:
@@ -357,8 +358,8 @@ int main(int argc,char * argv[])
 				acting = check_acting();
 				break;
 			case 'm':
-				ai_set_master_robot(optarg);				
-				break;	
+				ai_set_master_robot(optarg);
+				break;
 			case 'h':
 				print_help(stdout);
 				exit(SUCCESS);
