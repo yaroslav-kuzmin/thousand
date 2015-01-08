@@ -443,6 +443,12 @@ static int check_auction_round(acting_s * psa)
 	}
 
 	for(i = 0;i < AMOUNT_PLAYER;i++){
+		ptu = psa->player[i];
+
+		rc = s_cmd_bets(ptu,PLAYER_CENTR,psa->bets[PLAYER_CENTR]);
+		rc = s_cmd_bets(ptu,PLAYER_LEFT,psa->bets[PLAYER_LEFT]);
+		rc = s_cmd_bets(ptu,PLAYER_RIGHT,psa->bets[PLAYER_RIGHT]);
+
 		switch(psa->status_player[i]){
 			case bets_player:
 				bets = psa->max_bets;
@@ -459,20 +465,7 @@ static int check_auction_round(acting_s * psa)
 				break;
 		}
 
-		ptu = psa->player[i];
 		rc = s_cmd_auction(ptu,bets);
-		if(i == PLAYER_CENTR){
-			rc = s_cmd_bets(ptu,PLAYER_LEFT,psa->bets[PLAYER_LEFT]);
-			rc = s_cmd_bets(ptu,PLAYER_RIGHT,psa->bets[PLAYER_RIGHT]);
-		}
-		if(i == PLAYER_LEFT){
-			rc = s_cmd_bets(ptu,PLAYER_CENTR,psa->bets[PLAYER_CENTR]);
-			rc = s_cmd_bets(ptu,PLAYER_RIGHT,psa->bets[PLAYER_RIGHT]);
-		}
-		if(i == PLAYER_RIGHT){
-			rc = s_cmd_bets(ptu,PLAYER_CENTR,psa->bets[PLAYER_CENTR]);
-			rc = s_cmd_bets(ptu,PLAYER_LEFT,psa->bets[PLAYER_LEFT]);
-		}
 		if(rc == FAILURE){
 			del_user_list(ptu->fd,NOT_ACTING_DEL);
 			return FAILURE;
@@ -607,7 +600,7 @@ static int check_acting_server(acting_s * psa)
 
 static int check_acting_user(user_s * psu)
 {
-	message_cmd_s *  cmd;
+	message_cmd_s * cmd;
 	int rc = SUCCESS;
 	int lm;
 
@@ -625,8 +618,12 @@ static int check_acting_user(user_s * psu)
 			break;
 
 		default:
-			global_log("Неизвестная команда %#x от игрока : %s",psu->name);
+			global_log("Неизвестная команда %#x от игрока : %s",cmd->type,psu->name);
+#if 0
+/*TODO обработка некоректных команд*/			
 			del_user_list(psu->fd,NOT_ACTING_DEL);
+			return FAILURE;
+#endif			
 			break;
 	}
 	del_message_list(psu,lm);

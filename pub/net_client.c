@@ -245,7 +245,7 @@ int c_answer_access_server(void)
 	rc = read_socket((uint8_t**)&msg,sizeof(message_cmd_s));
 	if(rc == NOT_DATA_OBTAIN){
 	 	global_log("Нет сообщений от сервера!");
-		return rc;
+	 	return rc;
 	}
 	/*TODO проверка на неполный пакет */
 	switch(msg->type){
@@ -260,10 +260,10 @@ int c_answer_access_server(void)
 			break;
 		default:
 			rc  = INCORRECT_CMD;
-			break;
+	 		break;
 	}
 
-	 return rc;
+	  return rc;
 }
 
 int c_cmd_join_acting(uint16_t number)
@@ -367,7 +367,7 @@ int c_answer_name_partner(uint8_t * number,char ** name)
 	rc = read_socket((uint8_t**)&msg,sizeof(message_player_s));
 	if(rc == NOT_DATA_OBTAIN){
 		global_log("Нет сообщений от сервера!");
-		return rc;
+		return rc ;
 	}
 
 	if(msg->type != MESSAGE_JOIN_PLAYER){
@@ -392,6 +392,22 @@ int c_cmd_game_over(uint16_t acting)
 	if(rc == SUCCESS){
 		number_packed++;
 		global_log("Отправил запрос на удаления игры : 0x%04x",acting);
+	}
+	return rc;
+}
+
+int c_answer_auction(uint16_t bet)
+{
+	int rc;
+	message_cmd_s cmd;
+	cmd.number = number_packed;
+	cmd.type = CMD_AUCTION;
+	cmd.msg = bet;
+
+	rc = write_socket((uint8_t *)&cmd,sizeof(message_cmd_s));
+	if(rc == SUCCESS){
+		number_packed++;
+		global_log("Сделал ставку : %d",bet);
 	}
 	return rc;
 }

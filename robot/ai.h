@@ -29,8 +29,12 @@
 
 extern uint8_t number_robot;
 
+int ai_set_begin_round(int number);
 int ai_set_player_point(uint8_t player,int16_t point,uint8_t bolt);
 int ai_set_status_player(uint8_t number_player,uint8_t status_player);
+int ai_set_card(int amount,uint8_t * cards);
+int ai_set_auction(uint16_t bet);
+int ai_set_player_bets(uint8_t player,uint16_t bet);
 int ai_set_master_robot(char * str_master);
 #endif
 

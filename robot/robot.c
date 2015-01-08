@@ -241,7 +241,7 @@ static int check_message(void)
 			rc = FAILURE;
 			break;
 		case CMD_NUMBER_ROUND:
-			global_log("Номер раунда : %d",cmd->msg);
+			ai_set_begin_round(cmd->msg);
 			break;
 		case CMD_POINT:
 			{
@@ -262,12 +262,12 @@ static int check_message(void)
 			break;
 			}
 		case CMD_AUCTION:
-			global_log("Торги : %d",cmd->msg);
+			ai_set_auction(cmd->msg);
 			break;
 		case MESSAGE_BETS:
 			{
 			message_bets_s * pmsg = (message_bets_s*)cmd;
-			global_log("Игрок %d : ставка %d",pmsg->player,pmsg->bets);
+			ai_set_player_bets(pmsg->player,pmsg->bets);
 			break;
 			}
 		default:

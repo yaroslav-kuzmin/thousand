@@ -489,7 +489,7 @@ int s_cmd_card_player(user_s * psu,uint8_t amount,uint8_t * card )
 
 	return rc;
 }
-/*Послать команду аукцион игрокам и информацию о ставках других игроков*/
+/*Команда аукцион auction минимальная ставка */
 int s_cmd_auction(user_s * psu,uint16_t auction)
 {
  	int rc;

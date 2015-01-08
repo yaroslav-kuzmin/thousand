@@ -42,6 +42,7 @@ int c_answer_number_player(uint16_t * number);
 int c_answer_join_acting(uint16_t * acting,uint8_t * player);
 int c_answer_name_partner(uint8_t * number,char ** name);
 int c_cmd_game_over(uint16_t acting);
+int c_answer_auction(uint16_t bet);
 int c_answer_message(all_message_u * msg);
 
 #endif
