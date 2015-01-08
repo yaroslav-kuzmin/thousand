@@ -598,13 +598,26 @@ static int check_acting_server(acting_s * psa)
 	return SUCCESS;
 }
 
-static int check_acting_user(user_s * psu)
+static int check_auction_user(acting_s * psa,int number,uint16_t bet)
 {
+				if(bet < psa->max_bet){
+					bet = PASS_BETS;
+				}
+				if(bet > MAX_BETS){
+					bet = PASS_BETS;
+				}
+				psa->bets[number] = bet;
+
+}
+
+static int check_acting_user(acting_s * psa,int number)
+{
+	user_s * ptu = psa->player[number];
 	message_cmd_s * cmd;
 	int rc = SUCCESS;
 	int lm;
 
-	lm = read_message_list(psu,(uint8_t **)&cmd);
+	lm = read_message_list(ptu,(uint8_t **)&cmd);
 	if(lm < sizeof(message_cmd_s)){
 		return FAILURE;
 	}
@@ -613,17 +626,19 @@ static int check_acting_user(user_s * psu)
 	 		global_log( "проверка соединения от игрока : %s",psu->name);
 			break;
 		case CMD_GAME_OVER:
-	 		global_log("Команда \'завершение игры\' от игрока : %s",psu->name);
+	 		global_ log("Команда \'завершение игры\' от игрока : %s",psu->name);
 			rc = DELETE_ACTING_USER;
 			break;
-
+		case CMD_AUCTION:
+			check_auction_user(psa,number,cmd->msg);
+			break;
 		default:
 			global_log("Неизвестная команда %#x от игрока : %s",cmd->type,psu->name);
 #if 0
-/*TODO обработка некоректных команд*/			
+/*TODO обработка некоректных команд*/
 			del_user_list(psu->fd,NOT_ACTING_DEL);
 			return FAILURE;
-#endif			
+#endif
 			break;
 	}
 	del_message_list(psu,lm);
@@ -658,7 +673,7 @@ static gboolean check_acting(gpointer psa,gpointer dupsa,gpointer data)
 		if(rc == NO){
 			continue;
 		}
-		rc = check_acting_user(ptu);
+		rc = check_acting_user(pta,i);
 		if(rc == DELETE_ACTING_USER){
 			return delete_acting(pta,ptu);
 		}

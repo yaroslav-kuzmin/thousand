@@ -75,6 +75,7 @@
 #define AMOUNT_CARD_DEAL       3
 #define AMOUNT_CARD_PARTNER           AMOUNT_CARD_PLAYER
 /************* СТАВКИ ***************/
+#define MAX_BETS          300
 #define AUTOMAT_BETS      100
 #define DO_BETS           40
 #define WAIT_BETS         30

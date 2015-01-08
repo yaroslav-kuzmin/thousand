@@ -272,7 +272,6 @@ static int check_message(void)
 			}
 		default:
 			global_log("Пришла не известная команда : %#x",cmd->type);
-			rc = FAILURE;
 	 		break;
 	}
 	return rc;
