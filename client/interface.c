@@ -51,6 +51,8 @@
 #define ERROR_PAIR     3
 #define IN_ERROR_PAIR  4
 
+#define CURSOR_BLINK     ' ' | COLOR_PAIR(1) | A_BLINK
+
 #define NL            '\n'
 #define CR            '\r'
 #define TAB            0x09
@@ -627,7 +629,6 @@ int if_partner_left_card(uint8_t card)
 
 	return SUCCESS;
 }
-
 int if_partner_right(char * name)
 {
 	wmove(main_win,o_partner_right.y,o_partner_right.x);
@@ -717,6 +718,7 @@ static char STATUS_END_ACTING[] =    "status : ACTING! ";
 #define SIZE_OFFSET   10
 static char BET[] = "Bet : ";
 #define SIZE_STR_BET_OFFSET 6
+static char PASS[] = "pass !";
 
 object_s o_round;
 object_s o_status_round;
@@ -859,14 +861,50 @@ int if_player_status(status_player_e st)
 
 uint16_t if_set_bet(uint16_t min_bet)
 {
-	uint16_t max_bet = PASS_BETS;
-	chtype ch = 'B' | COLOR_PAIR(1) | A_BLINK;
+	uint16_t max_bet = min_bet;
+	chtype ch = CURSOR_BLINK;
+
 	wmove(main_win,o_auction.y,o_auction.x);
+	wprintw(main_win," %s%03d",o_auction.data,min_bet);
 	waddch(main_win,ch);
 	wmove(main_win,o_auction.y,o_auction.x);
+
 	draw_main_win();
-	ch = wgetch(main_win);
-	global_log("key : %d",ch);
+	for(;;){
+		ch = wgetch(main_win);
+		global_log("key : %d",ch);
+		if(  (ch == KEY_ENTER)
+		  || (ch == CR)
+		  || (ch == NL)
+		  || (ch == TAB)){
+			if(max_bet == min_bet){
+				max_bet = PASS_BETS;
+			}
+			break;
+		}
+		if( ch == KEY_DOWN){
+			max_bet -= MIN_ADD_BETS;
+		}
+		if( ch == KEY_UP){
+			max_bet += MIN_ADD_BETS;
+		}
+
+		if(max_bet >= MAX_BETS){
+			max_bet = MAX_BETS;
+		}
+		wmove(main_win,o_auction.y,o_auction.x);
+		if(max_bet < min_bet){
+			max_bet = min_bet;
+			wprintw(main_win," %s%s",o_auction.data,PASS);
+		}
+		else{
+			wprintw(main_win," %s%03d",o_auction.data,max_bet);
+		}	
+		ch = CURSOR_BLINK;
+		waddch(main_win,ch);
+		wmove(main_win,o_auction.y,o_auction.x);
+		draw_main_win();
+	}
 	return max_bet;
 }
 
@@ -1078,10 +1116,12 @@ int if_card_player(uint8_t number_card,uint8_t card,uint8_t select)
 interface_cmd_e if_cmd(void)
 {
 	interface_cmd_e cmd;
-	chtype ch = ' ' | COLOR_PAIR(1) | A_BLINK;
+	chtype ch = CURSOR_BLINK;
 
 	wmove(main_win,LAST_Y,LAST_X);
 	waddch(main_win,ch);
+	/*TODO показывать курсор там где идет обнавление*/
+	/*leaveok(main_win,TRUE);*/
 	wmove(main_win,LAST_Y,LAST_X);
 	draw_main_win();
 	ch = wgetch(main_win);
