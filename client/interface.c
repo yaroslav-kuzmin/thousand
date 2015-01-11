@@ -724,6 +724,7 @@ object_s o_bet;
 object_s o_point;
 object_s o_bolt;
 object_s o_status;
+object_s o_auction;
 
 int init_o_round(void)
 {
@@ -762,6 +763,13 @@ int init_o_round(void)
 	o_status.h = 1;
 	o_status.w = strlen(DEALER);
 	o_status.data = DEALER;
+
+	o_auction.y = 22;
+	o_auction.x = 1;
+	o_auction.h = 1;
+	o_auction.w = strlen(BET);
+	o_auction.data = BET;
+
 	return SUCCESS;
 }
 
@@ -846,13 +854,19 @@ int if_player_status(status_player_e st)
 	wmove(main_win,o_status.y,o_status.x);
 	wprintw(main_win,"%s",str);
 	draw_main_win();
-	return SUCCESS;
+	 return SUCCESS;
 }
 
 uint16_t if_set_bet(uint16_t min_bet)
 {
 	uint16_t max_bet = PASS_BETS;
-
+	chtype ch = 'B' | COLOR_PAIR(1) | A_BLINK;
+	wmove(main_win,o_auction.y,o_auction.x);
+	waddch(main_win,ch);
+	wmove(main_win,o_auction.y,o_auction.x);
+	draw_main_win();
+	ch = wgetch(main_win);
+	global_log("key : %d",ch);
 	return max_bet;
 }
 
@@ -1064,9 +1078,12 @@ int if_card_player(uint8_t number_card,uint8_t card,uint8_t select)
 interface_cmd_e if_cmd(void)
 {
 	interface_cmd_e cmd;
-	chtype ch;
+	chtype ch = ' ' | COLOR_PAIR(1) | A_BLINK;
 
 	wmove(main_win,LAST_Y,LAST_X);
+	waddch(main_win,ch);
+	wmove(main_win,LAST_Y,LAST_X);
+	draw_main_win();
 	ch = wgetch(main_win);
 	switch(ch){
 		case KEY_F(4):

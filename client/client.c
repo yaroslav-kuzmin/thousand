@@ -339,10 +339,12 @@ int check_auction(message_cmd_s * cmd)
 
 	global_log("Минимальная ставка : %d",max_bet);
 
+	if_nonblock(FALSE);
 	max_bet = if_set_bet(max_bet);
 	if(max_bet != PASS_BETS){
 		if_bet(max_bet);
 	}
+	if_nonblock(TRUE);
 	c_answer_auction(max_bet);
 
 	return SUCCESS;
