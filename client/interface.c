@@ -899,7 +899,7 @@ uint16_t if_set_bet(uint16_t min_bet)
 		}
 		else{
 			wprintw(main_win," %s%03d",o_auction.data,max_bet);
-		}	
+		}
 		ch = CURSOR_BLINK;
 		waddch(main_win,ch);
 		wmove(main_win,o_auction.y,o_auction.x);

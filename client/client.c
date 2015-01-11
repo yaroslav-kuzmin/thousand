@@ -322,6 +322,7 @@ int check_cards(message_cards_s * cmd)
 }
 int check_auction(message_cmd_s * cmd)
 {
+	uint16_t min_bet;
 	if(cmd->msg == WAIT_BETS){
 		global_log("Торги : Ожидаю очереди!");
 		return SUCCESS;
@@ -340,8 +341,9 @@ int check_auction(message_cmd_s * cmd)
 	global_log("Минимальная ставка : %d",max_bet);
 
 	if_nonblock(FALSE);
-	max_bet = if_set_bet(max_bet);
-	if(max_bet != PASS_BETS){
+	min_bet = if_set_bet(max_bet);
+	if(min_bet != PASS_BETS){
+		max_bet = min_bet;
 		if_bet(max_bet);
 	}
 	if_nonblock(TRUE);
@@ -360,7 +362,7 @@ int check_bets(message_bets_s * cmd)
 		global_log("Игрок %d : ожидает хода!",cmd->player);
 		return SUCCESS;
 	}
-	if(max_bet <= cmd->bets){
+	if(max_bet < cmd->bets){
 		max_bet = cmd->bets;
 		global_log("Игрок %d : ход : %d!",cmd->player,max_bet);
 		if_status_round(auction_round);
@@ -378,6 +380,7 @@ int check_message(all_message_u * msg)
 			if_number_round(cmd->msg);
 			if_status_round(begin_round);
 			max_bet = AUTOMAT_BETS;
+			if_bet(max_bet);
 			global_log("Номер роунда :> %d",cmd->msg);
 			break;
 		case CMD_POINT:
