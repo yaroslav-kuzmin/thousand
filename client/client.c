@@ -334,7 +334,7 @@ int check_auction(message_cmd_s * cmd)
 	}
 	/*делаем ставку */
 	if(max_bet > cmd->msg){
-		global_log("Ошибка : внутриния ставка %d больше внешняя ставка %d",max_bet,cmd->msg);
+		global_log("Ошибка : ставки не равны %d != %d",max_bet,cmd->msg);
 		return FAILURE;
 	}
 	max_bet = cmd->msg;
