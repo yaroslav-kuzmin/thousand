@@ -169,12 +169,12 @@ int ai_set_auction(uint16_t bet)
 #if 1
 /*отладка*/
 	if(bet == AUTOMAT_BETS){
-		c_answer_auction((AUTOMAT_BETS + 5));
+		c_answer_auction((AUTOMAT_BETS + MIN_ADD_BETS));
 	}
-	if(bet == (AUTOMAT_BETS + 5)){
-		c_answer_auction((AUTOMAT_BETS + 10));
+	if(bet == (AUTOMAT_BETS + MIN_ADD_BETS)){
+		c_answer_auction((AUTOMAT_BETS + (2 * MIN_ADD_BETS)));
 	}
-	if(bet >= (AUTOMAT_BETS + 10)){
+	if(bet >= (AUTOMAT_BETS + (2*MIN_ADD_BETS))){
 		c_answer_auction(PASS_BETS);
 	}
 #endif

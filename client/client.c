@@ -322,26 +322,29 @@ int check_cards(message_cards_s * cmd)
 }
 int check_auction(message_cmd_s * cmd)
 {
-	if_status_round(auction_round);
-	global_log("Торги ");
 	if(cmd->msg == WAIT_BETS){
-		global_log("Ожидаю очереди!");
+		global_log("Торги : Ожидаю очереди!");
 		return SUCCESS;
 	}
 	if(cmd->msg == PASS_BETS){
-		global_log("Пасс!!");
+		global_log("Торги : Пасс!!");
 		return SUCCESS;
 	}
 	/*делаем ставку */
 	if(max_bet > cmd->msg){
-		global_log("Ошибка : ставки не равны %d != %d",max_bet,cmd->msg);
+		global_log("Ошибка : внутриния ставка %d > внешняя ставка %d",max_bet,cmd->msg);
 		return FAILURE;
 	}
 	max_bet = cmd->msg;
 
 	global_log("Минимальная ставка : %d",max_bet);
-	if_bet(max_bet);
-
+/*
+	max_bet = if_set_bet(max_bet);
+	if(max_bet != PASS_BETS){
+		if_bet(max_bet);
+	}
+	c_answer_auction(max_bet);
+*/
 	return SUCCESS;
 }
 
@@ -355,21 +358,19 @@ int check_bets(message_bets_s * cmd)
 		global_log("Игрок %d : ожидает хода!",cmd->player);
 		return SUCCESS;
 	}
-	if(cmd->bets < max_bet){
-		global_log("Ошибка : внутриния ставка %d > внешняя ставка %d",max_bet,cmd->bets);
-		return FAILURE;
+	if(max_bet <= cmd->bets){
+		max_bet = cmd->bets;
+		global_log("Игрок %d : ход : %d!",cmd->player,max_bet);
+		if_status_round(auction_round);
+		if_bet(max_bet);
 	}
-	max_bet = cmd->bets;
-	global_log("Игрок %d : ход : %d!",cmd->player,max_bet);
-	if_bet(max_bet);
-
 	return SUCCESS;
 }
 
 int check_message(all_message_u * msg)
 {
 	message_cmd_s * cmd = (message_cmd_s*)msg;
-	global_log("тип сообщения : %d",cmd->type);
+	global_log("Тип сообщения : %d",cmd->type);
 	switch(cmd->type){
 		case CMD_NUMBER_ROUND:
 			if_number_round(cmd->msg);
@@ -409,10 +410,10 @@ int main_loop(void)
 
 	for(;;){
 		rc = c_answer_message(&message);
-		global_log("Сообщение от сервера :%d",rc);
+		/*global_log("Сообщение от сервера : %d",rc);*/
 		if(rc != NOT_DATA_OBTAIN){
 			rc = check_message(&message);
-			memset(&message,0,sizeof(all_message_u));
+		 	memset(&message,0,sizeof(all_message_u));
 		}
 
 	 	cmd = if_cmd();
@@ -422,7 +423,7 @@ int main_loop(void)
 		}
 	}
 
-	return SUCCESS;
+	return SUCCESS ;
 }
 
 /*************************************/

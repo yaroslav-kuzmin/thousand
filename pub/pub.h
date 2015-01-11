@@ -77,6 +77,7 @@
 /************* СТАВКИ ***************/
 #define MAX_BETS          300
 #define AUTOMAT_BETS      100
+#define MIN_ADD_BETS      5
 #define DO_BETS           40
 #define WAIT_BETS         30
 #define PASS_BETS         20

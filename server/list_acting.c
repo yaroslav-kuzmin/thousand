@@ -56,7 +56,8 @@
 
 typedef enum _acting_flag_e acting_flag_e;
 enum _acting_flag_e{
-	all_join_acting,
+	all_join_acting = 0,
+
 	begin_round,
 	begin_auction_round,
 	auction_round,
@@ -66,6 +67,9 @@ enum _acting_flag_e{
 	end_play_round,
 	end_round,
 	end_acting,
+
+	get_answer_player,
+
 	last_flag_acting
 };
 
@@ -404,6 +408,7 @@ static int check_begin_round(acting_s * psa)
 static int check_begin_auction_round(acting_s * psa)
 {
 	int i;
+	uint32_t flag = psa->flag;
 
 	psa->max_bets = AUTOMAT_BETS;
 	for(i = 0;i < AMOUNT_PLAYER;i++ ){
@@ -422,6 +427,8 @@ static int check_begin_auction_round(acting_s * psa)
 			psa->status_player[i] = queue_player;
 		}
 	}
+	/*Виртуально пришло первое сообщение торгов*/
+	set_bit_flag(flag,get_answer_player,1);
 
 	return SUCCESS;
 }
@@ -432,26 +439,26 @@ static int check_auction_round(acting_s * psa)
 	int rc;
 	uint16_t bets = 0;
 	user_s * ptu;
+	uint32_t flag = psa->flag;
+
+	global_log("Торги ");
+g_message("auction");
+	/*Проверка пришло сообщение от игроков*/
+	rc = check_bit_flag(flag,get_answer_player,1);
+	if(rc == NO){
+		return FAILURE;
+	}
 
 	for(i = 0;i < AMOUNT_PLAYER;i++){
-		if(psa->status_player[i] == pass_player){
-			bets ++;
-		}
-	}
-	if(bets == (AMOUNT_PLAYER -1)){
-		return SUCCESS;/*два игрока спасовали*/
-	}
-
-	for(i = 0;i < AMOUNT_PLAYER;i++){
-		ptu = psa->player[i];
+		 ptu = psa->player[i];
 
 		rc = s_cmd_bets(ptu,PLAYER_CENTR,psa->bets[PLAYER_CENTR]);
 		rc = s_cmd_bets(ptu,PLAYER_LEFT,psa->bets[PLAYER_LEFT]);
 		rc = s_cmd_bets(ptu,PLAYER_RIGHT,psa->bets[PLAYER_RIGHT]);
 
 		switch(psa->status_player[i]){
-			case bets_player:
-				bets = psa->max_bets;
+		 	case bets_player:
+		 		bets = psa->max_bets;
 				break;
 			case pass_player:
 				bets = PASS_BETS;
@@ -464,14 +471,14 @@ static int check_auction_round(acting_s * psa)
 				bets = WAIT_BETS;
 				break;
 		}
-
 		rc = s_cmd_auction(ptu,bets);
 		if(rc == FAILURE){
 			del_user_list(ptu->fd,NOT_ACTING_DEL);
-			return FAILURE;
+			return SUCCESS;
 		}
 	}
-
+	/*Ожидаем сообщение от игроков*/
+	unset_bit_flag(flag,get_answer_player,1);
 	return FAILURE;
 }
 
@@ -600,14 +607,58 @@ static int check_acting_server(acting_s * psa)
 
 static int check_auction_user(acting_s * psa,int number,uint16_t bet)
 {
-				if(bet < psa->max_bet){
-					bet = PASS_BETS;
-				}
-				if(bet > MAX_BETS){
-					bet = PASS_BETS;
-				}
-				psa->bets[number] = bet;
+	int i;
+	uint32_t flag = psa->flag;
+	uint16_t t = bet;
 
+	if(psa->status_player[number] != bets_player ){
+		global_log ("Сообщение ставка пришло нет ожидаемого игрока ; %d",number);
+		return FAILURE;
+	}
+
+	if(bet < psa->max_bets){
+		t = PASS_BETS;
+	}
+	if(bet > MAX_BETS){
+		t = PASS_BETS;
+	}
+	psa->bets[number] = t;
+
+	if(t == PASS_BETS){
+		psa->status_player[number] = pass_player;
+	}
+	else{
+		psa->max_bets = t;
+		psa->status_player[number] = queue_player;
+	}
+
+	for(i = 0,t = 0;i < AMOUNT_PLAYER;i++){
+		if(psa->status_player[i] == pass_player){
+			t ++;
+		}
+	}
+	if(t == (AMOUNT_PLAYER - 1)){
+		/*Аукцион окончен*/
+		unset_bit_flag(flag,auction_round,1);
+		set_bit_flag(flag,end_auction_round,1);
+		return SUCCESS;/*два игрока спасовали*/
+	}
+
+	t = number + 1;
+	for(i = 0;i < AMOUNT_PLAYER;i++){
+		if(t == (PLAYER_RIGHT + 1)){
+			t = PLAYER_CENTR;
+		}
+		if(psa->status_player[t] == queue_player){
+			psa->status_player[t] = bets_player;
+			break;
+		}
+		t++;
+	}
+
+	set_bit_flag(flag,get_answer_player,1);
+	global_log("Игрок %d сделал ставку : %d",number,bet);
+	return SUCCESS;
 }
 
 static int check_acting_user(acting_s * psa,int number)
@@ -623,17 +674,17 @@ static int check_acting_user(acting_s * psa,int number)
 	}
 	switch(cmd->type){
 	 	case CMD_CHECK_CONNECT:
-	 		global_log( "проверка соединения от игрока : %s",psu->name);
+	 		global_log( "проверка соединения от игрока : %s",ptu->name);
 			break;
 		case CMD_GAME_OVER:
-	 		global_ log("Команда \'завершение игры\' от игрока : %s",psu->name);
+	 		global_log("Команда \'завершение игры\' от игрока : %s",ptu->name);
 			rc = DELETE_ACTING_USER;
 			break;
 		case CMD_AUCTION:
 			check_auction_user(psa,number,cmd->msg);
 			break;
 		default:
-			global_log("Неизвестная команда %#x от игрока : %s",cmd->type,psu->name);
+			global_log("Неизвестная команда %#x от игрока : %s",cmd->type,ptu->name);
 #if 0
 /*TODO обработка некоректных команд*/
 			del_user_list(psu->fd,NOT_ACTING_DEL);
@@ -641,22 +692,17 @@ static int check_acting_user(acting_s * psa,int number)
 #endif
 			break;
 	}
-	del_message_list(psu,lm);
+	del_message_list(ptu,lm);
 	return rc;
 }
 
 static gboolean check_acting(gpointer psa,gpointer dupsa,gpointer data)
 {
-	int rc;
+ 	int rc;
 	int i;
 	acting_s * pta = (acting_s *)psa;
 	user_s * ptu;
 	uint32_t flag;
-
-	rc = check_acting_server(pta);
-	if(rc == DELETE_ACTING_SERVER){
-		return delete_acting(pta,NULL);
-	}
 
 	for(i = 0;i < AMOUNT_PLAYER;i++){
 		ptu = pta->player[i];
@@ -674,11 +720,16 @@ static gboolean check_acting(gpointer psa,gpointer dupsa,gpointer data)
 			continue;
 		}
 		rc = check_acting_user(pta,i);
+		/*игрок удалил игру*/
 		if(rc == DELETE_ACTING_USER){
 			return delete_acting(pta,ptu);
 		}
 	}
 
+	rc = check_acting_server(pta);
+	if(rc == DELETE_ACTING_SERVER){
+		return delete_acting(pta,NULL);
+	}
 	return FALSE;
 }
 
