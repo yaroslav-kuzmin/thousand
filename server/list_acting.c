@@ -612,7 +612,7 @@ static int check_auction_user(acting_s * psa,int number,uint16_t bet)
 	uint16_t t = bet;
 
 	if(psa->status_player[number] != bets_player ){
-		global_log ("Сообщение ставка пришло нет ожидаемого игрока ; %d",number);
+		global_log ("Сообщение \"ставка\" пришло нет ожидаемого игрока ; %d",number);
 		return FAILURE;
 	}
 
@@ -622,15 +622,20 @@ static int check_auction_user(acting_s * psa,int number,uint16_t bet)
 	if(bet > MAX_BETS){
 		t = PASS_BETS;
 	}
-	psa->bets[number] = t;
 
 	if(t == PASS_BETS){
 		psa->status_player[number] = pass_player;
 	}
 	else{
+		if(t % MIN_ADD_BETS){ /*Проверка */
+			uint16_t n = t % MIN_ADD_BETS;
+			n = MIN_ADD_BETS - n;
+			t += n;
+		}
 		psa->max_bets = t;
 		psa->status_player[number] = queue_player;
 	}
+	psa->bets[number] = t;
 
 	for(i = 0,t = 0;i < AMOUNT_PLAYER;i++){
 		if(psa->status_player[i] == pass_player){

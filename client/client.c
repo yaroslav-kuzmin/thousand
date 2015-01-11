@@ -338,13 +338,13 @@ int check_auction(message_cmd_s * cmd)
 	max_bet = cmd->msg;
 
 	global_log("Минимальная ставка : %d",max_bet);
-/*
+
 	max_bet = if_set_bet(max_bet);
 	if(max_bet != PASS_BETS){
 		if_bet(max_bet);
 	}
 	c_answer_auction(max_bet);
-*/
+
 	return SUCCESS;
 }
 

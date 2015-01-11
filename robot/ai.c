@@ -157,25 +157,27 @@ int ai_set_card(int amount,uint8_t * cards)
 
 int ai_set_auction(uint16_t bet)
 {
-	global_log("Торги : %d",bet);
 	if(bet == PASS_BETS){
-		global_log("спасовал");
+		global_log("Торги : спасовал");
 		return SUCCESS;
 	}
 	if(bet == WAIT_BETS){
-		global_log("ожидаю хода");
+		global_log("Торги : ожидаю хода");
 		return SUCCESS;
 	}
 #if 1
 /*отладка*/
 	if(bet == AUTOMAT_BETS){
 		c_answer_auction((AUTOMAT_BETS + MIN_ADD_BETS));
+		global_log("Торги : сделал ставку %d",(AUTOMAT_BETS + MIN_ADD_BETS));
 	}
 	if(bet == (AUTOMAT_BETS + MIN_ADD_BETS)){
 		c_answer_auction((AUTOMAT_BETS + (2 * MIN_ADD_BETS)));
+		global_log("Торги : сделал ставку %d",(AUTOMAT_BETS + (2*MIN_ADD_BETS)));
 	}
 	if(bet >= (AUTOMAT_BETS + (2*MIN_ADD_BETS))){
 		c_answer_auction(PASS_BETS);
+		global_log("Торги : спасовал");
 	}
 #endif
 

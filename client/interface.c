@@ -817,6 +817,7 @@ int if_player_point(uint16_t point)
 	draw_main_win();
 	return SUCCESS;
 }
+
 int if_player_bolt(uint8_t bolt)
 {
 	wmove(main_win,o_bolt.y,o_bolt.x);
@@ -824,6 +825,7 @@ int if_player_bolt(uint8_t bolt)
 	draw_main_win();
 	return SUCCESS;
 }
+
 int if_player_status(status_player_e st)
 {
 	char * str;
@@ -846,6 +848,14 @@ int if_player_status(status_player_e st)
 	draw_main_win();
 	return SUCCESS;
 }
+
+uint16_t if_set_bet(uint16_t min_bet)
+{
+	uint16_t max_bet = PASS_BETS;
+
+	return max_bet;
+}
+
 /*************************************/
 /* отображение стола раздачи         */
 /* отображение карт на столе                 */
