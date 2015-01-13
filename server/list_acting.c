@@ -441,14 +441,16 @@ static int check_auction_round(acting_s * psa)
 	user_s * ptu;
 	uint32_t flag = psa->flag;
 
-	global_log("Торги ");
+	/*global_log("Торги ");*/
 g_message("auction");
 	/*Проверка пришло сообщение от игроков*/
 	rc = check_bit_flag(flag,get_answer_player,1);
 	if(rc == NO){
 		return FAILURE;
 	}
-
+g_message("PLAYER_CENTR : %d",psa->bets[PLAYER_CENTR]);
+g_message("PLAYER_LEFT  : %d",psa->bets[PLAYER_LEFT]);
+g_message("PLAYER_RIGHT : %d",psa->bets[PLAYER_RIGHT]);
 	for(i = 0;i < AMOUNT_PLAYER;i++){
 		 ptu = psa->player[i];
 
@@ -484,6 +486,7 @@ g_message("auction");
 
 static int check_end_auction_round(acting_s * psa)
 {
+	g_message("end auction!");
 	return FAILURE;
 }
 
@@ -615,6 +618,7 @@ static int check_auction_user(acting_s * psa,int number,uint16_t bet)
 		global_log ("Сообщение \"ставка\" пришло нет ожидаемого игрока ; %d",number);
 		return FAILURE;
 	}
+g_message(" message user : %d - %d",number,bet);
 
 	if(bet < psa->max_bets){
 		t = PASS_BETS;
@@ -624,6 +628,7 @@ static int check_auction_user(acting_s * psa,int number,uint16_t bet)
 	}
 
 	if(t == PASS_BETS){
+g_message("player pass");
 		psa->status_player[number] = pass_player;
 	}
 	else{
@@ -790,11 +795,11 @@ int current_actings(void)
 {
 	int rc;
 
-	g_message("current acting : %p",all_acting);
+	/*g_message("current acting : %p",all_acting);*/
 
 	rc = g_hash_table_foreach_remove(all_acting,check_acting,NULL);
 
-	global_log("Проверили текущие игры : %d",rc);
+	/*global_log("Проверили текущие игры : %d",rc);*/
 
  	return SUCCESS;
 }

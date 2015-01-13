@@ -234,7 +234,7 @@ static int check_message(void)
 	message_cmd_s * cmd = (message_cmd_s*)&message;
 	switch(cmd->type){
 		case CMD_CHECK_CONNECT:
-			global_log("Проверка соединения!");
+			/*global_log("Проверка соединения!");*/
 			break;
 		case CMD_GAME_OVER:
 			global_log("Пришла команда \'игра окончена\'!");
@@ -293,7 +293,7 @@ int main_loop(void)
 				break;
 			}
 		}
-		global_log("Ожидание сообщения!");
+		/*global_log("Ожидание сообщения!");*/
 		sleep(WAITING_SECONDS);
 	}
 

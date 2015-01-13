@@ -116,7 +116,7 @@ g_message("New check !");
 			fd = ptu->fd;
 			rc = recv(fd,t_buff,SIZE_TEMP_BUFF,0);
 			if(rc > 0){
-g_message(" read fd : %d | rc : %d",fd,rc);
+/*g_message(" read fd : %d | rc : %d",fd,rc);*/
 				write_message_list(ptu,t_buff,rc);
 			}
 			else{
@@ -126,7 +126,7 @@ g_message(" read fd : %d | rc : %d",fd,rc);
 						goto check_timeout;
 					}
 					else{
-						/* TODO проверка ошибки*/
+						/*TODO проверка ошибки*/
 						global_log("Ошибка в соединении : %d : %s",fd,strerror(errno));
 						/*TODO удаляется игрок из списка и указатель списка переходит в начало (( */
 						del_user_list(fd,NOT_ACTING_DEL);
@@ -172,7 +172,7 @@ check_timeout:
 /*TODO */
 		if(amount_sig_io <= 1){
 			amount_sig_io = 0;
-g_message("Pause!");
+/*g_message("Pause!");*/
 			rc = pause();
 		}
 		else{

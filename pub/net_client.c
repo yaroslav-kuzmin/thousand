@@ -244,7 +244,7 @@ int c_answer_access_server(void)
 
 	rc = read_socket((uint8_t**)&msg,sizeof(message_cmd_s));
 	if(rc == NOT_DATA_OBTAIN){
-	 	global_log("Нет сообщений от сервера!");
+		 /*global_log("Нет сообщений от сервера!");*/
 	 	return rc;
 	}
 	/*TODO проверка на неполный пакет */
@@ -407,7 +407,7 @@ int c_answer_auction(uint16_t bet)
 	rc = write_socket((uint8_t *)&cmd,sizeof(message_cmd_s));
 	if(rc == SUCCESS){
 		number_packed++;
-		global_log("Сделал ставку : %d",bet);
+		/*global_log("Сделал ставку : %d",bet);*/
 	}
 	return rc;
 }

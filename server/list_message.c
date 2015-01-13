@@ -68,7 +68,7 @@ int write_message_list(user_s * psu,uint8_t * buf,int len)
 
 	psu->buffer = array;
 	/*DEBUG*/
-	g_message("wm : %d : %d",psu->fd,len);
+	/*g_message("wm : %d : %d",psu->fd,len);*/
 
 	return SUCCESS;
 }
@@ -88,7 +88,7 @@ int del_message_list(user_s * psu,int len)
 	GByteArray * array = psu->buffer;
 
 	/*DEBUG*/
-	g_message("dm : %d : %d",psu->fd,len);
+	/*g_message("dm : %d : %d",psu->fd,len);*/
 
 	array = g_byte_array_remove_range(array,0,len);
 	if(array->len == 0){

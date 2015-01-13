@@ -48,6 +48,7 @@ int if_partner_right_card(uint8_t card);
 int if_number_round(uint16_t round);
 int if_status_round(status_round_e sr);
 int if_bet(uint16_t bet);
+uint16_t if_set_bet(uint16_t min_bet);
 int if_player_point(uint16_t point);
 int if_player_bolt(uint8_t bolt);
 int if_player_status(status_player_e st);
