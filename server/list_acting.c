@@ -85,6 +85,7 @@ struct _acting_s
 	status_player_e status_player[AMOUNT_PLAYER];
 	deck_cards_s * deck;
 	uint8_t * cards_player[AMOUNT_PLAYER];
+	uint8_t * cards_deal;
 	uint16_t bets[AMOUNT_PLAYER]; /*Ставки игроков*/
 	uint16_t max_bets;            /*Максимальная ставка*/
 };
@@ -164,6 +165,7 @@ static int create_acting(user_s * psu)
 	pta->cards_player[PLAYER_CENTR] = pta->deck->dealing[PLAYER_CENTR];
 	pta->cards_player[PLAYER_LEFT] = pta->deck->dealing[PLAYER_LEFT];
 	pta->cards_player[PLAYER_RIGHT] = pta->deck->dealing[PLAYER_RIGHT];
+	pta->cards_deal = pta->deck->deal;
 
 	g_hash_table_add(all_acting,pta);
 
@@ -451,13 +453,15 @@ g_message("auction");
 g_message("PLAYER_CENTR : %d",psa->bets[PLAYER_CENTR]);
 g_message("PLAYER_LEFT  : %d",psa->bets[PLAYER_LEFT]);
 g_message("PLAYER_RIGHT : %d",psa->bets[PLAYER_RIGHT]);
-	for(i = 0;i < AMOUNT_PLAYER;i++){
-		 ptu = psa->player[i];
 
+	for(i = 0;i < AMOUNT_PLAYER;i++){
+		ptu = psa->player[i];
 		rc = s_cmd_bets(ptu,PLAYER_CENTR,psa->bets[PLAYER_CENTR]);
 		rc = s_cmd_bets(ptu,PLAYER_LEFT,psa->bets[PLAYER_LEFT]);
 		rc = s_cmd_bets(ptu,PLAYER_RIGHT,psa->bets[PLAYER_RIGHT]);
-
+	}
+	for(i = 0;i < AMOUNT_PLAYER;i++){
+		ptu = psa->player[i];
 		switch(psa->status_player[i]){
 		 	case bets_player:
 		 		bets = psa->max_bets;
@@ -486,12 +490,42 @@ g_message("PLAYER_RIGHT : %d",psa->bets[PLAYER_RIGHT]);
 
 static int check_end_auction_round(acting_s * psa)
 {
+	int i,rc;
+	user_s * ptu;
+	uint32_t flag = psa->flag;
 	g_message("end auction!");
-	return FAILURE;
+
+	for(i = 0;i < AMOUNT_PLAYER;i++){
+		ptu = psa->player[i];
+		rc = s_cmd_bets(ptu,PLAYER_CENTR,psa->bets[PLAYER_CENTR]);
+		rc = s_cmd_bets(ptu,PLAYER_LEFT,psa->bets[PLAYER_LEFT]);
+		rc = s_cmd_bets(ptu,PLAYER_RIGHT,psa->bets[PLAYER_RIGHT]);
+		/*TODO сообщение не отправлено*/
+	}
+	for(i = 0;i < AMOUNT_PLAYER;i++){
+		if(psa->status_player[i] == bets_player){/*игрок сделавший максимальную стаку*/
+			ptu = psa->player[i];
+			rc = s_cmd_card_player(ptu,AMOUNT_CARD_DEAL,psa->cards_deal);
+			/*TODO сообщение не отправлено*/
+g_message("player %d",i);
+		}
+	}
+	/*Ожидаем сообщение от игрока */
+	unset_bit_flag(flag,get_answer_player,1);
+
+	return SUCCESS;
 }
 
 static int check_begin_play_round(acting_s * psa)
 {
+	int rc;
+	uint32_t flag = psa->flag;
+
+g_message("begin play round");
+	rc = check_bit_flag(flag,get_answer_player,1);
+	if(rc == NO){
+		return FAILURE;
+	}
 	return FAILURE;
 }
 

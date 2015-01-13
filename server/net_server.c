@@ -452,7 +452,7 @@ int s_cmd_statys_player(user_s * psu,uint8_t player,uint8_t status)
 
 	return rc;
 }
-/**/
+/* Отпрака карт*/
 int s_cmd_card_player(user_s * psu,uint8_t amount,uint8_t * card )
 {
 	int rc;

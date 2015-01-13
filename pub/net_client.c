@@ -308,7 +308,7 @@ int c_answer_new_acting(uint16_t * acting,uint8_t * player)
 
 	rc = read_socket((uint8_t**)&cmd,sizeof(message_acting_s));
 	if(rc == NOT_DATA_OBTAIN){
-		global_log("Нет сообщений от сервера!");
+		/*global_log("Нет сообщений от сервера!");*/
 		return rc;
 	}
 
@@ -338,7 +338,7 @@ int c_answer_join_acting(uint16_t * acting,uint8_t * player)
 
 	rc = read_socket((uint8_t**)&cmd,sizeof(message_acting_s));
 	if(rc == NOT_DATA_OBTAIN){
-		global_log("Нет сообщений от сервера!");
+		/*global_log("Нет сообщений от сервера!");*/
 		return rc;
 	}
 	if(cmd->type != CMD_JOIN_ACTING){
@@ -366,7 +366,7 @@ int c_answer_name_partner(uint8_t * number,char ** name)
 
 	rc = read_socket((uint8_t**)&msg,sizeof(message_player_s));
 	if(rc == NOT_DATA_OBTAIN){
-		global_log("Нет сообщений от сервера!");
+		/*global_log("Нет сообщений от сервера!");*/
 		return rc ;
 	}
 
@@ -407,9 +407,27 @@ int c_answer_auction(uint16_t bet)
 	rc = write_socket((uint8_t *)&cmd,sizeof(message_cmd_s));
 	if(rc == SUCCESS){
 		number_packed++;
-		/*global_log("Сделал ставку : %d",bet);*/
+		/*global_l og("Сделал ставку : %d",bet);*/
 	}
 	return rc;
+}
+
+int c_cmd_bet(uint8_t number,uint16_t bet)
+{
+	int rc;
+	message_bets_s cmd;
+	cmd.number = number_packed;
+	cmd.type = MESSAGE_BETS;
+	cmd.player = number;
+	cmd.bets = bet;
+
+	rc = write_socket((uint8_t *)&cmd,sizeof(message_bets_s));
+	if(rc == SUCCESS){
+		number_packed++;
+		/*global_l og("Сделал ставку : %d",bet);*/
+	}
+	return rc;
+
 }
 
 int c_answer_message(all_message_u * msg)
@@ -417,8 +435,9 @@ int c_answer_message(all_message_u * msg)
 	int rc;
 	rc = read_socket((uint8_t**)&msg,sizeof(all_message_u));
 	if(rc == NOT_DATA_OBTAIN){
-		global_log("Нет сообщений от сервера!");
+		/*global_log("Нет сообщений от сервера!");*/
 	}
 	return rc;
 }
+
 /*****************************************************************************/

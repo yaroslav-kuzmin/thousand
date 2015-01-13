@@ -342,18 +342,16 @@ int check_auction(message_cmd_s * cmd)
 
 	if_nonblock(FALSE);
 	min_bet = if_set_bet(max_bet);
-
-	if(min_bet != PASS_BETS){
+	if(min_bet > max_bet){
+		max_bet = min_bet;
 		if_bet(max_bet);
 	}
-	max_bet = min_bet;
 	if_nonblock(TRUE);
 	global_log("Моя ставка : %d",max_bet);
 	c_answer_auction(max_bet);
 
 	return SUCCESS;
 }
-
 int check_bets(message_bets_s * cmd)
 {
 	if(cmd->bets == PASS_BETS){
@@ -381,8 +379,7 @@ int check_message(all_message_u * msg)
 		case CMD_NUMBER_ROUND:
 			if_number_round(cmd->msg);
 			if_status_round(begin_round);
-			max_bet = AUTOMAT_BETS;
-			if_bet(max_bet);
+			max_bet = AUTOMAT_BETS - MIN_ADD_BETS; /*для первичной прорисовки начала аукциона*/
 			global_log("Номер роунда :> %d",cmd->msg);
 			break;
 		case CMD_POINT:
