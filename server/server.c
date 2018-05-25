@@ -131,13 +131,13 @@ int set_signals(void)
 		return FAILURE;
 	}
 
-	act.sa_handler = handler_timer;
+	act.sa_handler = &handler_timer;
 	if(sigaction(SIGALRM, &act, NULL) < 0){
 		perror("sigaction failed SIGALRM");
 		return FAILURE;
 	}
 
-	act.sa_sigaction = sigaction_io;
+	act.sa_sigaction = &sigaction_io;
 	act.sa_flags = SA_SIGINFO;
 	if(sigaction(SIGIO, &act, NULL) < 0){
 		perror("sigaction failed SIGIO");

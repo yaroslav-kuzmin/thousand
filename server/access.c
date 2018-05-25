@@ -320,7 +320,7 @@ int access_users(int * success)
 	uint32_t flag;
 	int rc;
 
-	
+
 	ptu = get_first_user_list();
 	for(;ptu != NULL;ptu = get_next_user_list()){
 	 	flag = ptu->flag;
@@ -343,7 +343,7 @@ int access_users(int * success)
 	 		 	continue;
 			}
 		}
-		
+
 		rc = check_bit_flag(flag,message_user,1);
 		if(rc == NO){
 			exit++;
